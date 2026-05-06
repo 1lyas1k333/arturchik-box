@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой магазин - Футболка Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .cart-count {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .product-card {
+            max-width: 550px;
+            margin: 80px auto 0;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            padding: 35px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .description {
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .size-selector {
+            margin: 20px 0;
+        }
+
+        .size-selector label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .size-buttons {
+            display: inline-flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .size-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        .size-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .size-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .add-to-cart {
+            background: #667eea;
+            width: 100%;
+            font-size: 18px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: scale(0.98);
+            filter: brightness(1.05);
+        }
+
+        /* Уведомление (тост) */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 380px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.3);
+            z-index: 1001;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .cart-modal.open {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .cart-header h2 {
+            font-size: 24px;
+        }
+
+        .clear-cart {
+            background: #ff4444;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .clear-cart:hover {
+            background: #cc0000;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .item-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            background: #f0f0f0;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .remove-item {
+            background: #ff4444;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: right;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .checkout-btn {
+            background: #28a745;
+            width: 100%;
+            font-size: 18px;
+            padding: 15px;
+        }
+
+        .checkout-btn:hover {
+            background: #218838;
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            z-index: 1002;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .payment-modal.open {
+            display: block;
+        }
+
+        .payment-modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .payment-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 2px solid #f0f0f0;
+        }
+
+        .demo-qr {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: repeating-linear-gradient(
+                45deg,
+                #000,
+                #000 10px,
+                #fff 10px,
+                #fff 20px
+            );
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-qr::before {
+            content: "📱";
+            font-size: 60px;
+            position: absolute;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .payment-note {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .close-payment {
+            background: #667eea;
+            padding: 12px 25px;
+            margin-top: 10px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        .overlay.open {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .product-card {
+                margin: 60px 10px 0;
+                padding: 20px;
+            }
+            .cart-modal {
+                width: 100%;
+            }
+            .size-buttons {
+                flex-wrap: wrap;
+            }
+            .payment-modal {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cart-icon" onclick="toggleCart()">
+    🛒 <span class="cart-count" id="cartCount">0</span>
+</div>
+
+<div class="product-card">
+    <div class="product-image">👕</div>
+    <h1>Футболка Premium</h1>
+    <div class="price">1 990 ₽</div>
+    <div class="description">
+        ✨ Премиальная футболка из 100% хлопка ✨<br>
+        Дышащая ткань, усиленные швы, стильный дизайн
+    </div>
+    
+    <div class="size-selector">
+        <label>📏 Выберите размер:</label>
+        <div class="size-buttons">
+            <button class="size-btn" onclick="selectSize('S')">S</button>
+            <button class="size-btn selected" onclick="selectSize('M')">M</button>
+            <button class="size-btn" onclick="selectSize('L')">L</button>
+            <button class="size-btn" onclick="selectSize('XL')">XL</button>
+        </div>
+    </div>
+    
+    <button class="add-to-cart" onclick="addToCart()">🛍️ Добавить в корзину</button>
+</div>
+
+<!-- Уведомление -->
+<div class="toast" id="toast">✓ Товар добавлен в корзину</div>
+
+<div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+
+<div class="cart-modal" id="cartModal">
+    <div class="cart-header">
+        <h2>🛒 Корзина</h2>
+        <button class="clear-cart" onclick="clearCart()">Очистить</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+        <p style="text-align: center; color: #999;">Корзина пуста</p>
+    </div>
+    <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+    <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
+</div>
+
+<div class="payment-modal" id="paymentModal">
+    <h2>💳 Оплата через СБП</h2>
+    <div class="payment-amount" id="paymentAmount">0 ₽</div>
+    <div class="qr-container">
+        <div class="demo-qr"></div>
+        <div class="qr-text">📱 Отсканируйте QR-код в приложении вашего банка</div>
+    </div>
+    <div class="payment-note">
+        🔔 <strong>Демо-режим</strong><br>
+        В боевой версии здесь будет настоящий QR-код для оплаты через СБП
+    </div>
+    <button class="close-payment" onclick="completePayment()">✅ Я оплатил(а)</button>
+</div>
+
+<script>
+    let cart = [];
+    let selectedSize = 'M';
+
+    function selectSize(size) {
+        selectedSize = size;
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.textContent === size) {
+                btn.classList.add('selected');
+            }
+        });
+    }
+
+    function loadCart() {
+        const saved = localStorage.getItem('cart');
+        if (saved) {
+            cart = JSON.parse(saved);
+        }
+        updateUI();
+    }
+
+    function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    // Показать уведомление
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message || '✓ Товар добавлен в корзину';
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+
+    function addToCart() {
+        const product = {
+            id: Date.now(),
+            name: 'Футболка Premium',
+            size: selectedSize,
+            price: 1990,
+            quantity: 1
+        };
+
+        const existing = cart.find(item => item.name === product.name && item.size === product.size);
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push(product);
+        }
+
+        saveCart();
+        updateUI();
+        
+        // Показываем уведомление вместо открытия корзины
+        showToast(`✓ ${product.name} (${product.size}) добавлена в корзину`);
+        
+        // Анимация кнопки
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Добавлено!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 1000);
+        
+        // Корзина НЕ открывается автоматически
+    }
+
+    function changeQuantity(id, delta) {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            saveCart();
+            updateUI();
+        }
+    }
+
+    function removeItem(id) {
+        cart = cart.filter(item => item.id !== id);
+        saveCart();
+        updateUI();
+    }
+
+    function clearCart() {
+        if (confirm('Очистить всю корзину?')) {
+            cart = [];
+            saveCart();
+            updateUI();
+        }
+    }
+
+    function getTotalPrice() {
+        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }
+
+    function updateUI() {
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cartCount').textContent = count;
+        
+        const cartItems = document.getElementById('cartItems');
+        const total = getTotalPrice();
+        
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
+        } else {
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-size">Размер: ${item.size}</div>
+                        <div class="item-price">${item.price} ₽</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                        <span style="min-width: 30px; text-align: center;">${item.quantity}</span>
+                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                        <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
+    }
+
+    function openPaymentModal() {
+        if (cart.length === 0) {
+            showToast('Корзина пуста! Добавьте товар');
+            return;
+        }
+        
+        const total = getTotalPrice();
+        document.getElementById('paymentAmount').textContent = total + ' ₽';
+        document.getElementById('paymentModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+    }
+
+    function completePayment() {
+        document.getElementById('paymentModal').classList.remove('open');
+        
+        cart = [];
+        saveCart();
+        updateUI();
+        closeCart();
+        document.getElementById('overlay').classList.remove('open');
+        
+        showToast('✅ Спасибо за покупку!');
+    }
+
+    function toggleCart() {
+        const modal = document.getElementById('cartModal');
+        const overlay = document.getElementById('overlay');
+        modal.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
+
+    function closeCart() {
+        document.getElementById('cartModal').classList.remove('open');
+    }
+
+    function closeAllModals() {
+        document.getElementById('cartModal').classList.remove('open');
+        document.getElementById('paymentModal').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+    }
+
+    loadCart();
+</script>
+
+</body>
+</html>
