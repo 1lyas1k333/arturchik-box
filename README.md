@@ -1,2 +1,2 @@
-# my-shop
+# arturchik-box
 Мой интернет-магазин
