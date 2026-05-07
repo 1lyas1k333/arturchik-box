@@ -86,7 +86,7 @@
             }
         }
 
-                .product-image {
+        .product-image {
             width: 750px;
             height: 550px;
             margin: 0 auto 25px;
@@ -116,13 +116,12 @@
             width: 100%;
             height: 100%;
             border-radius: 35px;
-            background-size: contain;
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-color: #0d1f0d;
         }
 
-        
         .slide.active {
             z-index: 1;
         }
@@ -425,6 +424,12 @@
             padding: 12px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+        .cart-item span {
+            color: white;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
 
         .item-info {
             flex: 1;
@@ -612,33 +617,7 @@
             display: block;
         }
 
-        @media (max-width: 600px) {
-            .product-card {
-                margin: 60px 10px 0;
-                padding: 20px;
-            }
-            .cart-modal {
-                width: 100%;
-            }
-            .size-buttons {
-                flex-direction: column;
-            }
-            .steps {
-                flex-direction: column;
-            }
-            .payment-modal {
-                padding: 25px;
-            }
-            .size-table th, .size-table td {
-                padding: 8px;
-                font-size: 12px;
-            }
-            .product-image {
-                width: 300px;
-                height: 300px;
-            }
-        }
-                /* Адаптация для мобильных устройств */
+        /* Адаптация для мобильных устройств */
         @media (max-width: 800px) {
             .product-image {
                 width: 500px;
@@ -679,6 +658,239 @@
                 height: 200px;
             }
         }
+
+        /* Стили для формы в корзине */
+        .customer-form {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .customer-form h3 {
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 5px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 5px rgba(74,222,128,0.3);
+        }
+        .cart-modal {
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        /* Кнопки входа и регистрации */
+        .auth-buttons {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        .auth-btn {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #2d8c4e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .auth-btn:hover {
+            background: #2d8c4e;
+            transform: scale(1.05);
+        }
+        .user-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #2d8c4e;
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            z-index: 100;
+        }
+        .user-name {
+            color: #2d8c4e;
+            font-weight: bold;
+        }
+        .logout-link {
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Модальные окна для входа/регистрации */
+        .modal-auth {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0d1f0d;
+            padding: 30px;
+            border-radius: 30px;
+            z-index: 1002;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #2d8c4e;
+            animation: zoomIn 0.3s ease;
+        }
+        .modal-auth.open {
+            display: block;
+        }
+        .modal-auth h3 {
+            color: #2d8c4e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .modal-auth input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #2d8c4e;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 14px;
+        }
+        .modal-auth button {
+            width: 100%;
+            padding: 12px;
+            background: #2d8c4e;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .modal-auth button:hover {
+            background: #1a5f3a;
+        }
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+            color: #ccc;
+            font-size: 14px;
+        }
+        .auth-switch span {
+            color: #2d8c4e;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .auth-error {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        /* Личный кабинет */
+        .cabinet-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0d1f0d;
+            padding: 30px;
+            border-radius: 30px;
+            z-index: 1002;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #2d8c4e;
+        }
+        .cabinet-modal.open {
+            display: block;
+            animation: zoomIn 0.3s ease;
+        }
+        .cabinet-modal h3 {
+            color: #2d8c4e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .order-history-item {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .order-history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .order-id {
+            color: #2d8c4e;
+            font-weight: bold;
+        }
+        .order-status {
+            color: #ffaa44;
+        }
+        .order-total {
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: right;
+        }
+                /* Стили для личного кабинета - белый текст */
+        .cabinet-modal .order-history-item {
+            color: white;
+        }
+        .cabinet-modal .order-history-item div {
+            color: white;
+        }
+        .cabinet-modal .order-total {
+            color: #2d8c4e;
+            font-weight: bold;
+        }
+        .cabinet-modal .order-date {
+            color: #aaa;
+        }
+        .cabinet-modal p {
+            color: white;
+        }
+        .user-name {
+            color: #2d8c4e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-name:hover {
+            color: #4ade80;
+            text-decoration: underline;
+        }
+                /* Стили для статистики в личном кабинете */
+        .cabinet-modal .stats-text {
+            color: white;
+        }
+        .cabinet-modal .stats-number {
+            color: #2d8c4e;
+            font-weight: bold;
+        }
+        /* Белый текст для всех div внутри кабинета */
+        .cabinet-modal div {
+            color: white;
+        }
+        /* Но для статистики оставляем зелёные цифры */
+        .cabinet-modal .stats-number {
+            color: #2d8c4e;
+        }
     </style>
 </head>
 <body>
@@ -688,7 +900,7 @@
 </div>
 
 <div class="product-card">
-        <div class="product-image" id="productImage">
+    <div class="product-image" id="productImage">
         <div class="slides-container" id="slidesContainer">
             <div class="slide active" style="background-image: url('https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 35px;"></div>
         </div>
@@ -729,27 +941,27 @@
         </div>
     </div>
 
-            <div class="section">
-            <h3>📏 Размерная сетка</h3>
-            <table class="size-table">
-                <thead>
-                    <tr>
-                        <th>Размер</th>
-                        <th>Рост (см)</th>
-                        <th>Ширина груди (см)</th>
-                        <th>Длина (см)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>XS</td><td>158-164</td><td>46</td><td>68</td></tr>
-                    <tr><td>S</td><td>164-172</td><td>48</td><td>71</td></tr>
-                    <tr><td>M</td><td>172-180</td><td>50</td><td>73</td></tr>
-                    <tr><td>L</td><td>180-188</td><td>52</td><td>75</td></tr>
-                    <tr><td>XL</td><td>188-196</td><td>54</td><td>77</td></tr>
-                </tbody>
-            </table>
-            <p style="font-size: 12px; color: #aaa; margin-top: 10px;">* Размеры указаны в сантиметрах. Возможны отклонения ±1-2 см.</p>
-        </div>
+                <div class="section">
+                <h3>📏 Размерная сетка</h3>
+                <table class="size-table">
+                    <thead>
+                        <tr>
+                            <th>Размер</th>
+                            <th>Рост (см)</th>
+                            <th>Ширина груди (см)</th>
+                            <th>Длина (см)</th>
+                        </td>
+                    </thead>
+                    <tbody>
+                        <tr><td>XS</td><td>158-164</td><td>46</td><td>68</td></tr>
+                        <tr><td>S</td><td>164-172</td><td>48</td><td>71</td></tr>
+                        <tr><td>M</td><td>172-180</td><td>50</td><td>73</td></tr>
+                        <tr><td>L</td><td>180-188</td><td>52</td><td>75</td></tr>
+                        <tr><td>XL</td><td>188-196</td><td>54</td><td>77</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 12px; color: #aaa; margin-top: 10px;">* Размеры указаны в сантиметрах. Возможны отклонения ±1-2 см.</p>
+            </div>
 </div>
 
 <div class="toast" id="toast">✓ Товар добавлен</div>
@@ -757,18 +969,59 @@
 
 <div class="cart-modal" id="cartModal">
     <div class="cart-header">
-        <h2>🛒 Корзина</h2>
+        <h2>🛒 Корзина (<span id="cartCountModal">0</span>)</h2>
         <button class="clear-cart" onclick="clearCart()">Очистить</button>
     </div>
+    
     <div class="cart-items" id="cartItems">
         <p style="text-align: center; color: #999;">Корзина пуста</p>
     </div>
+    
     <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
-    <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
-    <button onclick="toggleCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
+    
+    <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+        <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
+            <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
+            <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес *</label>
+            <input type="text" id="address" placeholder="Улица, дом, квартира" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
+            <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
+            <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Крыло, подъезд, этаж и т.д. (необязательно)</label>
+            <input type="text" id="extraAddress" placeholder="Подъезд 3, этаж 5, домофон 123" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
+            <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
+        </div>
+    </div>
+    
+        <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
+    <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
+    <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
 </div>
-
-
 <div class="payment-modal" id="paymentModal">
     <div style="max-height: 80vh; overflow-y: auto; padding: 0 10px;">
         <h2 style="color: #fff; margin-bottom: 15px;">💳 Оплата через СБП</h2>
@@ -784,8 +1037,8 @@
         </div>
         
         <div id="paymentLink" style="margin: 10px 0; text-align: center;">
-    <a href="#" id="paymentUrlLink" target="_blank" rel="noopener noreferrer" style="color: #4ade80; text-decoration: underline; font-size: 14px; display: inline-block; padding: 8px 16px; background: rgba(0,0,0,0.3); border-radius: 20px;">🔗 Открыть страницу оплаты</a>
-</div>
+            <a href="#" id="paymentUrlLink" target="_blank" rel="noopener noreferrer" style="color: #4ade80; text-decoration: underline; font-size: 14px; display: inline-block; padding: 8px 16px; background: rgba(0,0,0,0.3); border-radius: 20px;">🔗 Открыть страницу оплаты</a>
+        </div>
         
         <div class="payment-note" style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; margin: 15px 0; font-size: 12px; color: #ccc; text-align: center;">
             🔔 <strong>Тестовый режим</strong><br>
@@ -796,6 +1049,48 @@
         <button class="close-payment" onclick="closePaymentModal()" style="background: #2d8c4e; width: 100%; padding: 12px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; margin-top: 10px;">
             Закрыть
         </button>
+    </div>
+</div>
+
+<!-- Кнопки авторизации -->
+<div id="authButtons" class="auth-buttons">
+    <button class="auth-btn" onclick="openLoginModal()">Вход</button>
+    <button class="auth-btn" onclick="openRegisterModal()">Регистрация</button>
+</div>
+<div id="userInfo" class="user-info" style="display: none;">
+    <span>👋 <span id="userNameDisplay" class="user-name" onclick="openCabinet()" style="cursor: pointer;"></span></span>
+    <span class="logout-link" onclick="logout()">Выйти</span>
+</div>
+
+<!-- Модальное окно входа -->
+<div class="modal-auth" id="loginModal">
+    <h3>🔐 Вход</h3>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Пароль">
+    <div id="loginError" class="auth-error"></div>
+    <button onclick="doLogin()">Войти</button>
+    <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
+</div>
+
+<!-- Модальное окно регистрации -->
+<div class="modal-auth" id="registerModal">
+    <h3>📝 Регистрация</h3>
+    <input type="text" id="regName" placeholder="Ваше имя">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="tel" id="regPhone" placeholder="Телефон">
+    <input type="password" id="regPassword" placeholder="Пароль">
+    <div id="registerError" class="auth-error"></div>
+    <button onclick="doRegister()">Зарегистрироваться</button>
+    <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
+</div>
+
+<!-- Модальное окно личного кабинета -->
+<div class="cabinet-modal" id="cabinetModal">
+    <h3>📦 Мои заказы</h3>
+    <div id="ordersHistory"></div>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="closeCabinet()" style="flex: 1; background: #2d8c4e; color: white; border: none; padding: 12px; border-radius: 12px;">Закрыть</button>
+        <button onclick="openCabinet()" style="flex: 1; background: #555; color: white; border: none; padding: 12px; border-radius: 12px;">🔄 Обновить</button>
     </div>
 </div>
 
@@ -923,12 +1218,21 @@
     function updateUI() {
         const count = cart.reduce((sum, item) => sum + item.quantity, 0);
         document.getElementById('cartCount').textContent = count;
+        const cartCountModal = document.getElementById('cartCountModal');
+        if (cartCountModal) cartCountModal.textContent = count;
+        
         const cartItems = document.getElementById('cartItems');
         const total = getTotalPrice();
+        
+        const customerForm = document.getElementById('customerForm');
+        if (customerForm) {
+            customerForm.style.display = cart.length > 0 ? 'block' : 'none';
+        }
+        
         if (cart.length === 0) {
-            cartItems.innerHTML = '<p style="text-align: center; color: #ccc;">Корзина пуста</p>';
+            cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
         } else {
-            cartItems.innerHTML = cart.map(item => `
+                        cartItems.innerHTML = cart.map(item => `
                 <div class="cart-item">
                     <div class="item-info">
                         <div class="item-name">${item.name}</div>
@@ -938,13 +1242,14 @@
                     </div>
                     <div class="item-actions">
                         <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
-                        <span>${item.quantity}</span>
+                        <span style="color: white; font-weight: bold; min-width: 30px; text-align: center;">${item.quantity}</span>
                         <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
                         <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
                     </div>
                 </div>
             `).join('');
         }
+        
         document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
     }
 
@@ -954,27 +1259,53 @@
             return;
         }
         
+        // Собираем данные из формы
+        const customerData = {
+            fullName: document.getElementById('fullName')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            address: document.getElementById('address')?.value || '',
+            city: document.getElementById('city')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            extraAddress: document.getElementById('extraAddress')?.value || '',
+            notes: document.getElementById('notes')?.value || ''
+        };
+        
+        // Базовая проверка обязательных полей
+        if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+            showToast('Пожалуйста, заполните все обязательные поля!');
+            return;
+        }
+        
         const total = getTotalPrice();
         
         showToast('Создаём платёж...');
         
+        console.log('Отправка запроса:', {
+            amount: total,
+            items: cart,
+            customer: customerData
+        });
+        
         fetch('http://127.0.0.1:5000/create-payment', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 amount: total,
-                items: cart
+                items: cart,
+                customer: customerData
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Ответ сервера статус:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Данные ответа:', data);
             if (data.success) {
                 document.getElementById('paymentAmount').innerHTML = total + ' ₽';
                 
                 const qrContainer = document.getElementById('paymentQrContainer');
-                const paymentUrl = data.qr_url || 'https://www.tinkoff.ru/';
+                const paymentUrl = 'https://www.tinkoff.ru/';
                 
                 if (qrContainer) {
                     qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
@@ -984,16 +1315,8 @@
                 if (linkElement) {
                     linkElement.href = paymentUrl;
                     linkElement.textContent = '🔗 Открыть страницу оплаты';
-                    // Для телефонов: открываем в том же окне, не блокируем
                     linkElement.setAttribute('target', '_blank');
                     linkElement.setAttribute('rel', 'noopener noreferrer');
-                    
-                    // Добавляем обработчик для телефонов
-                    linkElement.onclick = function(e) {
-                        e.preventDefault();
-                        window.location.href = paymentUrl;
-                        return false;
-                    };
                 }
                 
                 document.getElementById('paymentModal').classList.add('open');
@@ -1003,9 +1326,10 @@
             }
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            showToast('Ошибка подключения к серверу');
+            console.error('Ошибка при отправке:', error);
+            showToast('Ошибка подключения к серверу: ' + error.message);
             
+            // Демо-режим если сервер не отвечает
             document.getElementById('paymentAmount').innerHTML = total + ' ₽';
             const qrContainer = document.getElementById('paymentQrContainer');
             if (qrContainer) {
@@ -1015,9 +1339,8 @@
             document.getElementById('overlay').classList.add('open');
         });
     }
-        
-        
-          
+    
+    
     function completePayment() {
         document.getElementById('paymentModal').classList.remove('open');
         cart = [];
@@ -1029,25 +1352,26 @@
     }
 
     function toggleCart() {
-    const cartModal = document.getElementById('cartModal');
-    const overlay = document.getElementById('overlay');
+        const cartModal = document.getElementById('cartModal');
+        const overlay = document.getElementById('overlay');
+        
+        if (cartModal.classList.contains('open')) {
+            cartModal.classList.remove('open');
+            overlay.classList.remove('open');
+        } else {
+            cartModal.classList.add('open');
+            overlay.classList.add('open');
+        }
+    }
     
-    if (cartModal.classList.contains('open')) {
-        cartModal.classList.remove('open');
-        overlay.classList.remove('open');
-    } else {
-        cartModal.classList.add('open');
-        overlay.classList.add('open');
-    }
-    }
     function closeCart() {
-    console.log('Закрытие корзины');
-    const cartModal = document.getElementById('cartModal');
-    const overlay = document.getElementById('overlay');
-    
-    if (cartModal) cartModal.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
-}
+        console.log('Закрытие корзины');
+        const cartModal = document.getElementById('cartModal');
+        const overlay = document.getElementById('overlay');
+        
+        if (cartModal) cartModal.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+    }
 
     function closeAllModals() {
         document.getElementById('cartModal').classList.remove('open');
@@ -1059,15 +1383,278 @@
         init3DEffect();
         loadCart();
     });
-        function closePaymentModal() {
-    console.log('Закрытие окна оплаты');
-    const paymentModal = document.getElementById('paymentModal');
-    const overlay = document.getElementById('overlay');
     
-    if (paymentModal) paymentModal.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
-}
+    function closePaymentModal() {
+        console.log('Закрытие окна оплаты');
+        const paymentModal = document.getElementById('paymentModal');
+        const overlay = document.getElementById('overlay');
+        
+        if (paymentModal) paymentModal.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+    }
+    
+    // === АВТОРИЗАЦИЯ ===
+    
+        // === АВТОРИЗАЦИЯ С ТОКЕНАМИ ===
+    
+    function openLoginModal() {
+        document.getElementById('loginModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+        document.getElementById('loginError').textContent = '';
+    }
+    
+    function openRegisterModal() {
+        document.getElementById('registerModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+        document.getElementById('registerError').textContent = '';
+    }
+    
+    function switchToRegister() {
+        closeAuthModals();
+        openRegisterModal();
+    }
+    
+    function switchToLogin() {
+        closeAuthModals();
+        openLoginModal();
+    }
+    
+    function closeAuthModals() {
+        document.getElementById('loginModal').classList.remove('open');
+        document.getElementById('registerModal').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+    }
+    
+    async function doLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!email || !password) {
+            document.getElementById('loginError').textContent = 'Заполните все поля';
+            return;
+        }
+        
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                // Сохраняем токен в localStorage
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('user_name', data.user.name);
+                localStorage.setItem('user_id', data.user.id);
+                
+                closeAuthModals();
+                showToast(`Добро пожаловать, ${data.user.name}!`);
+                updateAuthUI(true, data.user.name);
+                
+                // Очищаем поля
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            } else {
+                document.getElementById('loginError').textContent = data.error;
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('loginError').textContent = 'Ошибка соединения';
+        }
+    }
+    
+    async function doRegister() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const phone = document.getElementById('regPhone').value;
+        const password = document.getElementById('regPassword').value;
+        
+        if (!name || !email || !phone || !password) {
+            document.getElementById('registerError').textContent = 'Заполните все поля';
+            return;
+        }
+        
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, password })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast('Регистрация успешна! Теперь войдите');
+                closeAuthModals();
+                openLoginModal();
+                document.getElementById('loginEmail').value = email;
+                
+                // Очищаем поля регистрации
+                document.getElementById('regName').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPhone').value = '';
+                document.getElementById('regPassword').value = '';
+            } else {
+                document.getElementById('registerError').textContent = data.error;
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('registerError').textContent = 'Ошибка соединения';
+        }
+    }
+    
+    function logout() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_id');
+        updateAuthUI(false, '');
+        showToast('Вы вышли из аккаунта');
+    }
+    
+    function updateAuthUI(isLoggedIn, userName) {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        
+        if (isLoggedIn) {
+            authButtons.style.display = 'none';
+            userInfo.style.display = 'flex';
+            userNameDisplay.textContent = userName;
+        } else {
+            authButtons.style.display = 'flex';
+            userInfo.style.display = 'none';
+        }
+    }
+    
+    function checkAuthStatus() {
+        const token = localStorage.getItem('auth_token');
+        const userName = localStorage.getItem('user_name');
+        
+        if (token && userName) {
+            updateAuthUI(true, userName);
+        } else {
+            updateAuthUI(false, '');
+        }
+    }
+    
+    // === ЛИЧНЫЙ КАБИНЕТ ===
+    
+        async function openCabinet() {
+        const token = localStorage.getItem('auth_token');
+        const userName = localStorage.getItem('user_name');
+        
+        if (!token || !userName) {
+            showToast('Войдите в аккаунт, чтобы увидеть заказы');
+            openLoginModal();
+            return;
+        }
+        
+        // ВРЕМЕННЫЕ ТЕСТОВЫЕ ЗАКАЗЫ
+        const demoOrders = [
+            {
+                order_id: "DEMO_001",
+                items: [{ name: "АРТУРЧИК box", size: "S", quantity: 1 }],
+                total_amount: 3490,
+                status: "pending",
+                created_at: new Date().toISOString()
+            },
+            {
+                order_id: "DEMO_002",
+                items: [{ name: "АРТУРЧИК box", size: "M", quantity: 2 }],
+                total_amount: 6980,
+                status: "paid",
+                created_at: new Date(Date.now() - 86400000).toISOString()
+            }
+        ];
+        
+        const orders = demoOrders;
+        const totalOrders = orders.length;
+        const totalSpent = orders.reduce((sum, order) => sum + order.total_amount, 0);
+        
+        let ordersHtml = '';
+        if (orders.length === 0) {
+            ordersHtml = '<p style="text-align: center; color: #ccc;">У вас пока нет заказов</p>';
+        } else {
+            ordersHtml = orders.map(order => `
+                <div class="order-history-item">
+                    <div class="order-history-header">
+                        <span class="order-id">${order.order_id}</span>
+                        <span class="order-status">${getStatusText(order.status)}</span>
+                    </div>
+                    <div>📦 ${order.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', ')}</div>
+                    <div class="order-total">💰 ${order.total_amount} ₽</div>
+                    <div class="order-date">📅 ${new Date(order.created_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+        
+        const ordersHistory = document.getElementById('ordersHistory');
+        ordersHistory.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+                <div style="font-size: 18px; color: #2d8c4e; margin-bottom: 10px;">👋 ${userName}</div>
+                <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                    <div><span style="color: #2d8c4e;">📦 Заказов:</span> ${totalOrders}</div>
+                    <div><span style="color: #2d8c4e;">💰 Потрачено:</span> ${totalSpent} ₽</div>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <h4 style="color: #2d8c4e; margin-bottom: 10px;">История заказов</h4>
+                ${ordersHtml}
+            </div>
+        `;
+        
+        document.getElementById('cabinetModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+    }
+    
+    function getStatusText(status) {
+        const statuses = {
+            'pending': '⏳ Ожидает оплаты',
+            'paid': '✅ Оплачен',
+            'shipped': '📦 Отправлен',
+            'completed': '🎉 Завершён'
+        };
+        return statuses[status] || status;
+    }
+    
+    function closeCabinet() {
+        document.getElementById('cabinetModal').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+    }
+    
+    function addCabinetButton() {
+        const cartModal = document.getElementById('cartModal');
+        if (cartModal && !document.getElementById('cabinetBtn')) {
+            const closeBtn = cartModal.querySelector('button:last-child');
+            if (closeBtn) {
+                const cabinetBtn = document.createElement('button');
+                cabinetBtn.id = 'cabinetBtn';
+                cabinetBtn.textContent = '📦 Мои заказы';
+                cabinetBtn.style.cssText = 'background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;';
+                cabinetBtn.onclick = () => {
+                    closeCart();
+                    openCabinet();
+                };
+                closeBtn.parentNode.insertBefore(cabinetBtn, closeBtn);
+            }
+        }
+    }
+    
+    const originalUpdateUI = updateUI;
+    updateUI = function() {
+        originalUpdateUI();
+        addCabinetButton();
+    };
+    
+    // Инициализация
+    checkAuthStatus();
+    
+    document.getElementById('overlay').onclick = function() {
+        closeAuthModals();
+        closeCabinet();
+        closeCart();
+        closePaymentModal();
+    };
 </script>
-
 </body>
 </html>
