@@ -784,8 +784,8 @@
         </div>
         
         <div id="paymentLink" style="margin: 10px 0; text-align: center;">
-            <a href="#" id="paymentUrlLink" target="_blank" style="color: #4ade80; text-decoration: underline; font-size: 14px;">Открыть страницу оплаты</a>
-        </div>
+    <a href="#" id="paymentUrlLink" target="_blank" rel="noopener noreferrer" style="color: #4ade80; text-decoration: underline; font-size: 14px; display: inline-block; padding: 8px 16px; background: rgba(0,0,0,0.3); border-radius: 20px;">🔗 Открыть страницу оплаты</a>
+</div>
         
         <div class="payment-note" style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; margin: 15px 0; font-size: 12px; color: #ccc; text-align: center;">
             🔔 <strong>Тестовый режим</strong><br>
@@ -948,7 +948,7 @@
         document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
     }
 
-            function openPaymentModal() {
+        function openPaymentModal() {
         if (cart.length === 0) {
             showToast('Корзина пуста! Добавьте товар');
             return;
@@ -983,7 +983,17 @@
                 const linkElement = document.getElementById('paymentUrlLink');
                 if (linkElement) {
                     linkElement.href = paymentUrl;
-                    linkElement.textContent = 'Открыть страницу оплаты';
+                    linkElement.textContent = '🔗 Открыть страницу оплаты';
+                    // Для телефонов: открываем в том же окне, не блокируем
+                    linkElement.setAttribute('target', '_blank');
+                    linkElement.setAttribute('rel', 'noopener noreferrer');
+                    
+                    // Добавляем обработчик для телефонов
+                    linkElement.onclick = function(e) {
+                        e.preventDefault();
+                        window.location.href = paymentUrl;
+                        return false;
+                    };
                 }
                 
                 document.getElementById('paymentModal').classList.add('open');
@@ -996,7 +1006,6 @@
             console.error('Ошибка:', error);
             showToast('Ошибка подключения к серверу');
             
-            // Демо-режим
             document.getElementById('paymentAmount').innerHTML = total + ' ₽';
             const qrContainer = document.getElementById('paymentQrContainer');
             if (qrContainer) {
@@ -1006,6 +1015,8 @@
             document.getElementById('overlay').classList.add('open');
         });
     }
+        
+        
           
     function completePayment() {
         document.getElementById('paymentModal').classList.remove('open');
@@ -1018,13 +1029,25 @@
     }
 
     function toggleCart() {
-        document.getElementById('cartModal').classList.toggle('open');
-        document.getElementById('overlay').classList.toggle('open');
+    const cartModal = document.getElementById('cartModal');
+    const overlay = document.getElementById('overlay');
+    
+    if (cartModal.classList.contains('open')) {
+        cartModal.classList.remove('open');
+        overlay.classList.remove('open');
+    } else {
+        cartModal.classList.add('open');
+        overlay.classList.add('open');
     }
-
+    }
     function closeCart() {
-        document.getElementById('cartModal').classList.remove('open');
-    }
+    console.log('Закрытие корзины');
+    const cartModal = document.getElementById('cartModal');
+    const overlay = document.getElementById('overlay');
+    
+    if (cartModal) cartModal.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+}
 
     function closeAllModals() {
         document.getElementById('cartModal').classList.remove('open');
@@ -1037,12 +1060,13 @@
         loadCart();
     });
         function closePaymentModal() {
-        console.log('Закрытие окна оплаты');
-        const modal = document.getElementById('paymentModal');
-        const overlay = document.getElementById('overlay');
-        if (modal) modal.classList.remove('open');
-        if (overlay) overlay.classList.remove('open');
-    }
+    console.log('Закрытие окна оплаты');
+    const paymentModal = document.getElementById('paymentModal');
+    const overlay = document.getElementById('overlay');
+    
+    if (paymentModal) paymentModal.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+}
 </script>
 
 </body>
