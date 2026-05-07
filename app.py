@@ -14,9 +14,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 app = Flask(__name__)
 app.secret_key = 'secret_key_for_session_12345'
 
-# CORS настройки
-CORS(app, origins=["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000"])
-
+CORS(app, origins=["https://1lyas1k333.github.io", "http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000", "https://arturchik-box-2.onrender.com"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
 # === КОНФИГУРАЦИЯ ===
 ADMIN_PASSWORD = "123"
 DB_NAME = 'orders.db'
