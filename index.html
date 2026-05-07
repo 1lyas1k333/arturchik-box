@@ -636,6 +636,47 @@
                 height: 300px;
             }
         }
+                /* Адаптация для мобильных устройств */
+        @media (max-width: 800px) {
+            .product-image {
+                width: 500px;
+                height: 380px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .product-card {
+                margin: 60px 10px 0;
+                padding: 20px;
+            }
+            .cart-modal {
+                width: 100%;
+            }
+            .size-buttons {
+                flex-direction: column;
+            }
+            .steps {
+                flex-direction: column;
+            }
+            .payment-modal {
+                padding: 25px;
+            }
+            .size-table th, .size-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+            .product-image {
+                width: 380px;
+                height: 280px;
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .product-image {
+                width: 280px;
+                height: 200px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -686,27 +727,27 @@
         </div>
     </div>
 
-    <div class="section">
-        <h3>📏 Размерная сетка</h3>
-        <table class="size-table">
-            <thead>
-                <tr>
-                    <th>Размер</th>
-                    <th>Рост (см)</th>
-                    <th>Ширина груди (см)</th>
-                    <th>Длина (см)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>XS倍<th158-164<th46<th68<th   <!-- исправлено -->
-                <tr><td>S<th164-172<th48<th71<th   <!-- исправлено -->
-                <tr><td>M<th172-180<th50<th73<th   <!-- исправлено -->
-                <tr><td>L<th180-188<th52<th75<th   <!-- исправлено -->
-                <tr><td>XL<th188-196<th54<th77<th   <!-- исправлено -->
-            </tbody>
-        </table>
-        <p style="font-size: 12px; color: #aaa; margin-top: 10px;">* Размеры указаны в сантиметрах. Возможны отклонения ±1-2 см.</p>
-    </div>
+            <div class="section">
+            <h3>📏 Размерная сетка</h3>
+            <table class="size-table">
+                <thead>
+                    <tr>
+                        <th>Размер</th>
+                        <th>Рост (см)</th>
+                        <th>Ширина груди (см)</th>
+                        <th>Длина (см)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>XS</td><td>158-164</td><td>46</td><td>68</td></tr>
+                    <tr><td>S</td><td>164-172</td><td>48</td><td>71</td></tr>
+                    <tr><td>M</td><td>172-180</td><td>50</td><td>73</td></tr>
+                    <tr><td>L</td><td>180-188</td><td>52</td><td>75</td></tr>
+                    <tr><td>XL</td><td>188-196</td><td>54</td><td>77</td></tr>
+                </tbody>
+            </table>
+            <p style="font-size: 12px; color: #aaa; margin-top: 10px;">* Размеры указаны в сантиметрах. Возможны отклонения ±1-2 см.</p>
+        </div>
 </div>
 
 <div class="toast" id="toast">✓ Товар добавлен</div>
