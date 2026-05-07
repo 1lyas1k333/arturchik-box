@@ -14,18 +14,22 @@ from openpyxl.styles import Font, PatternFill, Alignment
 app = Flask(__name__)
 app.secret_key = 'secret_key_for_session_12345'
 
-CORS(app, origins=["https://1lyas1k333.github.io", "http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000", "https://arturchik-box-2.onrender.com"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
 # === КОНФИГУРАЦИЯ ===
 ADMIN_PASSWORD = "123"
 DB_NAME = 'orders.db'
 
+# === CORS НАСТРОЙКИ ===
+CORS(app, 
+     origins=["https://1lyas1k333.github.io", "http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5000", "http://localhost:5000", "https://arturchik-box-2.onrender.com"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
 # === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
 def hash_password(password):
-    """Хеширование пароля"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def generate_token(user_id):
-    """Генерация простого токена"""
     token_data = f"{user_id}:{datetime.now().isoformat()}:{secrets.token_hex(8)}"
     return hashlib.sha256(token_data.encode()).hexdigest()
 
@@ -73,8 +77,25 @@ def init_db():
     conn.close()
     print("[DB] База данных инициализирована")
 
+# === ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ТАБЛИЦ ПРИ ЗАПУСКЕ ===
+import os
+if not os.path.exists(DB_NAME):
+    init_db()
+    print(f"[DB] Создана новая база данных: {DB_NAME}")
+else:
+    # Проверяем, есть ли таблица users
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+    if not cursor.fetchone():
+        print("[DB] Таблица users не найдена, создаём заново...")
+        init_db()
+    else:
+        print("[DB] База данных уже существует")
+    conn.close()
+
+# === ПОЛЬЗОВАТЕЛИ ===
 def create_user(email, password, name, phone):
-    """Создание нового пользователя"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     user_id = str(uuid.uuid4())
@@ -93,7 +114,6 @@ def create_user(email, password, name, phone):
         conn.close()
 
 def authenticate_user(email, password):
-    """Проверка логина и пароля"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     hashed_input = hash_password(password)
@@ -107,7 +127,6 @@ def authenticate_user(email, password):
     return {'success': False, 'error': 'Неверный email или пароль'}
 
 def get_user_orders(user_id):
-    """Получить заказы конкретного пользователя"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -134,8 +153,8 @@ def get_user_orders(user_id):
         })
     return orders
 
+# === ЗАКАЗЫ ===
 def save_order(order_data):
-    """Сохраняем заказ в базу"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -165,7 +184,6 @@ def save_order(order_data):
     print(f"[DB] Заказ {order_data.get('order_id')} сохранён")
 
 def get_all_orders():
-    """Получаем все заказы (для админа)"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -195,7 +213,6 @@ def get_all_orders():
     return orders
 
 def update_order_status(order_id, status):
-    """Обновить статус заказа"""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
@@ -244,8 +261,7 @@ ADMIN_HTML = '''
         <h1>📦 Админ-панель АРТУРЧИК box <div><button class="refresh-btn" onclick="loadOrders()">🔄 Обновить</button><button class="logout-btn" onclick="logout()">🚪 Выйти</button></div></h1>
         <div class="stats"><div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Всего заказов</div></div><div class="stat-card"><div class="stat-number" id="totalAmount">0</div><div class="stat-label">Сумма (₽)</div></div><div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div></div>
         <button class="export-btn" onclick="exportExcel()">📊 Экспорт в Excel</button>
-        <table><thead><tr><th>№ заказа</th><th>Покупатель</th><th>Email/Телефон</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead><tbody id="ordersBody"><tr><td colspan="6">Загрузка...</tr></tbody>
-    </table>
+        <table><thead><tr><th>№ заказа</th><th>Покупатель</th><th>Email/Телефон</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead><tbody id="ordersBody"></table><td colspan="6">Загрузка...</td></tbody></table>
     </div>
     <script>
         let ordersData = [];
@@ -254,11 +270,11 @@ ADMIN_HTML = '''
                 const response = await fetch('/api/orders');
                 const data = await response.json();
                 if (data.success) { ordersData = data.orders; renderOrders(); updateStats(); }
-            } catch(error) { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6">Ошибка</tr>'; }
+            } catch(error) { document.getElementById('ordersBody').innerHTML = '<td><td colspan="6">Ошибка</td></tr>'; }
         }
         function renderOrders() {
             const tbody = document.getElementById('ordersBody');
-            if (!ordersData.length) { tbody.innerHTML = '<tr><td colspan="6">Нет заказов</tr>'; return; }
+            if (!ordersData.length) { tbody.innerHTML = '<tr><td colspan="6">Нет заказов</td></tr>'; return; }
             tbody.innerHTML = ordersData.map(order => `<tr>
                 <td>${order.order_id}</td>
                 <td>${order.customer_name || '—'}</td>
@@ -382,7 +398,6 @@ def login():
 
 @app.route('/api/my-orders', methods=['GET'])
 def get_my_orders():
-    """Получить заказы текущего пользователя по токену"""
     # Пока возвращаем пустой список (можно расширить позже)
     return jsonify({'success': True, 'orders': []})
 
@@ -485,12 +500,4 @@ def create_payment():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    init_db()
-    print("=" * 50)
-    print("🚀 Сервер запущен")
-    print("📡 http://127.0.0.1:5000")
-    print("👑 Админ-панель: http://127.0.0.1:5000/admin")
-    print("🔐 Пароль для входа в админку: 123")
-    print("📊 Экспорт: http://127.0.0.1:5000/export-orders")
-    print("=" * 50)
     app.run(debug=True, port=5000)
