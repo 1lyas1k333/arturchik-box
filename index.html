@@ -508,7 +508,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: #0d1f0d;
-            padding: 40px;
+            padding: 20px;
             border-radius: 30px;
             z-index: 1002;
             text-align: center;
@@ -517,6 +517,8 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             animation: zoomIn 0.3s ease;
             border: 1px solid #2d8c4e;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes zoomIn {
@@ -754,18 +756,47 @@
 <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
 
 <div class="cart-modal" id="cartModal">
-    <div class="cart-header"><h2>🛒 Корзина</h2><button class="clear-cart" onclick="clearCart()">Очистить</button></div>
-    <div class="cart-items" id="cartItems"><p style="text-align: center; color: #ccc;">Корзина пуста</p></div>
+    <div class="cart-header">
+        <h2>🛒 Корзина</h2>
+        <button class="clear-cart" onclick="clearCart()">Очистить</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+        <p style="text-align: center; color: #999;">Корзина пуста</p>
+    </div>
     <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
-    <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить</button>
+    <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
+    <button onclick="toggleCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
 </div>
 
+
 <div class="payment-modal" id="paymentModal">
-    <h2>💳 Оплата через СБП</h2>
-    <div class="payment-amount" id="paymentAmount">0 ₽</div>
-    <div class="qr-container"><div class="demo-qr"></div><div class="qr-text">📱 Отсканируйте QR-код в приложении вашего банка</div></div>
-    <div class="payment-note">🔔 <strong>Демо-режим</strong><br>В боевой версии здесь будет настоящий QR-код для оплаты через СБП</div>
-    <button class="close-payment" onclick="completePayment()">✅ Я оплатил(а)</button>
+    <div style="max-height: 80vh; overflow-y: auto; padding: 0 10px;">
+        <h2 style="color: #fff; margin-bottom: 15px;">💳 Оплата через СБП</h2>
+        
+        <div class="payment-amount" id="paymentAmount" style="font-size: 36px; font-weight: bold; color: #2d8c4e; margin: 15px 0;">0 ₽</div>
+        
+        <div class="qr-container" id="paymentQrContainer" style="background: white; padding: 15px; border-radius: 20px; margin: 15px 0;">
+            <div class="demo-qr"></div>
+        </div>
+        
+        <div class="qr-text" id="paymentInstructions" style="color: #fff; font-size: 14px; margin: 10px 0;">
+            📱 Отсканируйте QR-код в приложении вашего банка
+        </div>
+        
+        <div id="paymentLink" style="margin: 10px 0; text-align: center;">
+            <a href="#" id="paymentUrlLink" target="_blank" style="color: #4ade80; text-decoration: underline; font-size: 14px;">Открыть страницу оплаты</a>
+        </div>
+        
+        <div class="payment-note" style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; margin: 15px 0; font-size: 12px; color: #ccc; text-align: center;">
+            🔔 <strong>Тестовый режим</strong><br>
+            Для теста используйте карту <strong style="color: #fff;">4111 1111 1111 1111</strong><br>
+            Срок: 12/25, CVV: 111
+        </div>
+        
+        <button class="close-payment" onclick="closePaymentModal()" style="background: #2d8c4e; width: 100%; padding: 12px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; margin-top: 10px;">
+            Закрыть
+        </button>
+    </div>
 </div>
 
 <script>
@@ -917,17 +948,65 @@
         document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
     }
 
-    function openPaymentModal() {
+            function openPaymentModal() {
         if (cart.length === 0) {
             showToast('Корзина пуста! Добавьте товар');
             return;
         }
+        
         const total = getTotalPrice();
-        document.getElementById('paymentAmount').textContent = total + ' ₽';
-        document.getElementById('paymentModal').classList.add('open');
-        document.getElementById('overlay').classList.add('open');
+        
+        showToast('Создаём платёж...');
+        
+        fetch('http://127.0.0.1:5000/create-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: total,
+                items: cart
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('paymentAmount').innerHTML = total + ' ₽';
+                
+                const qrContainer = document.getElementById('paymentQrContainer');
+                const paymentUrl = data.qr_url || 'https://www.tinkoff.ru/';
+                
+                if (qrContainer) {
+                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
+                }
+                
+                const linkElement = document.getElementById('paymentUrlLink');
+                if (linkElement) {
+                    linkElement.href = paymentUrl;
+                    linkElement.textContent = 'Открыть страницу оплаты';
+                }
+                
+                document.getElementById('paymentModal').classList.add('open');
+                document.getElementById('overlay').classList.add('open');
+            } else {
+                showToast('Ошибка: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showToast('Ошибка подключения к серверу');
+            
+            // Демо-режим
+            document.getElementById('paymentAmount').innerHTML = total + ' ₽';
+            const qrContainer = document.getElementById('paymentQrContainer');
+            if (qrContainer) {
+                qrContainer.innerHTML = `<div class="demo-qr" style="width:200px; height:200px; margin:0 auto; background: repeating-linear-gradient(45deg, #000, #000 10px, #fff 10px, #fff 20px); border-radius:15px; display:flex; align-items:center; justify-content:center;"><span style="background:white; padding:10px; border-radius:10px;">📱</span></div>`;
+            }
+            document.getElementById('paymentModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        });
     }
-
+          
     function completePayment() {
         document.getElementById('paymentModal').classList.remove('open');
         cart = [];
@@ -957,6 +1036,13 @@
         init3DEffect();
         loadCart();
     });
+        function closePaymentModal() {
+        console.log('Закрытие окна оплаты');
+        const modal = document.getElementById('paymentModal');
+        const overlay = document.getElementById('overlay');
+        if (modal) modal.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+    }
 </script>
 
 </body>
