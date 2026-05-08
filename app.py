@@ -462,10 +462,6 @@ def create_payment():
         customer_name = customer.get('fullName', '')
         customer_phone = customer.get('phone', '')
         customer_email = customer.get('email', '')
-        customer_address = customer.get('address', '')
-        customer_city = customer.get('city', '')
-        customer_extra = customer.get('extraAddress', '')
-        customer_notes = customer.get('notes', '')
         
         order_id = f"ORDER_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
         
@@ -475,10 +471,6 @@ def create_payment():
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'customer_email': customer_email,
-            'customer_address': customer_address,
-            'customer_city': customer_city,
-            'customer_extra': customer_extra,
-            'customer_notes': customer_notes,
             'items': cart_items,
             'total_amount': amount,
             'status': 'pending',
@@ -486,15 +478,44 @@ def create_payment():
         }
         save_order(order_data)
         
-        print(f"[ORDER] Создан заказ {order_id}")
+        # === ЗАПРОС К ТЕСТОВОМУ API ТИНЬКОФФ ===
+        import requests
         
-        return jsonify({
-            'success': True,
-            'qr_url': 'https://www.tinkoff.ru/',
-            'order_id': order_id,
-            'amount': amount,
-            'is_test': True
-        })
+        payload = {
+            "TerminalKey": "TinkoffBankTest",
+            "Amount": int(amount * 100),
+            "OrderId": order_id,
+            "Description": f"Заказ в АРТУРЧИК box на сумму {amount} руб.",
+            "Language": "ru",
+            "SuccessURL": "https://1lyas1k333.github.io/arturchik-box/success.html",
+            "FailURL": "https://1lyas1k333.github.io/arturchik-box/fail.html"
+        }
+        
+        api_url = "https://rest-api-test.tinkoff.ru/v2/Init"
+        response = requests.post(api_url, json=payload, timeout=30)
+        result = response.json()
+        
+        print(f"[TINKOFF] Ответ: {result}")
+        
+        if result.get('Success') == True:
+            payment_url = result.get('PaymentURL')
+            payment_id = result.get('PaymentId')
+            
+            return jsonify({
+                'success': True,
+                'qr_url': payment_url,
+                'payment_id': payment_id,
+                'order_id': order_id,
+                'amount': amount,
+                'is_test': True
+            })
+        else:
+            error_msg = result.get('Message', 'Неизвестная ошибка')
+            return jsonify({
+                'success': False,
+                'error': f"Ошибка Тинькофф: {error_msg}"
+            }), 400
+        
     except Exception as e:
         print(f"[ERROR] {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
