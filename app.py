@@ -478,62 +478,16 @@ def create_payment():
         }
         save_order(order_data)
         
-        # === ЗАПРОС К ТЕСТОВОМУ API ТИНЬКОФФ ===
-        import requests
+        print(f"[ORDER] Заказ {order_id} создан (демо-режим)")
         
-        payload = {
-            "TerminalKey": "TinkoffBankTest",
-            "Amount": int(amount * 100),
-            "OrderId": order_id,
-            "Description": f"Заказ в АРТУРЧИК box на сумму {amount} руб.",
-            "Language": "ru"
-        }
-        
-        api_url = "https://rest-api-test.tinkoff.ru/v2/Init"
-        
-        print(f"[TINKOFF] Отправка запроса: {payload}")
-        
-        response = requests.post(api_url, json=payload, timeout=30, headers={'Content-Type': 'application/json'})
-        
-        print(f"[TINKOFF] Статус ответа: {response.status_code}")
-        print(f"[TINKOFF] Текст ответа: {response.text[:500]}")
-        
-        # Проверяем, что ответ — валидный JSON
-        if response.status_code != 200:
-            return jsonify({
-                'success': False,
-                'error': f'Тинькофф API вернул код {response.status_code}'
-            }), 500
-        
-        try:
-            result = response.json()
-        except Exception as json_err:
-            print(f"[TINKOFF] Ошибка парсинга JSON: {json_err}")
-            return jsonify({
-                'success': False,
-                'error': 'Не удалось обработать ответ от платёжной системы'
-            }), 500
-        
-        print(f"[TINKOFF] Результат: {result}")
-        
-        if result.get('Success') == True:
-            payment_url = result.get('PaymentURL')
-            payment_id = result.get('PaymentId')
-            
-            return jsonify({
-                'success': True,
-                'qr_url': payment_url,
-                'payment_id': payment_id,
-                'order_id': order_id,
-                'amount': amount,
-                'is_test': True
-            })
-        else:
-            error_msg = result.get('Message', 'Неизвестная ошибка')
-            return jsonify({
-                'success': False,
-                'error': f"Ошибка Тинькофф: {error_msg}"
-            }), 400
+        return jsonify({
+            'success': True,
+            'qr_url': 'https://qr.tinkoff.ru/',
+            'order_id': order_id,
+            'amount': amount,
+            'is_test': True,
+            'message': 'Демо-режим. Реальная оплата не производится.'
+        })
         
     except Exception as e:
         print(f"[ERROR] {e}")
