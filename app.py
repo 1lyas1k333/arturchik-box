@@ -486,16 +486,35 @@ def create_payment():
             "Amount": int(amount * 100),
             "OrderId": order_id,
             "Description": f"Заказ в АРТУРЧИК box на сумму {amount} руб.",
-            "Language": "ru",
-            "SuccessURL": "https://1lyas1k333.github.io/arturchik-box/success.html",
-            "FailURL": "https://1lyas1k333.github.io/arturchik-box/fail.html"
+            "Language": "ru"
         }
         
         api_url = "https://rest-api-test.tinkoff.ru/v2/Init"
-        response = requests.post(api_url, json=payload, timeout=30)
-        result = response.json()
         
-        print(f"[TINKOFF] Ответ: {result}")
+        print(f"[TINKOFF] Отправка запроса: {payload}")
+        
+        response = requests.post(api_url, json=payload, timeout=30, headers={'Content-Type': 'application/json'})
+        
+        print(f"[TINKOFF] Статус ответа: {response.status_code}")
+        print(f"[TINKOFF] Текст ответа: {response.text[:500]}")
+        
+        # Проверяем, что ответ — валидный JSON
+        if response.status_code != 200:
+            return jsonify({
+                'success': False,
+                'error': f'Тинькофф API вернул код {response.status_code}'
+            }), 500
+        
+        try:
+            result = response.json()
+        except Exception as json_err:
+            print(f"[TINKOFF] Ошибка парсинга JSON: {json_err}")
+            return jsonify({
+                'success': False,
+                'error': 'Не удалось обработать ответ от платёжной системы'
+            }), 500
+        
+        print(f"[TINKOFF] Результат: {result}")
         
         if result.get('Success') == True:
             payment_url = result.get('PaymentURL')
