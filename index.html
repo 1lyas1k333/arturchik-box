@@ -336,27 +336,39 @@
             filter: brightness(1.05);
         }
 
-        .toast {
+                .toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: #2d8c4e;
             color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 14px;
+            padding: 15px 30px;
+            border-radius: 60px;
+            font-size: 18px;
             font-weight: bold;
-            z-index: 1000;
+            z-index: 10000;
             opacity: 0;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
             pointer-events: none;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 250px;
         }
 
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .toast {
+                font-size: 14px;
+                padding: 12px 20px;
+                white-space: normal;
+                min-width: 200px;
+            }
         }
 
         .cart-modal {
@@ -891,6 +903,17 @@
         .cabinet-modal .stats-number {
             color: #2d8c4e;
         }
+                .delivery-note {
+            font-size: 13px;
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .delivery-note span:first-child {
+            color: #ffaa44;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -919,8 +942,8 @@
         <div class="exclusions-hint">Введите названия клубов через запятую (до 5 штук)</div>
     </div>
 
-    <div class="size-selector">
-        <label>📏 Выберите размер:</label>
+        <div class="size-selector">
+        <label>📏 Выберите размер футболки:</label>
         <div class="size-buttons">
             <button class="size-btn" onclick="selectSize('XS')">XS</button>
             <button class="size-btn selected" onclick="selectSize('S')">S</button>
@@ -977,7 +1000,12 @@
         <p style="text-align: center; color: #999;">Корзина пуста</p>
     </div>
     
-    <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+        <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+    <div class="delivery-note" style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center;">
+        <span style="color: #ffaa44;">📦 Обратите внимание:</span><br>
+        <span style="color: #ccc; font-size: 13px;">Доставка оплачивается в вашем пункте выдачи СДЭК<br>(цена зависит от местонахождения получателя)</span>
+    </div>
+
     
     <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
         <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
@@ -1095,6 +1123,7 @@
 </div>
 
 <script>
+    
     let cart = [];
     let selectedSize = 'S';
 
@@ -1153,7 +1182,7 @@
         const toast = document.getElementById('toast');
         toast.textContent = message || '✓ Товар добавлен в корзину';
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
+        setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
     function addToCart() {
@@ -1380,7 +1409,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        init3DEffect();
+        // init3DEffect(); //
         loadCart();
     });
     
