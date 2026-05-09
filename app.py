@@ -478,15 +478,13 @@ def create_payment():
         }
         save_order(order_data)
         
-        print(f"[ORDER] Заказ {order_id} создан (демо-режим)")
+        print(f"[ORDER] Заказ {order_id} создан")
         
         return jsonify({
             'success': True,
-            'qr_url': 'https://qr.tinkoff.ru/',
             'order_id': order_id,
             'amount': amount,
-            'is_test': True,
-            'message': 'Демо-режим. Реальная оплата не производится.'
+            'is_test': True
         })
         
     except Exception as e:
