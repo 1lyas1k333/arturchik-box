@@ -1209,55 +1209,22 @@
     <script>
         // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
         
+            
+          
+      
             function openCloudPayment(amount, orderId, email, name, phone) {
-        // Отправляем запрос на сервер
-        fetch('https://arturchik-box-2.onrender.com/create-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                amount: amount,
-                items: cart,
-                customer: { fullName: name, email: email, phone: phone }
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Показываем модальное окно с ссылкой на оплату
-                document.getElementById('paymentAmount').innerHTML = amount + ' ₽';
-                
-                const qrContainer = document.getElementById('paymentQrContainer');
-                const paymentUrl = data.payment_url;
-                
-                if (qrContainer) {
-                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
-                }
-                
-                const linkElement = document.getElementById('paymentUrlLink');
-                if (linkElement) {
-                    linkElement.href = paymentUrl;
-                    linkElement.textContent = '🔗 Перейти к оплате';
-                    linkElement.setAttribute('target', '_blank');
-                }
-                
-                document.getElementById('paymentModal').classList.add('open');
-                document.getElementById('overlay').classList.add('open');
-                
-                // Очищаем корзину
-                cart = [];
-                saveCart();
-                updateUI();
-                closeCart();
-            } else {
-                showToast('Ошибка: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            showToast('Ошибка подключения к серверу');
-        });
+        // Прямая ссылка на демо-страницу CloudPayments с параметрами
+        const checkoutUrl = `https://demo.cloudpayments.ru/checkout?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=Заказ%20в%20АРТУРЧИК%20box&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+        
+        // Открываем в новом окне
+        const paymentWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,resizable=yes,scrollbars=yes');
+        
+        if (!paymentWindow) {
+            showToast('❌ Браузер заблокировал окно оплаты. Разрешите всплывающие окна.');
+        } else {
+            showToast('💰 Откроется окно оплаты. Используйте тестовую карту 4242 4242 4242 4242');
+        }
     }
-       
           
     </script>
     <script>
