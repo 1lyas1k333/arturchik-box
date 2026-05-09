@@ -1209,46 +1209,28 @@
     <script>
         // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
         
-        function openCloudPayment(amount, orderId, email, name, phone) {
-            const widget = new cp.CloudPayments({
-                language: "ru-RU",
-                applePaySupport: true,
-                googlePaySupport: true,
-                sbpSupport: true
-            });
-            
-            const intentParams = {
-                publicId: "test_api_00000000000000000000002", // твой PublicId
-                description: `Заказ в АРТУРЧИК box №${orderId}`,
-                amount: amount,
-                currency: "RUB",
-                invoiceId: orderId,
-                email: email,
-                name: name,
-                phone: phone,
-                skin: "modern",
-                culture: "ru-RU",
-                autoClose: 3,
-                successRedirectUrl: "https://1lyas1k333.github.io/arturchik-box/success.html",
-                failRedirectUrl: "https://1lyas1k333.github.io/arturchik-box/fail.html",
-            };
-            
-            widget.start(intentParams)
-                .then(function(widgetResult) {
-                    console.log('Оплата успешна:', widgetResult);
-                    showToast('✅ Оплата прошла успешно!');
-                    // Очищаем корзину после успешной оплаты
-                    cart = [];
-                    saveCart();
-                    updateUI();
-                    closeCart();
-                    closePaymentModal();
-                })
-                .catch(function(error) {
-                    console.log('Ошибка оплаты:', error);
-                    showToast('❌ Ошибка при оплате. Попробуйте снова.');
-                });
+            function openCloudPayment(amount, orderId, email, name, phone) {
+        // Формируем URL для оплаты (открывается в новом окне)
+        const checkoutUrl = `https://checkout.cloudpayments.ru/checkout.html?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=${encodeURIComponent('Заказ в АРТУРЧИК box')}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&skin=modern&culture=ru`;
+        
+        // Открываем в новом окне
+        const paymentWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,resizable=yes,scrollbars=yes');
+        
+        if (!paymentWindow) {
+            showToast('❌ Браузер заблокировал окно оплаты. Разрешите всплывающие окна для этого сайта.');
+        } else {
+            showToast('💰 Откроется окно оплаты...');
         }
+        
+        // Очищаем корзину после оплаты (пользователь сам закроет окно)
+        // Можно добавить проверку статуса через интервал, но для простоты пока так
+        cart = [];
+        saveCart();
+        updateUI();
+        closeCart();
+        closePaymentModal();
+    }
+          
     </script>
     <script>
         
