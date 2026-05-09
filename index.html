@@ -1204,7 +1204,7 @@
         </div>
     </div>
     <!-- Подключение виджета CloudPayments -->
-    <script src="https://widget.cloudpayments.ru/bundles/cloudpayments.js"></script>
+    <script src="https://checkout.cloudpayments.ru/checkout.js"></script>
 
     <script>
         // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
@@ -1212,18 +1212,48 @@
             
           
       
-            function openCloudPayment(amount, orderId, email, name, phone) {
-        // Прямая ссылка на демо-страницу CloudPayments с параметрами
-        const checkoutUrl = `https://demo.cloudpayments.ru/checkout?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=Заказ%20в%20АРТУРЧИК%20box&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`;
+               function openCloudPayment(amount, orderId, email, name, phone) {
+        // Настройки для Checkout CloudPayments
+        const checkoutOptions = {
+            publicId: "test_api_00000000000000000000002",
+            amount: amount,
+            currency: "RUB",
+            description: `Заказ в АРТУРЧИК box №${orderId}`,
+            invoiceId: orderId,
+            email: email,
+            name: name,
+            phone: phone,
+            skin: "modern",
+            language: "ru",
+            receipt: {
+                items: cart.map(item => ({
+                    label: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    amount: item.price * item.quantity,
+                    vat: 0
+                }))
+            }
+        };
         
-        // Открываем в новом окне
-        const paymentWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,resizable=yes,scrollbars=yes');
+        // Открываем платёжную форму
+        const checkout = new cp.Checkout(checkoutOptions);
+        checkout.on('success', function(result) {
+            console.log('Оплата успешна:', result);
+            showToast('✅ Оплата прошла успешно!');
+            cart = [];
+            saveCart();
+            updateUI();
+            closeCart();
+            closePaymentModal();
+        });
         
-        if (!paymentWindow) {
-            showToast('❌ Браузер заблокировал окно оплаты. Разрешите всплывающие окна.');
-        } else {
-            showToast('💰 Откроется окно оплаты. Используйте тестовую карту 4242 4242 4242 4242');
-        }
+        checkout.on('fail', function(result) {
+            console.log('Ошибка оплаты:', result);
+            showToast('❌ Ошибка при оплате. Попробуйте снова.');
+        });
+        
+        checkout.open();
     }
           
     </script>
