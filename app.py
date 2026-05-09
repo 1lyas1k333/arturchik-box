@@ -444,13 +444,18 @@ def get_api_orders():
 def update_status_api():
     try:
         data = request.get_json()
+        print(f"[DEBUG] Получены данные: {data}")  # Добавь эту строку для отладки
+        
         order_id = data.get('order_id')
         status = data.get('status')
+        
         if not order_id or not status:
-            return jsonify({'success': False, 'error': 'Missing fields'}), 400
+            return jsonify({'success': False, 'error': 'Missing fields: order_id and status required'}), 400
+        
         update_order_status(order_id, status)
         return jsonify({'success': True})
     except Exception as e:
+        print(f"[ERROR] update_status_api: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/export-orders', methods=['GET'])
