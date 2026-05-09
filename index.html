@@ -1212,48 +1212,32 @@
             
           
       
-               function openCloudPayment(amount, orderId, email, name, phone) {
-        // Настройки для Checkout CloudPayments
-        const checkoutOptions = {
-            publicId: "test_api_00000000000000000000002",
-            amount: amount,
-            currency: "RUB",
-            description: `Заказ в АРТУРЧИК box №${orderId}`,
-            invoiceId: orderId,
-            email: email,
-            name: name,
-            phone: phone,
-            skin: "modern",
-            language: "ru",
-            receipt: {
-                items: cart.map(item => ({
-                    label: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    amount: item.price * item.quantity,
-                    vat: 0
-                }))
-            }
-        };
+                   function openCloudPayment(amount, orderId, email, name, phone) {
+        // Демо-режим: показываем QR-код и кнопку
+        document.getElementById('paymentAmount').innerHTML = amount + ' ₽';
         
-        // Открываем платёжную форму
-        const checkout = new cp.Checkout(checkoutOptions);
-        checkout.on('success', function(result) {
-            console.log('Оплата успешна:', result);
-            showToast('✅ Оплата прошла успешно!');
-            cart = [];
-            saveCart();
-            updateUI();
-            closeCart();
-            closePaymentModal();
-        });
+        const qrContainer = document.getElementById('paymentQrContainer');
+        const paymentUrl = 'https://www.tinkoff.ru/';
         
-        checkout.on('fail', function(result) {
-            console.log('Ошибка оплаты:', result);
-            showToast('❌ Ошибка при оплате. Попробуйте снова.');
-        });
+        if (qrContainer) {
+            qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
+        }
         
-        checkout.open();
+        const linkElement = document.getElementById('paymentUrlLink');
+        if (linkElement) {
+            linkElement.href = paymentUrl;
+            linkElement.textContent = '🔗 Открыть страницу оплаты (демо)';
+            linkElement.setAttribute('target', '_blank');
+        }
+        
+        document.getElementById('paymentModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+        
+        // Очищаем корзину
+        cart = [];
+        saveCart();
+        updateUI();
+        closeCart();
     }
           
     </script>
