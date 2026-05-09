@@ -1209,9 +1209,9 @@
     <script>
         // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
         
-                function openCloudPayment(amount, orderId, email, name, phone) {
-        // ПРАВИЛЬНАЯ ССЫЛКА НА CLOUDPAYMENTS CHECKOUT
-        const checkoutUrl = `https://checkout.cloudpayments.ru/checkout?publicId=test_api_00000000000000000000002&amount=100&currency=RUB&description=Test`;
+                    function openCloudPayment(amount, orderId, email, name, phone) {
+        // Правильная ссылка на Checkout CloudPayments с параметрами
+        const checkoutUrl = `https://checkout.cloudpayments.ru/checkout?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=${encodeURIComponent('Заказ в АРТУРЧИК box')}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&skin=modern&culture=ru`;
         
         // Открываем в новом окне
         const paymentWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,resizable=yes,scrollbars=yes');
@@ -1221,20 +1221,6 @@
         } else {
             showToast('💰 Откроется окно оплаты...');
         }
-        
-        // Очищаем корзину после оплаты
-        setTimeout(() => {
-            if (paymentWindow && paymentWindow.closed) {
-                showToast('✅ Спасибо за покупку!');
-            }
-        }, 5000);
-        
-        // Очищаем корзину
-        cart = [];
-        saveCart();
-        updateUI();
-        closeCart();
-        closePaymentModal();
     }
        
           
