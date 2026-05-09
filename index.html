@@ -1248,17 +1248,63 @@
         updateUI();
         closeCart();
     }
-            function processTestPayment(orderId) {
-        // Просто обновляем статус уже существующего заказа
-        fetch('https://arturchik-box-2.onrender.com/api/update-status', {
+                function processTestPayment() {
+        const total = getTotalPrice();
+        
+        if (cart.length === 0) {
+            showToast('Корзина пуста!');
+            return;
+        }
+        
+        showToast('Обработка платежа...');
+        
+        const customerData = {
+            fullName: document.getElementById('fullName')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            address: document.getElementById('address')?.value || '',
+            city: document.getElementById('city')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            extraAddress: document.getElementById('extraAddress')?.value || '',
+            notes: document.getElementById('notes')?.value || ''
+        };
+        
+        // Создаём заказ
+        fetch('https://arturchik-box-2.onrender.com/create-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                order_id: orderId,
-                status: 'paid'
+                amount: total,
+                items: cart,
+                customer: customerData
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка создания заказа');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Обновляем статус заказа на "оплачен"
+                return fetch('https://arturchik-box-2.onrender.com/api/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: data.order_id,
+                        status: 'paid'
+                    })
+                });
+            } else {
+                throw new Error(data.error || 'Ошибка создания заказа');
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка обновления статуса');
+            }
+            return response.json();
+        })
         .then(result => {
             if (result.success) {
                 showToast('✅ Заказ успешно оплачен!');
@@ -1268,13 +1314,15 @@
                 closeCart();
                 closePaymentModal();
             } else {
-                showToast('Ошибка обновления статуса');
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
             }
         })
         .catch(error => {
+            console.error('Ошибка:', error);
             showToast('Ошибка: ' + error.message);
         });
     }
+        
           
     </script>
     <script>
