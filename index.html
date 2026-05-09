@@ -1209,27 +1209,34 @@
     <script>
         // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
         
-            function openCloudPayment(amount, orderId, email, name, phone) {
-        // Формируем URL для оплаты (открывается в новом окне)
-        const checkoutUrl = `https://checkout.cloudpayments.ru/checkout.html?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=${encodeURIComponent('Заказ в АРТУРЧИК box')}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&skin=modern&culture=ru`;
+                function openCloudPayment(amount, orderId, email, name, phone) {
+        // ПРАВИЛЬНАЯ ССЫЛКА НА CLOUDPAYMENTS CHECKOUT
+        const checkoutUrl = `https://checkout.cloudpayments.ru/checkout?publicId=test_api_00000000000000000000002&amount=${amount}&currency=RUB&invoiceId=${orderId}&description=${encodeURIComponent('Заказ в АРТУРЧИК box')}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&skin=modern&culture=ru`;
         
         // Открываем в новом окне
         const paymentWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,resizable=yes,scrollbars=yes');
         
         if (!paymentWindow) {
-            showToast('❌ Браузер заблокировал окно оплаты. Разрешите всплывающие окна для этого сайта.');
+            showToast('❌ Браузер заблокировал окно оплаты. Разрешите всплывающие окна.');
         } else {
             showToast('💰 Откроется окно оплаты...');
         }
         
-        // Очищаем корзину после оплаты (пользователь сам закроет окно)
-        // Можно добавить проверку статуса через интервал, но для простоты пока так
+        // Очищаем корзину после оплаты
+        setTimeout(() => {
+            if (paymentWindow && paymentWindow.closed) {
+                showToast('✅ Спасибо за покупку!');
+            }
+        }, 5000);
+        
+        // Очищаем корзину
         cart = [];
         saveCart();
         updateUI();
         closeCart();
         closePaymentModal();
     }
+       
           
     </script>
     <script>
