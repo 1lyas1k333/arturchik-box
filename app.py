@@ -14,6 +14,23 @@ from openpyxl.styles import Font, PatternFill, Alignment
 app = Flask(__name__)
 app.secret_key = 'secret_key_for_session_12345'
 
+# === TELEGRAM НАСТРОЙКИ ===
+TELEGRAM_TOKEN = "8694164916:AAEYQey-DSovguWmgy-mZLG4nMVhSV4BunQ"
+TELEGRAM_CHAT_ID = "1056646376"
+
+def send_telegram_message(message):
+    try:
+        import requests
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"[TG] Ошибка: {e}")
+
 # === КОНФИГУРАЦИЯ ===
 ADMIN_PASSWORD = "123"
 DB_NAME = 'orders.db'
@@ -153,7 +170,6 @@ def get_user_orders(user_id):
         })
     return orders
 
-# === ЗАКАЗЫ ===
 def save_order(order_data):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -182,6 +198,24 @@ def save_order(order_data):
     conn.commit()
     conn.close()
     print(f"[DB] Заказ {order_data.get('order_id')} сохранён")
+    
+    # === ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM ===
+    try:
+        from datetime import datetime as dt
+        msg = f"""🆕 <b>НОВЫЙ ЗАКАЗ!</b>
+        
+📦 Заказ: {order_data.get('order_id')}
+👤 Клиент: {order_data.get('customer_name', 'Не указан')}
+📞 Телефон: {order_data.get('customer_phone', 'Не указан')}
+📧 Email: {order_data.get('customer_email', 'Не указан')}
+💰 Сумма: {order_data.get('total_amount')} ₽
+📍 Адрес: {order_data.get('customer_city', '')}, {order_data.get('customer_address', '')}
+
+🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
+        
+        send_telegram_message(msg)
+    except Exception as e:
+        print(f"[TG] Ошибка отправки уведомления: {e}")
 
 def get_all_orders():
     conn = sqlite3.connect(DB_NAME)
