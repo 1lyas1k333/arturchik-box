@@ -1248,67 +1248,31 @@
         updateUI();
         closeCart();
     }
-        function processTestPayment() {
-        const total = getTotalPrice();
-        
-        showToast('Обработка платежа...');
-        
-        // Получаем order_id из последнего созданного заказа
-        // Для простоты используем текущую корзину и создаём новый заказ
-        const customerData = {
-            fullName: document.getElementById('fullName')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            address: document.getElementById('address')?.value || '',
-            city: document.getElementById('city')?.value || '',
-            phone: document.getElementById('phone')?.value || '',
-            extraAddress: document.getElementById('extraAddress')?.value || '',
-            notes: document.getElementById('notes')?.value || ''
-        };
-        
-        // Сначала создаём заказ
-        fetch('https://arturchik-box-2.onrender.com/create-payment', {
+            function processTestPayment(orderId) {
+        // Просто обновляем статус уже существующего заказа
+        fetch('https://arturchik-box-2.onrender.com/api/update-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                amount: total,
-                items: cart,
-                customer: customerData
+                order_id: orderId,
+                status: 'paid'
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Обновляем статус заказа на "оплачен"
-                return fetch('https://arturchik-box-2.onrender.com/api/update-status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        order_id: data.order_id,
-                        status: 'paid'
-                    })
-                });
-            } else {
-                throw new Error(data.error);
-            }
         })
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                showToast('✅ Заказ успешно оформлен и оплачен!');
-                
-                // Очищаем корзину
+                showToast('✅ Заказ успешно оплачен!');
                 cart = [];
                 saveCart();
                 updateUI();
                 closeCart();
                 closePaymentModal();
             } else {
-                showToast('Ошибка обновления статуса: ' + result.error);
+                showToast('Ошибка обновления статуса');
             }
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            showToast('Ошибка при оформлении заказа: ' + error.message);
+            showToast('Ошибка: ' + error.message);
         });
     }
           
