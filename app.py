@@ -444,13 +444,11 @@ def get_api_orders():
 def update_status_api():
     try:
         data = request.get_json()
-        print(f"[DEBUG] Получены данные: {data}")  # Добавь эту строку для отладки
-        
         order_id = data.get('order_id')
         status = data.get('status')
         
         if not order_id or not status:
-            return jsonify({'success': False, 'error': 'Missing fields: order_id and status required'}), 400
+            return jsonify({'success': False, 'error': 'Missing fields'}), 400
         
         update_order_status(order_id, status)
         return jsonify({'success': True})
@@ -490,7 +488,7 @@ def export_orders():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/create-payment', methods=['POST'])
+
 def create_payment():
     try:
         data = request.get_json()
@@ -498,9 +496,14 @@ def create_payment():
         cart_items = data.get('items', [])
         customer = data.get('customer', {})
         
+        # ИЗВЛЕКАЕМ ДАННЫЕ ИЗ ФОРМЫ
         customer_name = customer.get('fullName', '')
         customer_phone = customer.get('phone', '')
         customer_email = customer.get('email', '')
+        customer_address = customer.get('address', '')      # ← ЭТО КЛЮЧЕВОЕ
+        customer_city = customer.get('city', '')            # ← ЭТО КЛЮЧЕВОЕ
+        customer_extra = customer.get('extraAddress', '')
+        customer_notes = customer.get('notes', '')
         
         order_id = f"ORDER_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
         
@@ -510,68 +513,24 @@ def create_payment():
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'customer_email': customer_email,
+            'customer_address': customer_address,
+            'customer_city': customer_city,
+            'customer_extra': customer_extra,
+            'customer_notes': customer_notes,
             'items': cart_items,
             'total_amount': amount,
             'status': 'pending',
             'payment_id': ''
         }
-        save_order(order_data)
+        save_order(order_data)  # ← ЗДЕСЬ ДАННЫЕ СОХРАНЯЮТСЯ В БД
         
-        # === ЗАПРОС К API CLOUDPAYMENTS ===
-        import requests
+        print(f"[DEBUG] Заказ создан: город={customer_city}, адрес={customer_address}")
         
-        # Тестовые ключи
-        PUBLIC_ID = "test_api_00000000000000000000002"
-        SECRET_KEY = "test_api_00000000000000000000002"  # Для тестового режима secret key такой же
-        
-        # Данные для платежа
-        payment_data = {
-            "Amount": float(amount),
-            "Currency": "RUB",
-            "InvoiceId": order_id,
-            "Description": f"Заказ в АРТУРЧИК box",
-            "Email": customer_email,
-            "Name": customer_name,
-            "Phone": customer_phone,
-            "RequireConfirmation": False,
-            "SendReceipt": False
-        }
-        
-        headers = {
-            "Content-Type": "application/json",
-        }
-        
-        # Для тестового режима используем простой запрос (без авторизации)
-        api_url = "https://api.cloudpayments.ru/payments/cards"
-        
-        print(f"[CLOUDPAYMENTS] Отправка: {payment_data}")
-        
-        response = requests.post(api_url, json=payment_data, headers=headers, timeout=30)
-        result = response.json()
-        
-        print(f"[CLOUDPAYMENTS] Ответ: {result}")
-        
-        if result.get('Success'):
-            payment_url = result['Model'].get('Url')
-            transaction_id = result['Model'].get('TransactionId')
-            
-            return jsonify({
-                'success': True,
-                'payment_url': payment_url,
-                'transaction_id': transaction_id,
-                'order_id': order_id,
-                'amount': amount
-            })
-        else:
-            # Если не получилось, возвращаем демо-ссылку
-            return jsonify({
-                'success': True,
-                'payment_url': 'https://www.tinkoff.ru/',
-                'order_id': order_id,
-                'amount': amount,
-                'is_demo': True,
-                'message': result.get('Message', '')
-            })
+        return jsonify({
+            'success': True,
+            'order_id': order_id,
+            'amount': amount
+        })
         
     except Exception as e:
         print(f"[ERROR] {e}")
