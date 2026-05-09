@@ -1202,7 +1202,53 @@
         <button onclick="openCabinet()" style="flex: 1; background: #555; color: white; border: none; padding: 12px; border-radius: 12px;">🔄 Обновить</button>
     </div>
 </div>
+<!-- Подключение виджета CloudPayments -->
+<script src="https://widget.cloudpayments.ru/bundles/cloudpayments.js"></script>
 
+<script>
+    // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
+    
+    function openCloudPayment(amount, orderId, email, name, phone) {
+        const widget = new cp.CloudPayments({
+            language: "ru-RU",
+            applePaySupport: true,
+            googlePaySupport: true,
+            sbpSupport: true
+        });
+        
+        const intentParams = {
+            publicId: "test_api_00000000000000000000002", // твой PublicId
+            description: `Заказ в АРТУРЧИК box №${orderId}`,
+            amount: amount,
+            currency: "RUB",
+            invoiceId: orderId,
+            email: email,
+            name: name,
+            phone: phone,
+            skin: "modern",
+            culture: "ru-RU",
+            autoClose: 3,
+            successRedirectUrl: "https://1lyas1k333.github.io/arturchik-box/success.html",
+            failRedirectUrl: "https://1lyas1k333.github.io/arturchik-box/fail.html",
+        };
+        
+        widget.start(intentParams)
+            .then(function(widgetResult) {
+                console.log('Оплата успешна:', widgetResult);
+                showToast('✅ Оплата прошла успешно!');
+                // Очищаем корзину после успешной оплаты
+                cart = [];
+                saveCart();
+                updateUI();
+                closeCart();
+                closePaymentModal();
+            })
+            .catch(function(error) {
+                console.log('Ошибка оплаты:', error);
+                showToast('❌ Ошибка при оплате. Попробуйте снова.');
+            });
+    }
+</script>
 <script>
     
     let cart = [];
@@ -1363,7 +1409,7 @@
         document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
     }
 
-        function openPaymentModal() {
+            function openPaymentModal() {
         if (cart.length === 0) {
             showToast('Корзина пуста! Добавьте товар');
             return;
@@ -1390,12 +1436,7 @@
         
         showToast('Создаём платёж...');
         
-        console.log('Отправка запроса:', {
-            amount: total,
-            items: cart,
-            customer: customerData
-        });
-        
+        // === 1. СНАЧАЛА СОЗДАЁМ ЗАКАЗ НА СЕРВЕРЕ ===
         fetch('https://arturchik-box-2.onrender.com/create-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1405,50 +1446,28 @@
                 customer: customerData
             })
         })
-        .then(response => {
-            console.log('Ответ сервера статус:', response.status);
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Данные ответа:', data);
             if (data.success) {
-                document.getElementById('paymentAmount').innerHTML = total + ' ₽';
-                
-                const qrContainer = document.getElementById('paymentQrContainer');
-                const paymentUrl = 'https://www.tinkoff.ru/';
-                
-                if (qrContainer) {
-                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
-                }
-                
-                const linkElement = document.getElementById('paymentUrlLink');
-                if (linkElement) {
-                    linkElement.href = paymentUrl;
-                    linkElement.textContent = '🔗 Открыть страницу оплаты';
-                    linkElement.setAttribute('target', '_blank');
-                    linkElement.setAttribute('rel', 'noopener noreferrer');
-                }
-                
-                document.getElementById('paymentModal').classList.add('open');
-                document.getElementById('overlay').classList.add('open');
+                // === 2. ПОСЛЕ СОЗДАНИЯ ЗАКАЗА ОТКРЫВАЕМ ВИДЖЕТ ОПЛАТЫ ===
+                openCloudPayment(
+                    total, 
+                    data.order_id, 
+                    customerData.email, 
+                    customerData.fullName, 
+                    customerData.phone
+                );
             } else {
-                showToast('Ошибка: ' + data.error);
+                showToast('Ошибка при создании заказа: ' + data.error);
             }
         })
         .catch(error => {
-            console.error('Ошибка при отправке:', error);
+            console.error('Ошибка:', error);
             showToast('Ошибка подключения к серверу: ' + error.message);
-            
-            // Демо-режим если сервер не отвечает
-            document.getElementById('paymentAmount').innerHTML = total + ' ₽';
-            const qrContainer = document.getElementById('paymentQrContainer');
-            if (qrContainer) {
-                qrContainer.innerHTML = `<div class="demo-qr" style="width:200px; height:200px; margin:0 auto; background: repeating-linear-gradient(45deg, #000, #000 10px, #fff 10px, #fff 20px); border-radius:15px; display:flex; align-items:center; justify-content:center;"><span style="background:white; padding:10px; border-radius:10px;">📱</span></div>`;
-            }
-            document.getElementById('paymentModal').classList.add('open');
-            document.getElementById('overlay').classList.add('open');
         });
     }
+        
+       
     
     
     function completePayment() {
