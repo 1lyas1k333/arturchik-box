@@ -1248,71 +1248,34 @@
         updateUI();
         closeCart();
     }
-                function processTestPayment() {
-        const total = getTotalPrice();
-        
-        if (cart.length === 0) {
-            showToast('Корзина пуста!');
+                    function processTestPayment() {
+        if (!window.currentOrderId) {
+            showToast('Ошибка: заказ не найден. Попробуйте снова.');
             return;
         }
         
         showToast('Обработка платежа...');
         
-        const customerData = {
-            fullName: document.getElementById('fullName')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            address: document.getElementById('address')?.value || '',
-            city: document.getElementById('city')?.value || '',
-            phone: document.getElementById('phone')?.value || '',
-            extraAddress: document.getElementById('extraAddress')?.value || '',
-            notes: document.getElementById('notes')?.value || ''
-        };
-        
-        // Создаём заказ
-        fetch('https://arturchik-box-2.onrender.com/create-payment', {
+        // Обновляем статус заказа на "оплачен"
+        fetch('https://arturchik-box-2.onrender.com/api/update-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                amount: total,
-                items: cart,
-                customer: customerData
+                order_id: window.currentOrderId,
+                status: 'paid'
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка создания заказа');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Обновляем статус заказа на "оплачен"
-                return fetch('https://arturchik-box-2.onrender.com/api/update-status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        order_id: data.order_id,
-                        status: 'paid'
-                    })
-                });
-            } else {
-                throw new Error(data.error || 'Ошибка создания заказа');
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка обновления статуса');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(result => {
             if (result.success) {
                 showToast('✅ Заказ успешно оплачен!');
+                // Очищаем корзину только после успешной оплаты
                 cart = [];
                 saveCart();
                 updateUI();
                 closeCart();
                 closePaymentModal();
+                window.currentOrderId = null;
             } else {
                 showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
             }
@@ -1322,6 +1285,8 @@
             showToast('Ошибка: ' + error.message);
         });
     }
+                
+            
         
           
     </script>
@@ -1485,81 +1450,66 @@
             document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
         }
 
-                function openPaymentModal() {
-            if (cart.length === 0) {
-                showToast('Корзина пуста! Добавьте товар');
-                return;
-            }
-            
-            // Собираем данные из формы
-            const customerData = {
-                fullName: document.getElementById('fullName')?.value || '',
-                email: document.getElementById('email')?.value || '',
-                address: document.getElementById('address')?.value || '',
-                city: document.getElementById('city')?.value || '',
-                phone: document.getElementById('phone')?.value || '',
-                extraAddress: document.getElementById('extraAddress')?.value || '',
-                notes: document.getElementById('notes')?.value || ''
-            };
-            
-            // Базовая проверка обязательных полей
-            if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
-                showToast('Пожалуйста, заполните все обязательные поля!');
-                return;
-            }
-            
-            const total = getTotalPrice();
-            
-            showToast('Создаём платёж...');
-            
-            // === 1. СНАЧАЛА СОЗДАЁМ ЗАКАЗ НА СЕРВЕРЕ ===
-            fetch('https://arturchik-box-2.onrender.com/create-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: total,
-                    items: cart,
-                    customer: customerData
-                })
-            })
-                        .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // После успешного создания заказа показываем окно оплаты
-                    document.getElementById('paymentAmount').innerHTML = total + ' ₽';
-                    
-                    const qrContainer = document.getElementById('paymentQrContainer');
-                    const paymentUrl = 'https://www.tinkoff.ru/';  // пока демо-ссылка
-                    
-                    if (qrContainer) {
-                        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
-                    }
-                    
-                    const linkElement = document.getElementById('paymentUrlLink');
-                    if (linkElement) {
-                        linkElement.href = paymentUrl;
-                        linkElement.textContent = '🔗 Перейти к оплате';
-                        linkElement.setAttribute('target', '_blank');
-                    }
-                    
-                    document.getElementById('paymentModal').classList.add('open');
-                    document.getElementById('overlay').classList.add('open');
-                    
-                    // Очищаем корзину
-                    cart = [];
-                    saveCart();
-                    updateUI();
-                    closeCart();
-                } else {
-                    showToast('Ошибка: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                showToast('Ошибка подключения к серверу: ' + error.message);
-            });
+                    function openPaymentModal() {
+        if (cart.length === 0) {
+            showToast('Корзина пуста! Добавьте товар');
+            return;
         }
-            
+        
+        // Собираем данные из формы
+        const customerData = {
+            fullName: document.getElementById('fullName')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            address: document.getElementById('address')?.value || '',
+            city: document.getElementById('city')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            extraAddress: document.getElementById('extraAddress')?.value || '',
+            notes: document.getElementById('notes')?.value || ''
+        };
+        
+        // Базовая проверка обязательных полей
+        if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+            showToast('Пожалуйста, заполните все обязательные поля!');
+            return;
+        }
+        
+        const total = getTotalPrice();
+        
+        showToast('Создаём платёж...');
+        
+        // === 1. СНАЧАЛА СОЗДАЁМ ЗАКАЗ НА СЕРВЕРЕ ===
+        fetch('https://arturchik-box-2.onrender.com/create-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: total,
+                items: cart,
+                customer: customerData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Запоминаем ID заказа для последующей оплаты
+                window.currentOrderId = data.order_id;
+                
+                // Показываем окно с тестовой оплатой
+                document.getElementById('paymentAmount').innerHTML = total + ' ₽';
+                
+                // Показываем модальное окно с тестовой картой
+                document.getElementById('paymentModal').classList.add('open');
+                document.getElementById('overlay').classList.add('open');
+                
+                // НЕ ОЧИЩАЕМ КОРЗИНУ ЗДЕСЬ!
+            } else {
+                showToast('Ошибка: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showToast('Ошибка подключения к серверу: ' + error.message);
+        });
+    }
         
         
         
