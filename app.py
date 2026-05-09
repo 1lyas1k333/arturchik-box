@@ -430,10 +430,32 @@ def login():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    session.pop('user_email', None)
+    return jsonify({'success': True})
+
+@app.route('/api/me', methods=['GET'])
+def get_current_user():
+    if session.get('user_id'):
+        return jsonify({
+            'success': True,
+            'user': {
+                'id': session['user_id'],
+                'name': session['user_name'],
+                'email': session['user_email']
+            }
+        })
+    return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+
 @app.route('/api/my-orders', methods=['GET'])
 def get_my_orders():
-    # Пока возвращаем пустой список (можно расширить позже)
-    return jsonify({'success': True, 'orders': []})
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    orders = get_user_orders(session['user_id'])
+    return jsonify({'success': True, 'orders': orders})
 
 @app.route('/api/orders', methods=['GET'])
 def get_api_orders():
@@ -453,7 +475,6 @@ def update_status_api():
         update_order_status(order_id, status)
         return jsonify({'success': True})
     except Exception as e:
-        print(f"[ERROR] update_status_api: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/export-orders', methods=['GET'])
@@ -488,7 +509,7 @@ def export_orders():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
+@app.route('/create-payment', methods=['POST'])
 def create_payment():
     try:
         data = request.get_json()
@@ -496,12 +517,11 @@ def create_payment():
         cart_items = data.get('items', [])
         customer = data.get('customer', {})
         
-        # ИЗВЛЕКАЕМ ДАННЫЕ ИЗ ФОРМЫ
         customer_name = customer.get('fullName', '')
         customer_phone = customer.get('phone', '')
         customer_email = customer.get('email', '')
-        customer_address = customer.get('address', '')      # ← ЭТО КЛЮЧЕВОЕ
-        customer_city = customer.get('city', '')            # ← ЭТО КЛЮЧЕВОЕ
+        customer_address = customer.get('address', '')
+        customer_city = customer.get('city', '')
         customer_extra = customer.get('extraAddress', '')
         customer_notes = customer.get('notes', '')
         
@@ -522,9 +542,9 @@ def create_payment():
             'status': 'pending',
             'payment_id': ''
         }
-        save_order(order_data)  # ← ЗДЕСЬ ДАННЫЕ СОХРАНЯЮТСЯ В БД
+        save_order(order_data)
         
-        print(f"[DEBUG] Заказ создан: город={customer_city}, адрес={customer_address}")
+        print(f"[DEBUG] Заказ создан: {order_id}, город={customer_city}, адрес={customer_address}")
         
         return jsonify({
             'success': True,
@@ -533,7 +553,7 @@ def create_payment():
         })
         
     except Exception as e:
-        print(f"[ERROR] {e}")
+        print(f"[ERROR] create_payment: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
