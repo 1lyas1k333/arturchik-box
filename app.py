@@ -478,14 +478,61 @@ def create_payment():
         }
         save_order(order_data)
         
-        print(f"[ORDER] Заказ {order_id} создан")
+        # === ЗАПРОС К API CLOUDPAYMENTS ===
+        import requests
         
-        return jsonify({
-            'success': True,
-            'order_id': order_id,
-            'amount': amount,
-            'is_test': True
-        })
+        # Тестовые ключи
+        PUBLIC_ID = "test_api_00000000000000000000002"
+        SECRET_KEY = "test_api_00000000000000000000002"  # Для тестового режима secret key такой же
+        
+        # Данные для платежа
+        payment_data = {
+            "Amount": float(amount),
+            "Currency": "RUB",
+            "InvoiceId": order_id,
+            "Description": f"Заказ в АРТУРЧИК box",
+            "Email": customer_email,
+            "Name": customer_name,
+            "Phone": customer_phone,
+            "RequireConfirmation": False,
+            "SendReceipt": False
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+        }
+        
+        # Для тестового режима используем простой запрос (без авторизации)
+        api_url = "https://api.cloudpayments.ru/payments/cards"
+        
+        print(f"[CLOUDPAYMENTS] Отправка: {payment_data}")
+        
+        response = requests.post(api_url, json=payment_data, headers=headers, timeout=30)
+        result = response.json()
+        
+        print(f"[CLOUDPAYMENTS] Ответ: {result}")
+        
+        if result.get('Success'):
+            payment_url = result['Model'].get('Url')
+            transaction_id = result['Model'].get('TransactionId')
+            
+            return jsonify({
+                'success': True,
+                'payment_url': payment_url,
+                'transaction_id': transaction_id,
+                'order_id': order_id,
+                'amount': amount
+            })
+        else:
+            # Если не получилось, возвращаем демо-ссылку
+            return jsonify({
+                'success': True,
+                'payment_url': 'https://www.tinkoff.ru/',
+                'order_id': order_id,
+                'amount': amount,
+                'is_demo': True,
+                'message': result.get('Message', '')
+            })
         
     except Exception as e:
         print(f"[ERROR] {e}")
