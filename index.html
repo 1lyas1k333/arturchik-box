@@ -1712,73 +1712,92 @@
         // === ЛИЧНЫЙ КАБИНЕТ ===
         
             async function openCabinet() {
-            const token = localStorage.getItem('auth_token');
-            const userName = localStorage.getItem('user_name');
-            
-            if (!token || !userName) {
-                showToast('Войдите в аккаунт, чтобы увидеть заказы');
-                openLoginModal();
-                return;
-            }
-            
-            // ВРЕМЕННЫЕ ТЕСТОВЫЕ ЗАКАЗЫ
-            const demoOrders = [
-                {
-                    order_id: "DEMO_001",
-                    items: [{ name: "АРТУРЧИК box", size: "S", quantity: 1 }],
-                    total_amount: 3490,
-                    status: "pending",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    order_id: "DEMO_002",
-                    items: [{ name: "АРТУРЧИК box", size: "M", quantity: 2 }],
-                    total_amount: 6980,
-                    status: "paid",
-                    created_at: new Date(Date.now() - 86400000).toISOString()
-                }
-            ];
-            
-            const orders = demoOrders;
-            const totalOrders = orders.length;
-            const totalSpent = orders.reduce((sum, order) => sum + order.total_amount, 0);
-            
-            let ordersHtml = '';
-            if (orders.length === 0) {
-                ordersHtml = '<p style="text-align: center; color: #ccc;">У вас пока нет заказов</p>';
-            } else {
-                ordersHtml = orders.map(order => `
-                    <div class="order-history-item">
-                        <div class="order-history-header">
-                            <span class="order-id">${order.order_id}</span>
-                            <span class="order-status">${getStatusText(order.status)}</span>
-                        </div>
-                        <div>📦 ${order.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', ')}</div>
-                        <div class="order-total">💰 ${order.total_amount} ₽</div>
-                        <div class="order-date">📅 ${new Date(order.created_at).toLocaleString()}</div>
-                    </div>
-                `).join('');
-            }
-            
-            const ordersHistory = document.getElementById('ordersHistory');
-            ordersHistory.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
-                    <div style="font-size: 18px; color: #2d8c4e; margin-bottom: 10px;">👋 ${userName}</div>
-                    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                        <div><span style="color: #2d8c4e;">📦 Заказов:</span> ${totalOrders}</div>
-                        <div><span style="color: #2d8c4e;">💰 Потрачено:</span> ${totalSpent} ₽</div>
-                    </div>
-                </div>
-                <div style="margin-top: 15px;">
-                    <h4 style="color: #2d8c4e; margin-bottom: 10px;">История заказов</h4>
-                    ${ordersHtml}
-                </div>
-            `;
-            
-            document.getElementById('cabinetModal').classList.add('open');
-            document.getElementById('overlay').classList.add('open');
+    const token = localStorage.getItem('auth_token');
+    const userName = localStorage.getItem('user_name');
+    
+    if (!token || !userName) {
+        showToast('Войдите в аккаунт, чтобы увидеть заказы');
+        openLoginModal();
+        return;
+    }
+    
+    // ВРЕМЕННЫЕ ТЕСТОВЫЕ ЗАКАЗЫ С ТРЕК-НОМЕРАМИ
+    const demoOrders = [
+        {
+            order_id: "DEMO_001",
+            items: [{ name: "АРТУРЧИК box", size: "S", quantity: 1 }],
+            total_amount: 3490,
+            status: "paid",
+            tracking_number: "CDEK123456789",
+            created_at: new Date().toISOString()
+        },
+        {
+            order_id: "DEMO_002",
+            items: [{ name: "АРТУРЧИК box", size: "M", quantity: 2 }],
+            total_amount: 6980,
+            status: "shipped",
+            tracking_number: "CDEK987654321",
+            created_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+            order_id: "DEMO_003",
+            items: [{ name: "АРТУРЧИК box", size: "L", quantity: 1 }],
+            total_amount: 3490,
+            status: "pending",
+            tracking_number: null,
+            created_at: new Date(Date.now() - 172800000).toISOString()
         }
-        
+    ];
+    
+    const orders = demoOrders;
+    const totalOrders = orders.length;
+    const totalSpent = orders.reduce((sum, order) => sum + order.total_amount, 0);
+    
+    let ordersHtml = '';
+    if (orders.length === 0) {
+        ordersHtml = '<p style="text-align: center; color: #ccc;">У вас пока нет заказов</p>';
+    } else {
+        ordersHtml = orders.map(order => `
+            <div class="order-history-item">
+                <div class="order-history-header">
+                    <span class="order-id">${order.order_id}</span>
+                    <span class="order-status">${getStatusText(order.status)}</span>
+                </div>
+                <div>📦 ${order.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', ')}</div>
+                <div class="order-total">💰 ${order.total_amount} ₽</div>
+                <div class="order-date">📅 ${new Date(order.created_at).toLocaleString()}</div>
+                <div class="order-tracking" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    🚚 <strong>Трек-номер:</strong> 
+                    ${order.tracking_number ? 
+                        `<a href="https://www.cdek.ru/track?order_id=${order.tracking_number}" 
+                              target="_blank" style="color: #4ade80; text-decoration: underline;">
+                              ${order.tracking_number}
+                          </a>` : 
+                        '<span style="color: #aaa;">ещё не присвоен</span>'
+                    }
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    const ordersHistory = document.getElementById('ordersHistory');
+    ordersHistory.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+            <div style="font-size: 18px; color: #2d8c4e; margin-bottom: 10px;">👋 ${userName}</div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <div><span style="color: #2d8c4e;">📦 Заказов:</span> ${totalOrders}</div>
+                <div><span style="color: #2d8c4e;">💰 Потрачено:</span> ${totalSpent} ₽</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <h4 style="color: #2d8c4e; margin-bottom: 10px;">История заказов</h4>
+            ${ordersHtml}
+        </div>
+    `;
+    
+    document.getElementById('cabinetModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
         function getStatusText(status) {
             const statuses = {
                 'pending': '⏳ Ожидает оплаты',
