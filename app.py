@@ -63,6 +63,7 @@ def init_db():
             password TEXT,
             name TEXT,
             phone TEXT,
+            telegram_id
             created_at TEXT
         )
     ''')
@@ -122,18 +123,18 @@ else:
     conn.close()
 
 # === ПОЛЬЗОВАТЕЛИ ===
-def create_user(email, password, name, phone):
+def create_user(email, password, name, phone, telegram_id=None):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     user_id = str(uuid.uuid4())
     hashed_pw = hash_password(password)
     try:
         cursor.execute('''
-            INSERT INTO users (id, email, password, name, phone, created_at)
+            INSERT INTO users (id, email, password, name, phone, telegram_id, created_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (user_id, email, hashed_pw, name, phone, datetime.now().isoformat()))
+        ''', (user_id, email, hashed_pw, name, phone, telegram_id, datetime.now().isoformat()))
         conn.commit()
-        print(f"[REGISTER] Новый пользователь: {email}")
+        print(f"[REGISTER] Новый пользователь: {email}, telegram: {telegram_id}")
         return {'success': True, 'user_id': user_id}
     except sqlite3.IntegrityError:
         return {'success': False, 'error': 'Email уже зарегистрирован'}
