@@ -746,6 +746,8 @@ def update_tracking():
         return jsonify({'success': True})
     except Exception as e:
         print(f"[ERROR] update_tracking: {e}")
+                # Принудительная отправка для теста
+        send_telegram_to_user(1056646376, f"Тест: Заказ {order_id} отправлен с трек-номером {tracking_number}!")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 def send_telegram_to_user(chat_id, message):
