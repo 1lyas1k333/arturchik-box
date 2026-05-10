@@ -484,18 +484,23 @@ def admin_logout():
 def register():
     try:
         data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
+        print(f"[DEBUG] Получены данные: {data}")  # ← ЭТО ВАЖНО
+        
         name = data.get('name')
+        email = data.get('email')
         phone = data.get('phone')
-        telegram_id = data.get('telegram')
+        password = data.get('password')
+        telegram = data.get('telegram')
+        
+        print(f"[DEBUG] telegram = {telegram}")  # ← ЭТО ВАЖНО
         
         if not email or not password or not name:
             return jsonify({'success': False, 'error': 'Все поля обязательны'}), 400
         
-        result = create_user(email, password, name, phone, telegram_id)
+        result = create_user(email, password, name, phone, telegram)
         return jsonify(result)
     except Exception as e:
+        print(f"[ERROR] {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
