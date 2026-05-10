@@ -210,9 +210,8 @@ def save_order(order_data):
     conn.close()
     print(f"[DB] Заказ {order_data.get('order_id')} сохранён")
     
-    # === ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM ===
+    # === ОТПРАВКА УВЕДОМЛЕНИЯ АДМИНУ В TELEGRAM ===
     try:
-        from datetime import datetime as dt
         msg = f"""🆕 <b>НОВЫЙ ЗАКАЗ!</b>
         
 📦 Заказ: {order_data.get('order_id')}
@@ -226,7 +225,35 @@ def save_order(order_data):
         
         send_telegram_message(msg)
     except Exception as e:
-        print(f"[TG] Ошибка отправки уведомления: {e}")
+        print(f"[TG] Ошибка отправки уведомления админу: {e}")
+
+    # === УВЕДОМЛЕНИЕ ПОКУПАТЕЛЮ В TELEGRAM ===
+    try:
+        # Получаем telegram_id пользователя
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('SELECT telegram_id FROM users WHERE id = ?', (order_data.get('user_id'),))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user and user[0]:
+            msg_user = f"""📦 <b>АРТУРЧИК box</b>
+            
+Здравствуйте, {order_data.get('customer_name')}!
+Ваш заказ <b>№{order_data.get('order_id')}</b> успешно создан.
+
+📋 Состав заказа:
+{', '.join([f"{item.get('name', '')} ({item.get('size', '')}) x{item.get('quantity', 1)}" for item in order_data.get('items', [])])}
+
+💰 Сумма: {order_data.get('total_amount')} ₽
+📌 Статус: ⏳ Ожидает оплаты
+
+✅ После оплаты мы отправим вам трек-номер для отслеживания.
+
+Спасибо за покупку!"""
+            send_telegram_to_user(user[0], msg_user)
+    except Exception as e:
+        print(f"[TG_USER] Ошибка уведомления покупателя: {e}")
 
 def get_all_orders():
     conn = sqlite3.connect(DB_NAME)
@@ -521,9 +548,54 @@ def update_status_api():
         if not order_id or not status:
             return jsonify({'success': False, 'error': 'Missing fields'}), 400
         
+        # Получаем информацию о заказе и пользователе
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT o.customer_name, o.customer_email, u.telegram_id, o.total_amount, o.tracking_number
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.order_id = ?
+        ''', (order_id,))
+        order = cursor.fetchone()
+        conn.close()
+        
         update_order_status(order_id, status)
+        
+        status_text = {
+            'pending': '⏳ Ожидает оплаты',
+            'paid': '✅ Оплачен',
+            'shipped': '📦 Отправлен',
+            'completed': '🎉 Завершён'
+        }.get(status, status)
+        
+        tracking_text = ''
+        if order and order[4] and status == 'shipped':
+            tracking_text = f'\n\n📦 Трек-номер для отслеживания:\nhttps://www.cdek.ru/track?order_id={order[4]}'
+        
+        # Уведомление админу (уже есть)
+        msg_admin = f"""🔄 <b>СТАТУС ЗАКАЗА ИЗМЕНЁН</b>
+📦 Заказ: {order_id}
+👤 Клиент: {order[0] if order else 'Не указан'}
+💰 Сумма: {order[3] if order else '?'} ₽
+📌 Новый статус: {status_text}
+🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
+        send_telegram_message(msg_admin)
+        
+        # Уведомление покупателю
+        if order and order[2]:  # если есть telegram_id
+            msg_user = f"""📦 <b>АРТУРЧИК box</b>
+            
+Здравствуйте, {order[0]}!
+Статус вашего заказа <b>№{order_id}</b> изменился на:
+{status_text}
+{tracking_text}
+Спасибо, что выбрали нас!"""
+            send_telegram_to_user(order[2], msg_user)
+        
         return jsonify({'success': True})
     except Exception as e:
+        print(f"[ERROR] update_status_api: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/export-orders', methods=['GET'])
@@ -627,6 +699,21 @@ def update_tracking():
     except Exception as e:
         print(f"[ERROR] update_tracking: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+def send_telegram_to_user(chat_id, message):
+    """Отправка сообщения конкретному пользователю в Telegram"""
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        requests.post(url, json=payload, timeout=5)
+        print(f"[TG_USER] Отправлено пользователю {chat_id}")
+        return True
+    except Exception as e:
+        print(f"[TG_USER] Ошибка: {e}")
+        return False
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
