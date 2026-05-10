@@ -84,6 +84,7 @@ def init_db():
             total_amount INTEGER,
             status TEXT,
             payment_id TEXT,
+            tracking_number TEXT,
             created_at TEXT,
             updated_at TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id)
@@ -108,7 +109,16 @@ else:
         print("[DB] Таблица users не найдена, создаём заново...")
         init_db()
     else:
-        print("[DB] База данных уже существует")
+        # Проверяем, есть ли колонка tracking_number
+        cursor.execute("PRAGMA table_info(orders)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'tracking_number' not in columns:
+            print("[DB] Добавляем колонку tracking_number...")
+            cursor.execute("ALTER TABLE orders ADD COLUMN tracking_number TEXT DEFAULT ''")
+            conn.commit()
+            print("[DB] Колонка tracking_number добавлена")
+        else:
+            print("[DB] База данных уже существует")
     conn.close()
 
 # === ПОЛЬЗОВАТЕЛИ ===
@@ -554,6 +564,29 @@ def create_payment():
         
     except Exception as e:
         print(f"[ERROR] create_payment: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+@app.route('/api/update-tracking', methods=['POST'])
+def update_tracking():
+    try:
+        data = request.get_json()
+        order_id = data.get('order_id')
+        tracking_number = data.get('tracking_number')
+        
+        if not order_id:
+            return jsonify({'success': False, 'error': 'order_id required'}), 400
+        
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE orders SET tracking_number = ? WHERE order_id = ?', 
+                       (tracking_number, order_id))
+        conn.commit()
+        conn.close()
+        
+        print(f"[TRACKING] Заказ {order_id} обновлён: {tracking_number}")
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"[ERROR] update_tracking: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
