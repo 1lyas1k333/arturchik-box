@@ -98,6 +98,30 @@ def init_db():
 
 # === ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ТАБЛИЦ ПРИ ЗАПУСКЕ ===
 import os
+
+def migrate_db():
+    """Добавляем недостающие колонки в существующую таблицу"""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    # Проверяем и добавляем колонку telegram_id в таблицу users
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'telegram_id' not in columns:
+        print("[DB] Добавляем колонку telegram_id в таблицу users...")
+        cursor.execute("ALTER TABLE users ADD COLUMN telegram_id TEXT DEFAULT ''")
+        conn.commit()
+        print("[DB] Колонка telegram_id добавлена")
+    
+    if 'created_at' not in columns:
+        print("[DB] Добавляем колонку created_at в таблицу users...")
+        cursor.execute("ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT ''")
+        conn.commit()
+        print("[DB] Колонка created_at добавлена")
+    
+    conn.close()
+
 if not os.path.exists(DB_NAME):
     init_db()
     print(f"[DB] Создана новая база данных: {DB_NAME}")
@@ -110,17 +134,9 @@ else:
         print("[DB] Таблица users не найдена, создаём заново...")
         init_db()
     else:
-        # Проверяем, есть ли колонка tracking_number
-        cursor.execute("PRAGMA table_info(orders)")
-        columns = [col[1] for col in cursor.fetchall()]
-        if 'tracking_number' not in columns:
-            print("[DB] Добавляем колонку tracking_number...")
-            cursor.execute("ALTER TABLE orders ADD COLUMN tracking_number TEXT DEFAULT ''")
-            conn.commit()
-            print("[DB] Колонка tracking_number добавлена")
-        else:
-            print("[DB] База данных уже существует")
+        print("[DB] База данных уже существует")
     conn.close()
+    migrate_db()  # ← ВЫЗЫВАЕМ МИГРАЦИЮ ДЛЯ ДОБАВЛЕНИЯ КОЛОНОК
 
 # === ПОЛЬЗОВАТЕЛИ ===
 def create_user(email, password, name, phone, telegram_id=None):
