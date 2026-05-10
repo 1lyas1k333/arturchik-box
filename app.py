@@ -63,7 +63,7 @@ def init_db():
             password TEXT,
             name TEXT,
             phone TEXT,
-            telegram_id
+            telegram_id TEXT,
             created_at TEXT
         )
     ''')
@@ -95,7 +95,6 @@ def init_db():
     conn.commit()
     conn.close()
     print("[DB] База данных инициализирована")
-
 # === ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ТАБЛИЦ ПРИ ЗАПУСКЕ ===
 import os
 
@@ -147,7 +146,7 @@ def create_user(email, password, name, phone, telegram_id=None):
     try:
         cursor.execute('''
             INSERT INTO users (id, email, password, name, phone, telegram_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (user_id, email, hashed_pw, name, phone, telegram_id, datetime.now().isoformat()))
         conn.commit()
         print(f"[REGISTER] Новый пользователь: {email}, telegram: {telegram_id}")
@@ -489,11 +488,12 @@ def register():
         password = data.get('password')
         name = data.get('name')
         phone = data.get('phone')
+        telegram_id = data.get('telegram')
         
         if not email or not password or not name:
             return jsonify({'success': False, 'error': 'Все поля обязательны'}), 400
         
-        result = create_user(email, password, name, phone)
+        result = create_user(email, password, name, phone, telegram_id)
         return jsonify(result)
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
