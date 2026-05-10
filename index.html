@@ -1653,7 +1653,7 @@
                 const response = await fetch('https://arturchik-box-2.onrender.com/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, telegram, phone, password })
+                    body: JSON.stringify({ name, email, phone, password, telegram })
                 });
                 const data = await response.json();
                 
