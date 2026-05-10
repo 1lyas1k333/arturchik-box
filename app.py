@@ -702,19 +702,46 @@ def update_tracking():
         if not order_id:
             return jsonify({'success': False, 'error': 'order_id required'}), 400
         
+        # Обновляем трек-номер
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute('UPDATE orders SET tracking_number = ? WHERE order_id = ?', 
                        (tracking_number, order_id))
         conn.commit()
+        
+        # Получаем информацию о заказе и покупателе для уведомления
+        cursor.execute('''
+            SELECT o.customer_name, u.telegram_id 
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.order_id = ?
+        ''', (order_id,))
+        order = cursor.fetchone()
         conn.close()
         
         print(f"[TRACKING] Заказ {order_id} обновлён: {tracking_number}")
+        
+        # Отправляем уведомление покупателю, если есть telegram_id
+        if order and order[1] and tracking_number:
+            msg_user = f"""📦 <b>АРТУРЧИК box</b>
+
+Здравствуйте, {order[0]}!
+
+Ваш заказ <b>№{order_id}</b> отправлен!
+
+📦 Трек-номер для отслеживания:
+<a href="https://www.cdek.ru/track?order_id={tracking_number}">{tracking_number}</a>
+
+Вы можете отслеживать посылку на сайте СДЭК.
+
+Спасибо, что выбрали нас!"""
+            send_telegram_to_user(order[1], msg_user)
         
         return jsonify({'success': True})
     except Exception as e:
         print(f"[ERROR] update_tracking: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
 def send_telegram_to_user(chat_id, message):
     """Отправка сообщения конкретному пользователю в Telegram"""
     try:
