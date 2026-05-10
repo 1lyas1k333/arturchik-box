@@ -96,30 +96,8 @@ def init_db():
     conn.close()
     print("[DB] База данных инициализирована")
 # === ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ТАБЛИЦ ПРИ ЗАПУСКЕ ===
+# === ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ ТАБЛИЦ И МИГРАЦИЯ ===
 import os
-
-def migrate_db():
-    """Добавляем недостающие колонки в существующую таблицу"""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    
-    # Проверяем и добавляем колонку telegram_id в таблицу users
-    cursor.execute("PRAGMA table_info(users)")
-    columns = [col[1] for col in cursor.fetchall()]
-    
-    if 'telegram_id' not in columns:
-        print("[DB] Добавляем колонку telegram_id в таблицу users...")
-        cursor.execute("ALTER TABLE users ADD COLUMN telegram_id TEXT DEFAULT ''")
-        conn.commit()
-        print("[DB] Колонка telegram_id добавлена")
-    
-    if 'created_at' not in columns:
-        print("[DB] Добавляем колонку created_at в таблицу users...")
-        cursor.execute("ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT ''")
-        conn.commit()
-        print("[DB] Колонка created_at добавлена")
-    
-    conn.close()
 
 if not os.path.exists(DB_NAME):
     init_db()
@@ -134,8 +112,23 @@ else:
         init_db()
     else:
         print("[DB] База данных уже существует")
+    
+    # ПРИНУДИТЕЛЬНО ДОБАВЛЯЕМ КОЛОНКУ telegram_id (даже если уже есть)
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN telegram_id TEXT DEFAULT ''")
+        conn.commit()
+        print("[DB] Колонка telegram_id добавлена (или уже была)")
+    except Exception as e:
+        print(f"[DB] Колонка telegram_id уже есть или ошибка: {e}")
+    
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT ''")
+        conn.commit()
+        print("[DB] Колонка created_at добавлена (или уже была)")
+    except Exception as e:
+        print(f"[DB] Колонка created_at уже есть или ошибка: {e}")
+    
     conn.close()
-    migrate_db()  # ← ВЫЗЫВАЕМ МИГРАЦИЮ ДЛЯ ДОБАВЛЕНИЯ КОЛОНОК
 
 # === ПОЛЬЗОВАТЕЛИ ===
 def create_user(email, password, name, phone, telegram_id=None):
