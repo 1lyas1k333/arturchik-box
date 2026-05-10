@@ -720,7 +720,8 @@ def update_tracking():
         conn.close()
         
         print(f"[TRACKING] Заказ {order_id} обновлён: {tracking_number}")
-        
+        print(f"[TRACKING] order = {order}")
+        print(f"[TRACKING] telegram_id = {order[1] if order else 'None'}")
         # Отправляем уведомление покупателю, если есть telegram_id
         if order and order[1] and tracking_number:
             msg_user = f"""📦 <b>АРТУРЧИК box</b>
