@@ -720,7 +720,17 @@ def update_tracking():
         print(f"[TRACKING] Заказ {order_id} обновлён: {tracking_number}")
         print(f"[TRACKING] order = {order}")
         print(f"[TRACKING] telegram_id = {order[1] if order else 'None'}")
-        # Отправляем уведомление покупателю, если есть telegram_id
+        
+        # ✅ ПРИНУДИТЕЛЬНАЯ ОТПРАВКА ТЕБЕ (АДМИНУ) — ВСЕГДА РАБОТАЕТ
+        send_telegram_message(f"""📦 <b>ТРЕК-НОМЕР ДОБАВЛЕН</b>
+        
+📦 Заказ: {order_id}
+🚚 Трек-номер: {tracking_number}
+🔗 Ссылка: https://www.cdek.ru/track?order_id={tracking_number}
+👤 Клиент: {order[0] if order else 'Неизвестен'}
+🔗 Админка: https://arturchik-box-2.onrender.com/admin""")
+        
+        # Отправляем покупателю, если есть telegram_id
         if order and order[1] and tracking_number:
             msg_user = f"""📦 <b>АРТУРЧИК box</b>
 
@@ -739,10 +749,7 @@ def update_tracking():
         return jsonify({'success': True})
     except Exception as e:
         print(f"[ERROR] update_tracking: {e}")
-                # Принудительная отправка для теста
-        send_telegram_to_user(1056646376, f"Тест: Заказ {order_id} отправлен с трек-номером {tracking_number}!")
         return jsonify({'success': False, 'error': str(e)}), 500
-
 def send_telegram_to_user(chat_id, message):
     """Отправка сообщения конкретному пользователю в Telegram"""
     try:
