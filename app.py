@@ -231,7 +231,7 @@ def get_all_orders():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT order_id, customer_name, customer_email, customer_phone, items, total_amount, status, created_at 
+        SELECT order_id, customer_name, customer_email, customer_phone, items, total_amount, status, created_at, tracking_number 
         FROM orders 
         ORDER BY created_at DESC
     ''')
@@ -252,7 +252,8 @@ def get_all_orders():
             'items': items,
             'total_amount': row[5],
             'status': row[6],
-            'created_at': row[7]
+            'created_at': row[7],
+            'tracking_number': row[8] or ''
         })
     return orders
 
@@ -305,7 +306,7 @@ ADMIN_HTML = '''
         <h1>📦 Админ-панель АРТУРЧИК box <div><button class="refresh-btn" onclick="loadOrders()">🔄 Обновить</button><button class="logout-btn" onclick="logout()">🚪 Выйти</button></div></h1>
         <div class="stats"><div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Всего заказов</div></div><div class="stat-card"><div class="stat-number" id="totalAmount">0</div><div class="stat-label">Сумма (₽)</div></div><div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div></div>
         <button class="export-btn" onclick="exportExcel()">📊 Экспорт в Excel</button>
-        <table><thead><tr><th>№ заказа</th><th>Покупатель</th><th>Email/Телефон</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead><tbody id="ordersBody"></table><td colspan="6">Загрузка...</td></tbody></table>
+        <table><thead><tr><th>№ заказа</th><th>Покупатель</th><th>Email/Телефон</th><th>Сумма</th><th>Статус</th><th>Трек-номер</th><th>Дата</th></tr></thead><tbody id="ordersBody"></table><td colspan="6">Загрузка...</td></tbody></table>
     </div>
     <script>
         let ordersData = [];
@@ -317,22 +318,34 @@ ADMIN_HTML = '''
             } catch(error) { document.getElementById('ordersBody').innerHTML = '<td><td colspan="6">Ошибка</td></tr>'; }
         }
         function renderOrders() {
-            const tbody = document.getElementById('ordersBody');
-            if (!ordersData.length) { tbody.innerHTML = '<tr><td colspan="6">Нет заказов</td></tr>'; return; }
-            tbody.innerHTML = ordersData.map(order => `<tr>
-                <td>${order.order_id}</td>
-                <td>${order.customer_name || '—'}</td>
-                <td>${order.customer_email || '—'}<br><small>${order.customer_phone || ''}</small></td>
-                <td>${order.total_amount} ₽</td>
-                <td><select onchange="updateStatus('${order.order_id}', this.value)">
-                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
-                    <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
-                    <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
-                    <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🎉 Завершён</option>
-                </select></td>
-                <td>${new Date(order.created_at).toLocaleString()}</td>
-            </tr>`).join('');
-        }
+    const tbody = document.getElementById('ordersBody');
+    if (!ordersData.length) { 
+        tbody.innerHTML = '<tr><td colspan="7">Нет заказов</td></tr>'; 
+        return; 
+    }
+    tbody.innerHTML = ordersData.map(order => `<tr>
+        <td>${order.order_id}</td>
+        <td>${order.customer_name || '—'}</td>
+        <td>${order.customer_email || '—'}<br><small>${order.customer_phone || ''}</small></td>
+        <td>${order.total_amount} ₽</td>
+        <td>
+            <select onchange="updateStatus('${order.order_id}', this.value)">
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
+                <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
+                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
+                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🎉 Завершён</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" id="track_${order.order_id}" 
+                   value="${order.tracking_number || ''}" 
+                   placeholder="Введите трек-номер"
+                   onchange="updateTracking('${order.order_id}', this.value)"
+                   style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px; border-radius: 8px; width: 150px;">
+        </td>
+        <td>${new Date(order.created_at).toLocaleString()}</td>
+    </td>`).join('');
+}
         function updateStats() {
             document.getElementById('totalOrders').textContent = ordersData.length;
             document.getElementById('totalAmount').textContent = ordersData.reduce((s,o) => s + o.total_amount, 0).toLocaleString();
@@ -346,6 +359,31 @@ ADMIN_HTML = '''
         function logout() { window.location.href = '/admin/logout'; }
         loadOrders();
         setInterval(loadOrders, 30000);
+
+        async function updateTracking(orderId, trackingNumber) {
+    try {
+        const response = await fetch('/api/update-tracking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId, tracking_number: trackingNumber })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast('Трек-номер сохранён');
+        } else {
+            showToast('Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('Ошибка соединения');
+    }
+}
+
+function showToast(message) {
+    alert(message);
+}
+
+        
     </script>
 </body>
 </html>
