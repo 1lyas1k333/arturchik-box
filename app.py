@@ -267,7 +267,9 @@ def get_all_orders():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT order_id, customer_name, customer_email, customer_phone, items, total_amount, status, created_at, tracking_number 
+        SELECT order_id, customer_name, customer_email, customer_phone, 
+               customer_address, customer_city, customer_extra, customer_notes,
+               items, total_amount, status, created_at, tracking_number 
         FROM orders 
         ORDER BY created_at DESC
     ''')
@@ -277,7 +279,7 @@ def get_all_orders():
     orders = []
     for row in rows:
         try:
-            items = json.loads(row[4]) if row[4] else []
+            items = json.loads(row[8]) if row[8] else []
         except:
             items = []
         orders.append({
@@ -285,11 +287,15 @@ def get_all_orders():
             'customer_name': row[1] or '',
             'customer_email': row[2] or '',
             'customer_phone': row[3] or '',
+            'customer_address': row[4] or '',
+            'customer_city': row[5] or '',
+            'customer_extra': row[6] or '',
+            'customer_notes': row[7] or '',
             'items': items,
-            'total_amount': row[5],
-            'status': row[6],
-            'created_at': row[7],
-            'tracking_number': row[8] or ''
+            'total_amount': row[9],
+            'status': row[10],
+            'created_at': row[11],
+            'tracking_number': row[12] or ''
         })
     return orders
 
@@ -380,6 +386,12 @@ ADMIN_HTML = '''
                    style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px; border-radius: 8px; width: 150px;">
         </td>
         <td>${new Date(order.created_at).toLocaleString()}</td>
+         <td>
+            <button onclick="showOrderDetails('${order.order_id}')" 
+                    style="background: #2d8c4e; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">
+                📋 Подробнее
+            </button>
+        </td>
     </td>`).join('');
 }
         function updateStats() {
@@ -393,6 +405,87 @@ ADMIN_HTML = '''
         }
         function exportExcel() { window.open('/export-orders', '_blank'); }
         function logout() { window.location.href = '/admin/logout'; }
+        function showOrderDetails(orderId) {
+    const order = ordersData.find(o => o.order_id === orderId);
+    if (!order) return;
+    
+    // Формируем список товаров
+    const itemsHtml = order.items.map(item => `
+        <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <strong>${item.name}</strong><br>
+            📏 Размер: ${item.size}<br>
+            🚫 Исключения: ${item.exclusions?.join(', ') || 'нет'}<br>
+            📦 Количество: ${item.quantity}<br>
+            💰 Цена: ${item.price} ₽
+        </div>
+    `).join('');
+    
+    const modalHtml = `
+        <div id="orderDetailModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0d1f0d; padding: 25px; border-radius: 20px; z-index: 10003; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid #2d8c4e;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #2d8c4e;">📦 Заказ ${order.order_id}</h3>
+                <button onclick="closeOrderDetailModal()" style="background: #ff4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">✕</button>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">👤 Покупатель:</strong>
+                <div style="color: white; margin-top: 5px;">${order.customer_name || '—'}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📧 Email:</strong>
+                <div style="color: white; margin-top: 5px;">${order.customer_email || '—'}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📞 Телефон:</strong>
+                <div style="color: white; margin-top: 5px;">${order.customer_phone || '—'}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📍 Адрес доставки:</strong>
+                <div style="color: white; margin-top: 5px;">${order.customer_address || '—'}</div>
+                <div style="color: white;">${order.customer_city || '—'}</div>
+                <div style="color: white; font-size: 12px; color: #aaa;">${order.customer_extra || ''}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📋 Состав заказа:</strong>
+                <div style="margin-top: 5px;">${itemsHtml}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">💰 Сумма:</strong>
+                <div style="color: white; margin-top: 5px;">${order.total_amount} ₽</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📌 Статус:</strong>
+                <div style="color: white; margin-top: 5px;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : '✅ Оплачен'}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📅 Дата создания:</strong>
+                <div style="color: white; margin-top: 5px;">${new Date(order.created_at).toLocaleString()}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📦 Трек-номер:</strong>
+                <div style="color: white; margin-top: 5px;">${order.tracking_number || 'ещё не присвоен'}</div>
+            </div>
+            
+            ${order.customer_notes ? `
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #2d8c4e;">📝 Примечание к заказу:</strong>
+                <div style="color: white; margin-top: 5px;">${order.customer_notes}</div>
+            </div>
+            ` : ''}
+        </div>
+        <div id="orderDetailOverlay" onclick="closeOrderDetailModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002;"></div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+} 
         loadOrders();
         setInterval(loadOrders, 30000);
 
@@ -415,6 +508,12 @@ ADMIN_HTML = '''
     }
 }
 
+function closeOrderDetailModal() {
+    const modal = document.getElementById('orderDetailModal');
+    const overlay = document.getElementById('orderDetailOverlay');
+    if (modal) modal.remove();
+    if (overlay) overlay.remove();
+}
 function showToast(message) {
     alert(message);
 }
