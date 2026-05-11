@@ -477,18 +477,18 @@ ADMIN_HTML = '''
         }
         function exportExcel() { window.open('/export-orders', '_blank'); }
         function logout() { window.location.href = '/admin/logout'; }
-        function showOrderDetails(orderId) {
+       function showOrderDetails(orderId) {
     const order = ordersData.find(o => o.order_id === orderId);
     if (!order) return;
     
-    // Формируем список товаров
+    // Формируем список товаров с белым текстом
     const itemsHtml = order.items.map(item => `
-        <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-            <strong>${item.name}</strong><br>
-            📏 Размер: ${item.size}<br>
-            🚫 Исключения: ${item.exclusions?.join(', ') || 'нет'}<br>
-            📦 Количество: ${item.quantity}<br>
-            💰 Цена: ${item.price} ₽
+        <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+            <strong style="color: #2d8c4e;">${item.name}</strong><br>
+            <span style="color: white;">📏 Размер: ${item.size}</span><br>
+            <span style="color: white;">🚫 Исключения: ${item.exclusions?.join(', ') || 'нет'}</span><br>
+            <span style="color: white;">📦 Количество: ${item.quantity}</span><br>
+            <span style="color: white;">💰 Цена: ${item.price} ₽</span>
         </div>
     `).join('');
     
@@ -533,7 +533,7 @@ ADMIN_HTML = '''
             
             <div style="margin-bottom: 15px;">
                 <strong style="color: #2d8c4e;">📌 Статус:</strong>
-                <div style="color: white; margin-top: 5px;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : '✅ Оплачен'}</div>
+                <div style="color: white; margin-top: 5px;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : order.status === 'paid' ? '✅ Оплачен' : order.status === 'shipped' ? '📦 Отправлен' : '🎉 Завершён'}</div>
             </div>
             
             <div style="margin-bottom: 15px;">
@@ -557,7 +557,7 @@ ADMIN_HTML = '''
     `;
     
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-} 
+}
         loadOrders();
         setInterval(loadOrders, 30000);
 
