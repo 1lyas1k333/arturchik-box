@@ -344,20 +344,92 @@ ADMIN_HTML = '''
     </style>
 </head>
 <body>
-    <div class="container">
+       <div class="container">
         <h1>📦 Админ-панель АРТУРЧИК box <div><button class="refresh-btn" onclick="loadOrders()">🔄 Обновить</button><button class="logout-btn" onclick="logout()">🚪 Выйти</button></div></h1>
-        <div class="stats"><div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Всего заказов</div></div><div class="stat-card"><div class="stat-number" id="totalAmount">0</div><div class="stat-label">Сумма (₽)</div></div><div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div></div>
+        
+        <div class="stats">
+            <div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Всего заказов</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalAmount">0</div><div class="stat-label">Сумма (₽)</div></div>
+            <div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div>
+        </div>
+        
+        <!-- БЛОК ФИЛЬТРОВ -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+            <select id="statusFilter" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
+                <option value="all">📋 Все статусы</option>
+                <option value="pending">⏳ Ожидают оплаты</option>
+                <option value="paid">✅ Оплаченные</option>
+                <option value="shipped">📦 Отправленные</option>
+                <option value="completed">🎉 Завершённые</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="🔍 Поиск по заказу или ФИО" onkeyup="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
+            <button onclick="resetFilters()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">🔄 Сбросить</button>
+        </div>
+        
         <button class="export-btn" onclick="exportExcel()">📊 Экспорт в Excel</button>
-        <table><thead><tr><th>№ заказа</th><th>Покупатель</th><th>Email/Телефон</th><th>Сумма</th><th>Статус</th><th>Трек-номер</th><th>Дата</th></tr></thead><tbody id="ordersBody"></table><td colspan="6">Загрузка...</td></tbody></table>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>№ заказа</th>
+                    <th>Покупатель</th>
+                    <th>Email/Телефон</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Трек-номер</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody id="ordersBody">
+                <tr><td colspan="7">Загрузка...</td></tr>
+            </tbody>
+        </table>
     </div>
     <script>
         let ordersData = [];
+        let allOrdersData = [];
+                function applyFilters() {
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = [...allOrdersData];
+            
+            if (status !== 'all') {
+                filtered = filtered.filter(order => order.status === status);
+            }
+            
+            if (search) {
+                filtered = filtered.filter(order => 
+                    order.order_id.toLowerCase().includes(search) || 
+                    (order.customer_name && order.customer_name.toLowerCase().includes(search))
+                );
+            }
+            
+            ordersData = filtered;
+            renderOrders();
+            updateStats();
+        }
+        
+        function resetFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('searchInput').value = '';
+            ordersData = [...allOrdersData];
+            renderOrders();
+            updateStats();
+        }
         async function loadOrders() {
             try {
                 const response = await fetch('/api/orders');
                 const data = await response.json();
-                if (data.success) { ordersData = data.orders; renderOrders(); updateStats(); }
-            } catch(error) { document.getElementById('ordersBody').innerHTML = '<td><td colspan="6">Ошибка</td></tr>'; }
+                if (data.success) { 
+                    allOrdersData = data.orders; 
+                    ordersData = [...allOrdersData];
+                    renderOrders(); 
+                    updateStats(); 
+                }
+            } catch(error) { 
+                document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7">Ошибка загрузки</td></tr>'; 
+            }
         }
         function renderOrders() {
     const tbody = document.getElementById('ordersBody');
@@ -529,15 +601,54 @@ LOGIN_HTML = '''
 <!DOCTYPE html>
 <html lang="ru">
 <head><meta charset="UTF-8"><title>Вход в админ-панель</title>
-<style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:system-ui;background:linear-gradient(135deg,#0a0a0a 0%,#1a2a1a 100%);min-height:100vh;display:flex;justify-content:center;align-items:center}
-    .login-box{background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);padding:40px;border-radius:30px;border:1px solid #2d8c4e;text-align:center;width:350px}
-    h2{color:#2d8c4e;margin-bottom:20px}
-    input{width:100%;padding:12px;margin:10px 0;border:1px solid #2d8c4e;border-radius:12px;background:rgba(0,0,0,0.5);color:white;font-size:16px}
-    button{background:#2d8c4e;color:white;border:none;padding:12px;border-radius:12px;cursor:pointer;font-size:16px;width:100%}
-    .error{color:#ff4444;margin-top:10px}
-</style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a2a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #2d8c4e; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .stat-card { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; border: 1px solid #2d8c4e; min-width: 150px; text-align: center; }
+        .stat-number { font-size: 36px; font-weight: bold; color: #2d8c4e; }
+        .stat-label { color: #ccc; font-size: 14px; }
+        .export-btn { background: #2d8c4e; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 16px; margin-bottom: 20px; }
+        table { width: 100%; background: rgba(0,0,0,0.6); border-radius: 20px; overflow: hidden; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
+        th { background: #2d8c4e; cursor: pointer; }
+        tr:hover { background: rgba(45,140,78,0.2); }
+        select { background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+        .refresh-btn, .logout-btn { background: #2d8c4e; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .logout-btn { background: #ff4444; }
+        @media (max-width: 768px) { th, td { padding: 8px; font-size: 12px; } .stats { gap: 10px; } .stat-card { padding: 10px; min-width: 100px; } .stat-number { font-size: 24px; } }
+        
+        /* СТИЛИ ДЛЯ ФИЛЬТРОВ — ДОБАВИТЬ СЮДА */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filters select, .filters input {
+            background: #1a2a1a;
+            color: white;
+            border: 1px solid #2d8c4e;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        .filters button {
+            background: #2d8c4e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="login-box">
