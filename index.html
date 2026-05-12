@@ -1768,9 +1768,9 @@
                 ordersHtml = orders.map(order => `
             <div class="order-history-item" style="color: white;">
                 <div class="order-history-header">
-                    <span class="order-id">${order.order_id}</span>
-                    <span class="order-status">${getStatusText(order.status)}</span>
-                </div>
+    <span class="order-id">${order.order_id}</span>
+</div>
+${getStatusProgress(order.status, order.tracking_number)}
                 <div style="color: white;">📦 ${order.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', ')}</div>
                 <div class="order-total">💰 ${order.total_amount} ₽</div>
                 <div class="order-date">📅 ${new Date(order.created_at).toLocaleString()}</div>
@@ -1854,6 +1854,51 @@
             closeCart();
             closePaymentModal();
         };
+        function getStatusProgress(status, tracking_number) {
+    let steps = [
+        { name: 'Создан', value: 'pending', completed: false },
+        { name: 'Оплачен', value: 'paid', completed: false },
+        { name: 'Отправлен', value: 'shipped', completed: false },
+        { name: 'Получен', value: 'delivered', completed: false },
+        { name: 'Завершён', value: 'completed', completed: false }
+    ];
+    
+    // Определяем текущий шаг
+    let currentStep = 0;
+    if (status === 'paid') currentStep = 1;
+    if (status === 'shipped') currentStep = 2;
+    if (status === 'delivered') currentStep = 3;
+    if (status === 'completed') currentStep = 4;
+    
+    // Заполняем completed
+    for (let i = 0; i <= currentStep; i++) {
+        steps[i].completed = true;
+    }
+    
+    // Формируем HTML
+    let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
+    progressHtml += '<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">';
+    
+    for (let i = 0; i < steps.length; i++) {
+        let icon = steps[i].completed ? '✅' : '○';
+        progressHtml += `<div style="text-align: center; flex: 1; font-size: 12px; color: ${steps[i].completed ? '#4ade80' : '#aaa'};">`;
+        progressHtml += `<div style="font-size: 16px; margin-bottom: 5px;">${icon}</div>`;
+        progressHtml += steps[i].name;
+        progressHtml += `</div>`;
+    }
+    
+    progressHtml += '</div>';
+    
+    // Линия прогресса
+    let progressPercent = (currentStep / (steps.length - 1)) * 100;
+    progressHtml += `<div style="height: 4px; background: #333; border-radius: 2px; overflow: hidden;">`;
+    progressHtml += `<div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #2d8c4e, #4ade80);"></div>`;
+    progressHtml += `</div>`;
+    
+    progressHtml += '</div>';
+    
+    return progressHtml;
+}
     </script>
     </body>
     </html>
