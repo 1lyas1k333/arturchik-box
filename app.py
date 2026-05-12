@@ -30,6 +30,47 @@ def send_telegram_message(message):
         requests.post(url, json=payload, timeout=5)
     except Exception as e:
         print(f"[TG] Ошибка: {e}")
+# === ОБРАБОТКА ВХОДЯЩИХ СООБЩЕНИЙ ОТ ПОКУПАТЕЛЕЙ ===
+def handle_customer_message(chat_id, text):
+    if text.startswith('/status'):
+        parts = text.split(' ')
+        if len(parts) > 1:
+            order_id = parts[1]
+            
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT status, tracking_number, total_amount, created_at, customer_name
+                FROM orders WHERE order_id = ?
+            ''', (order_id,))
+            order = cursor.fetchone()
+            conn.close()
+            
+            if order:
+                status_text = {
+                    'pending': '⏳ Ожидает оплаты',
+                    'paid': '✅ Оплачен',
+                    'shipped': '📦 Отправлен',
+                    'completed': '🎉 Завершён'
+                }.get(order[0], order[0])
+                
+                msg = f"""📦 <b>Заказ {order_id}</b>
+
+👤 Получатель: {order[4]}
+💰 Сумма: {order[2]} ₽
+📌 Статус: {status_text}
+📅 Дата: {order[3][:10] if order[3] else '—'}"""
+
+                if order[1]:
+                    msg += f"\n\n📦 Трек-номер: {order[1]}\n🔗 Отследить: https://www.cdek.ru/track?order_id={order[1]}"
+                
+                send_telegram_to_user(chat_id, msg)
+            else:
+                send_telegram_to_user(chat_id, "❌ Заказ не найден. Проверьте номер.")
+        else:
+            send_telegram_to_user(chat_id, "ℹ️ Используйте: /status НОМЕР_ЗАКАЗА")
+    else:
+        send_telegram_to_user(chat_id, "ℹ️ Доступные команды:\n/status НОМЕР - узнать статус заказа")
 
 # === КОНФИГУРАЦИЯ ===
 ADMIN_PASSWORD = "123"
@@ -990,6 +1031,24 @@ def send_telegram_to_user(chat_id, message):
     except Exception as e:
         print(f"[TG_USER] Ошибка: {e}")
         return False
+@app.route('/webhook', methods=['POST'])
+def telegram_webhook():
+    try:
+        data = request.get_json()
+        message = data.get('message', {})
+        chat_id = message.get('chat', {}).get('id')
+        text = message.get('text', '')
+        
+        # Не отвечаем админу (у него свои уведомления)
+        if str(chat_id) != TELEGRAM_CHAT_ID and text:
+            handle_customer_message(chat_id, text)
+        else:
+            print(f"[BOT] Сообщение от админа: {text}")
+        
+        return jsonify({'ok': True})
+    except Exception as e:
+        print(f"[BOT] Ошибка: {e}")
+        return jsonify({'ok': False}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
