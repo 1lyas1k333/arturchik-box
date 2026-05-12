@@ -406,6 +406,22 @@ ADMIN_HTML = '''
             <input type="text" id="searchInput" placeholder="🔍 Поиск по заказу или ФИО" onkeyup="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
             <button onclick="resetFilters()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">🔄 Сбросить</button>
         </div>
+                <!-- БЛОК ФИЛЬТРОВ -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+            <select id="statusFilter" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
+                <option value="all">📋 Все статусы</option>
+                <option value="pending">⏳ Ожидают оплаты</option>
+                <option value="paid">✅ Оплаченные</option>
+                <option value="shipped">📦 Отправленные</option>
+                <option value="completed">🎉 Завершённые</option>
+            </select>
+            
+            <input type="date" id="dateFrom" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
+            <span style="color: white;">—</span>
+            <input type="date" id="dateTo" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
+            
+            <button onclick="resetFilters()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">🔄 Сбросить</button>
+        </div>
         
         <button class="export-btn" onclick="exportExcel()">📊 Экспорт в Excel</button>
         
@@ -429,16 +445,20 @@ ADMIN_HTML = '''
     <script>
         let ordersData = [];
         let allOrdersData = [];
-                function applyFilters() {
+                        function applyFilters() {
             const status = document.getElementById('statusFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
             
             let filtered = [...allOrdersData];
             
+            // Фильтр по статусу
             if (status !== 'all') {
                 filtered = filtered.filter(order => order.status === status);
             }
             
+            // Фильтр по поиску
             if (search) {
                 filtered = filtered.filter(order => 
                     order.order_id.toLowerCase().includes(search) || 
@@ -446,14 +466,29 @@ ADMIN_HTML = '''
                 );
             }
             
+            // Фильтр по дате (от)
+            if (dateFrom) {
+                const fromDate = new Date(dateFrom);
+                filtered = filtered.filter(order => new Date(order.created_at) >= fromDate);
+            }
+            
+            // Фильтр по дате (до)
+            if (dateTo) {
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59);
+                filtered = filtered.filter(order => new Date(order.created_at) <= toDate);
+            }
+            
             ordersData = filtered;
             renderOrders();
             updateStats();
         }
         
-        function resetFilters() {
+                function resetFilters() {
             document.getElementById('statusFilter').value = 'all';
             document.getElementById('searchInput').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
             ordersData = [...allOrdersData];
             renderOrders();
             updateStats();
