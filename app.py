@@ -514,11 +514,15 @@ ADMIN_HTML = '''
                 <div style="color: white; margin-top: 5px;">${order.customer_phone || '—'}</div>
             </div>
             
-            <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 15px;">
                 <strong style="color: #2d8c4e;">📍 Адрес доставки:</strong>
-                <div style="color: white; margin-top: 5px;">${order.customer_address || '—'}</div>
-                <div style="color: white;">${order.customer_city || '—'}</div>
-                <div style="color: white; font-size: 12px; color: #aaa;">${order.customer_extra || ''}</div>
+                <div style="color: white; margin-top: 5px;" id="addressText_${order.order_id}">
+                    ${order.customer_address || '—'}, ${order.customer_city || '—'}${order.customer_extra ? ', ' + order.customer_extra : ''}
+                </div>
+                <button onclick="copyAddress('${order.order_id}')" 
+                        style="background: #2d8c4e; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; color: white; margin-top: 8px;">
+                    📋 Скопировать адрес
+                </button>
             </div>
             
             <div style="margin-bottom: 15px;">
@@ -589,6 +593,17 @@ function closeOrderDetailModal() {
 function showToast(message) {
     alert(message);
 }
+        function copyAddress(orderId) {
+            const addressElement = document.getElementById(`addressText_${orderId}`);
+            if (addressElement) {
+                const address = addressElement.innerText;
+                navigator.clipboard.writeText(address).then(() => {
+                    alert('Адрес скопирован в буфер обмена');
+                }).catch(() => {
+                    alert('Не удалось скопировать адрес');
+                });
+            }
+        }
 
         
     </script>
