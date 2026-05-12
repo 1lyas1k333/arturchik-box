@@ -1859,7 +1859,6 @@ ${getStatusProgress(order.status, order.tracking_number)}
         { name: 'Создан', value: 'pending', completed: false },
         { name: 'Оплачен', value: 'paid', completed: false },
         { name: 'Отправлен', value: 'shipped', completed: false },
-        { name: 'Получен', value: 'delivered', completed: false },
         { name: 'Завершён', value: 'completed', completed: false }
     ];
     
@@ -1867,37 +1866,60 @@ ${getStatusProgress(order.status, order.tracking_number)}
     let currentStep = 0;
     if (status === 'paid') currentStep = 1;
     if (status === 'shipped') currentStep = 2;
-    if (status === 'delivered') currentStep = 3;
-    if (status === 'completed') currentStep = 4;
+    if (status === 'completed') currentStep = 3;
     
     // Заполняем completed
     for (let i = 0; i <= currentStep; i++) {
         steps[i].completed = true;
     }
     
-    // Формируем HTML
-    let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
-    progressHtml += '<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">';
+    // Проверяем, телефон ли это
+    const isMobile = window.innerWidth <= 600;
     
-    for (let i = 0; i < steps.length; i++) {
-        let icon = steps[i].completed ? '✅' : '○';
-        progressHtml += `<div style="text-align: center; flex: 1; font-size: 12px; color: ${steps[i].completed ? '#4ade80' : '#aaa'};">`;
-        progressHtml += `<div style="font-size: 16px; margin-bottom: 5px;">${icon}</div>`;
-        progressHtml += steps[i].name;
+    if (isMobile) {
+        // Мобильная версия: вертикальный список
+        let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
+        
+        for (let i = 0; i < steps.length; i++) {
+            let icon = steps[i].completed ? '✅' : '○';
+            let color = steps[i].completed ? '#4ade80' : '#aaa';
+            progressHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <div style="font-size: 18px; min-width: 30px;">${icon}</div>
+                    <div style="color: ${color}; font-size: 14px;">${steps[i].name}</div>
+                    ${i < currentStep ? '<div style="margin-left: auto; color: #2d8c4e;">✓</div>' : ''}
+                </div>
+            `;
+            if (i < steps.length - 1) {
+                progressHtml += `<div style="margin-left: 15px; width: 2px; height: 12px; background: ${steps[i].completed ? '#2d8c4e' : '#333'}; margin-bottom: 8px;"></div>`;
+            }
+        }
+        
+        progressHtml += '</div>';
+        return progressHtml;
+    } else {
+        // Десктопная версия: горизонтальный прогресс-бар
+        let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
+        progressHtml += '<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">';
+        
+        for (let i = 0; i < steps.length; i++) {
+            let icon = steps[i].completed ? '✅' : '○';
+            progressHtml += `<div style="text-align: center; flex: 1; font-size: 12px; color: ${steps[i].completed ? '#4ade80' : '#aaa'};">`;
+            progressHtml += `<div style="font-size: 16px; margin-bottom: 5px;">${icon}</div>`;
+            progressHtml += steps[i].name;
+            progressHtml += `</div>`;
+        }
+        
+        progressHtml += '</div>';
+        
+        let progressPercent = (currentStep / (steps.length - 1)) * 100;
+        progressHtml += `<div style="height: 4px; background: #333; border-radius: 2px; overflow: hidden;">`;
+        progressHtml += `<div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #2d8c4e, #4ade80);"></div>`;
         progressHtml += `</div>`;
+        progressHtml += '</div>';
+        
+        return progressHtml;
     }
-    
-    progressHtml += '</div>';
-    
-    // Линия прогресса
-    let progressPercent = (currentStep / (steps.length - 1)) * 100;
-    progressHtml += `<div style="height: 4px; background: #333; border-radius: 2px; overflow: hidden;">`;
-    progressHtml += `<div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #2d8c4e, #4ade80);"></div>`;
-    progressHtml += `</div>`;
-    
-    progressHtml += '</div>';
-    
-    return progressHtml;
 }
     </script>
     </body>
