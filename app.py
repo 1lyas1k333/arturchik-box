@@ -8,12 +8,94 @@ import os
 import io
 import hashlib
 import secrets
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 
 app = Flask(__name__)
 app.secret_key = 'secret_key_for_session_12345'
+# === EMAIL НАСТРОЙКИ (MAIL.RU) ===
+SMTP_SERVER = "smtp.mail.ru"
+SMTP_PORT = 465
+SMTP_USER = "ilyas.ryurik@bk.ru"
+SMTP_PASSWORD = "few5gcXG6TCa2XLiwavq"  # твой пароль приложения
 
+def send_email(to_email, subject, body):
+    """Отправка email через Mail.ru"""
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = SMTP_USER
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'html', 'utf-8'))
+        
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+        server.login(SMTP_USER, SMTP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        print(f"[EMAIL] Отправлено на {to_email}")
+        return True
+    except Exception as e:
+        print(f"[EMAIL] Ошибка: {e}")
+        return False
+
+def send_order_status_email(order_id, customer_name, customer_email, status, tracking_number=None):
+    """Отправка письма о статусе заказа"""
+    
+    status_text = {
+        'pending': '⏳ Ожидает оплаты',
+        'paid': '✅ Оплачен',
+        'shipped': '📦 Отправлен',
+        'completed': '🎉 Завершён'
+    }.get(status, status)
+    
+    tracking_html = ''
+    if tracking_number:
+        tracking_html = f'''
+        <p><strong>📦 Трек-номер для отслеживания:</strong></p>
+        <p><a href="https://www.cdek.ru/track?order_id={tracking_number}" style="color: #2d8c4e;">{tracking_number}</a></p>
+        '''
+    
+    html_body = f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{ font-family: Arial, sans-serif; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background: #0d1f0d; color: white; border-radius: 20px; }}
+            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #2d8c4e; }}
+            .content {{ padding: 20px 0; }}
+            .status {{ color: #2d8c4e; font-weight: bold; }}
+            .footer {{ text-align: center; padding-top: 20px; font-size: 12px; color: #aaa; }}
+            a {{ color: #4ade80; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📦 АРТУРЧИК box</h1>
+                <p>Статус вашего заказа обновлён</p>
+            </div>
+            <div class="content">
+                <p>Здравствуйте, <strong>{customer_name}</strong>!</p>
+                <p>Статус вашего заказа <strong>№{order_id}</strong> изменился на:</p>
+                <p class="status">{status_text}</p>
+                {tracking_html}
+                <p>Спасибо, что выбрали нас!</p>
+            </div>
+            <div class="footer">
+                <p>© 2026 АРТУРЧИК box | Футбольные боксы</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+    
+    subject = f"Статус заказа №{order_id} изменён"
+    send_email(customer_email, subject, html_body)
 # === TELEGRAM НАСТРОЙКИ ===
 TELEGRAM_TOKEN = "8694164916:AAEYQey-DSovguWmgy-mZLG4nMVhSV4BunQ"
 TELEGRAM_CHAT_ID = "1056646376"
@@ -30,6 +112,21 @@ def send_telegram_message(message):
         requests.post(url, json=payload, timeout=5)
     except Exception as e:
         print(f"[TG] Ошибка: {e}")
+def send_telegram_to_user(chat_id, message):
+    """Отправка сообщения конкретному пользователю в Telegram"""
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        requests.post(url, json=payload, timeout=5)
+        print(f"[TG_USER] Отправлено пользователю {chat_id}")
+        return True
+    except Exception as e:
+        print(f"[TG_USER] Ошибка: {e}")
+        return False
 # === ОБРАБОТКА ВХОДЯЩИХ СООБЩЕНИЙ ОТ ПОКУПАТЕЛЕЙ ===
 def handle_customer_message(chat_id, text):
     if text.startswith('/status'):
@@ -262,6 +359,7 @@ def save_order(order_data):
     # === ОТПРАВКА УВЕДОМЛЕНИЯ АДМИНУ В TELEGRAM ===
     try:
         msg = f"""🆕 <b>НОВЫЙ ЗАКАЗ!</b>
+    
         
 📦 Заказ: {order_data.get('order_id')}
 👤 Клиент: {order_data.get('customer_name', 'Не указан')}
@@ -275,6 +373,16 @@ def save_order(order_data):
         send_telegram_message(msg)
     except Exception as e:
         print(f"[TG] Ошибка отправки уведомления админу: {e}")
+        # Отправляем email покупателю о создании заказа
+    try:
+        send_order_status_email(
+            order_data.get('order_id'),
+            order_data.get('customer_name', ''),
+            order_data.get('customer_email', ''),
+            'pending'
+        )
+    except Exception as e:
+        print(f"[EMAIL] Ошибка при отправке письма: {e}")
 
     # === УВЕДОМЛЕНИЕ ПОКУПАТЕЛЮ В TELEGRAM ===
     try:
@@ -394,18 +502,7 @@ ADMIN_HTML = '''
             <div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div>
         </div>
         
-        <!-- БЛОК ФИЛЬТРОВ -->
-        <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
-            <select id="statusFilter" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
-                <option value="all">📋 Все статусы</option>
-                <option value="pending">⏳ Ожидают оплаты</option>
-                <option value="paid">✅ Оплаченные</option>
-                <option value="shipped">📦 Отправленные</option>
-                <option value="completed">🎉 Завершённые</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="🔍 Поиск по заказу или ФИО" onkeyup="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
-            <button onclick="resetFilters()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">🔄 Сбросить</button>
-        </div>
+       
                 <!-- БЛОК ФИЛЬТРОВ -->
         <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
             <select id="statusFilter" onchange="applyFilters()" style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px 15px; border-radius: 10px;">
@@ -907,6 +1004,9 @@ def update_status_api():
 {tracking_text}
 Спасибо, что выбрали нас!"""
             send_telegram_to_user(order[2], msg_user)
+                # Отправляем email покупателю
+        if order and order[1]:
+            send_order_status_email(order_id, order[0], order[1], status, order[4])
         
         return jsonify({'success': True})
     except Exception as e:
@@ -1051,21 +1151,7 @@ def update_tracking():
     except Exception as e:
         print(f"[ERROR] update_tracking: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-def send_telegram_to_user(chat_id, message):
-    """Отправка сообщения конкретному пользователю в Telegram"""
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": chat_id,
-            "text": message,
-            "parse_mode": "HTML"
-        }
-        requests.post(url, json=payload, timeout=5)
-        print(f"[TG_USER] Отправлено пользователю {chat_id}")
-        return True
-    except Exception as e:
-        print(f"[TG_USER] Ошибка: {e}")
-        return False
+
 @app.route('/webhook', methods=['POST'])
 def telegram_webhook():
     try:
