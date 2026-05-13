@@ -42,21 +42,9 @@ def send_email(to_email, subject, body):
         return False
 
 def send_order_status_email(order_id, customer_name, customer_email, status, tracking_number=None):
-    """Отправка письма о статусе заказа"""
-    
-    status_text = {
-        'pending': '⏳ Ожидает оплаты',
-        'paid': '✅ Оплачен',
-        'shipped': '📦 Отправлен',
-        'completed': '🎉 Завершён'
-    }.get(status, status)
-    
-    tracking_html = ''
-    if tracking_number:
-        tracking_html = f'''
-        <p><strong>📦 Трек-номер для отслеживания:</strong></p>
-        <p><a href="https://www.cdek.ru/track?order_id={tracking_number}" style="color: #2d8c4e;">{tracking_number}</a></p>
-        '''
+    """Заглушка для email (пока не настроен SMTP)"""
+    print(f"[EMAIL] (заглушка) Письмо для {customer_email} о заказе {order_id}, статус: {status}")
+    return True
     
     html_body = f'''
     <!DOCTYPE html>
