@@ -1208,34 +1208,32 @@ def reset_password_telegram():
 @app.route('/api/set-telegram', methods=['POST'])
 def set_telegram():
     try:
+        # Получаем пользователя из сессии
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Вы не авторизованы. Войдите в аккаунт.'}), 401
+        
         data = request.get_json()
-        # user_id = session.get('user_id')  # временно закомментировать
         telegram_id = data.get('telegram_id')
         
-        # Временно используем email из запроса
-        email = data.get('email')
-        
         if not telegram_id:
-            return jsonify({'success': False, 'error': 'Telegram ID обязателен'}), 400
+            return jsonify({'success': False, 'error': 'Telegram ID не указан'}), 400
         
+        # Обновляем telegram_id в базе
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        
-        if email:
-            cursor.execute('UPDATE users SET telegram_id = ? WHERE email = ?', (telegram_id, email))
-        else:
-            # user_id = session.get('user_id')
-            # if not user_id:
-            #     return jsonify({'success': False, 'error': 'Не авторизован'}), 401
-            # cursor.execute('UPDATE users SET telegram_id = ? WHERE id = ?', (telegram_id, user_id))
-            return jsonify({'success': False, 'error': 'Укажите email или авторизуйтесь'}), 400
-        
+        cursor.execute('UPDATE users SET telegram_id = ? WHERE id = ?', (telegram_id, user_id))
         conn.commit()
         conn.close()
         
-        send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box!")
+        # Отправляем тестовое сообщение
+        try:
+            send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box!")
+        except Exception as e:
+            print(f"[TG] Не удалось отправить тестовое сообщение: {e}")
         
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'message': 'Telegram успешно привязан!'})
+        
     except Exception as e:
         print(f"[ERROR] set_telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
