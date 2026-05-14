@@ -1240,32 +1240,7 @@ def set_telegram():
         print(f"[ERROR] set_telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/set-telegram', methods=['POST'])
-def set_telegram():
-    try:
-        data = request.get_json()
-        user_id = session.get('user_id')
-        telegram_id = data.get('telegram_id')
-        
-        if not user_id:
-            return jsonify({'success': False, 'error': 'Не авторизован'}), 401
-        
-        if not telegram_id:
-            return jsonify({'success': False, 'error': 'Telegram ID обязателен'}), 400
-        
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('UPDATE users SET telegram_id = ? WHERE id = ?', (telegram_id, user_id))
-        conn.commit()
-        conn.close()
-        
-        # Отправляем тестовое сообщение
-        send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box! Теперь вы можете восстанавливать пароль через бота.")
-        
-        return jsonify({'success': True})
-    except Exception as e:
-        print(f"[ERROR] set_telegram: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/api/test-telegram', methods=['POST'])
 def test_telegram():
