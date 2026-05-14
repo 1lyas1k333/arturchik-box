@@ -9,6 +9,7 @@ import io
 import hashlib
 import secrets
 import smtplib
+import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from openpyxl import Workbook
@@ -103,14 +104,15 @@ def send_telegram_message(message):
 def send_telegram_to_user(chat_id, message):
     """Отправка сообщения конкретному пользователю в Telegram"""
     try:
+        import requests
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "HTML"
         }
-        requests.post(url, json=payload, timeout=5)
-        print(f"[TG_USER] Отправлено пользователю {chat_id}")
+        response = requests.post(url, json=payload, timeout=5)
+        print(f"[TG_USER] Статус: {response.status_code}, Отправлено пользователю {chat_id}")
         return True
     except Exception as e:
         print(f"[TG_USER] Ошибка: {e}")
