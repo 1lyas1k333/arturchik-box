@@ -1638,10 +1638,12 @@
         }
         
         function closeAuthModals() {
-            document.getElementById('loginModal').classList.remove('open');
-            document.getElementById('registerModal').classList.remove('open');
-            document.getElementById('overlay').classList.remove('open');
-        }
+    document.getElementById('loginModal').classList.remove('open');
+    document.getElementById('registerModal').classList.remove('open');
+    document.getElementById('resetPasswordModal').classList.remove('open');
+    document.getElementById('resetCodeModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}
         
         async function doLogin() {
             const email = document.getElementById('loginEmail').value;
