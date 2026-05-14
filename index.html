@@ -1188,16 +1188,19 @@
     </div>
 
     <!-- Модальное окно входа -->
-    <div class="modal-auth" id="loginModal">
-        <h3>🔐 Вход</h3>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Пароль">
-        <div id="loginError" class="auth-error"></div>
-        <button onclick="doLogin()">Войти</button>
-        <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
-    </div>
+<div class="modal-auth" id="loginModal">
+    <h3>🔐 Вход</h3>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Пароль">
+    <div id="loginError" class="auth-error"></div>
+    <button onclick="doLogin()">Войти</button>
+    
+    <!-- КНОПКА ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ МОДАЛЬНОГО ОКНА -->
     <div style="text-align: center; margin-top: 10px;">
-    <a href="#" onclick="openResetPasswordModal(); return false;" style="color: #2d8c4e; font-size: 12px;">Забыли пароль?</a>
+        <a href="#" onclick="openResetPasswordModal(); return false;" style="color: #2d8c4e; font-size: 12px;">Забыли пароль?</a>
+    </div>
+    
+    <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
 </div>
 
     <!-- Модальное окно регистрации -->
