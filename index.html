@@ -2037,37 +2037,32 @@ ${getStatusProgress(order.status, order.tracking_number)}
         // === ПРИВЯЗКА TELEGRAM В ЛИЧНОМ КАБИНЕТЕ ===
         
         async function saveTelegramId() {
-            const chatId = document.getElementById('telegramChatId').value;
-            
-            if (!chatId) {
-                showToast('Введите Telegram ID');
-                return;
-            }
-            
-            try {
-                const response = await fetch('https://arturchik-box-2.onrender.com/api/set-telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ telegram_id: chatId })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Telegram успешно привязан!');
-                    // Отправляем тестовое сообщение
-                    await fetch('https://arturchik-box-2.onrender.com/api/test-telegram', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include'
-                    });
-                } else {
-                    showToast('Ошибка: ' + data.error);
-                }
-            } catch (error) {
-                showToast('Ошибка соединения');
-            }
+    const chatId = document.getElementById('telegramChatId').value;
+    
+    if (!chatId) {
+        showToast('Введите Telegram ID');
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://arturchik-box-2.onrender.com/api/set-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',  // ← ВАЖНО: передаёт куки сессии
+            body: JSON.stringify({ telegram_id: chatId })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Telegram успешно привязан!');
+        } else {
+            showToast('Ошибка: ' + data.error);
         }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('Ошибка соединения');
+    }
+}
 
     </script>
     </body>
