@@ -1662,6 +1662,7 @@
                     localStorage.setItem('auth_token', data.token);
                     localStorage.setItem('user_name', data.user.name);
                     localStorage.setItem('user_id', data.user.id);
+                    localStorage.setItem('user_email', data.user.email);
                     
                     closeAuthModals();
                     showToast(`Добро пожаловать, ${data.user.name}!`);
@@ -2038,6 +2039,7 @@ ${getStatusProgress(order.status, order.tracking_number)}
         
         async function saveTelegramId() {
     const chatId = document.getElementById('telegramChatId').value;
+    const email = localStorage.getItem('user_email');  // Нужно сохранять email при входе
     
     if (!chatId) {
         showToast('Введите Telegram ID');
@@ -2048,8 +2050,8 @@ ${getStatusProgress(order.status, order.tracking_number)}
         const response = await fetch('https://arturchik-box-2.onrender.com/api/set-telegram', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',  // ← ВАЖНО: передаёт куки сессии
-            body: JSON.stringify({ telegram_id: chatId })
+            credentials: 'include',
+            body: JSON.stringify({ telegram_id: chatId, email: email })
         });
         const data = await response.json();
         
@@ -2059,10 +2061,10 @@ ${getStatusProgress(order.status, order.tracking_number)}
             showToast('Ошибка: ' + data.error);
         }
     } catch (error) {
-        console.error('Ошибка:', error);
         showToast('Ошибка соединения');
     }
 }
+    
 
     </script>
     </body>
