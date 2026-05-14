@@ -1205,40 +1205,39 @@ def reset_password_telegram():
         print(f"[ERROR] reset_password_telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/confirm-reset-telegram', methods=['POST'])
-def confirm_reset_telegram():
+@app.route('/api/set-telegram', methods=['POST'])
+def set_telegram():
     try:
         data = request.get_json()
+        # user_id = session.get('user_id')  # временно закомментировать
+        telegram_id = data.get('telegram_id')
+        
+        # Временно используем email из запроса
         email = data.get('email')
-        code = data.get('code')
-        new_password = data.get('new_password')
         
-        if not email or not code or not new_password:
-            return jsonify({'success': False, 'error': 'Все поля обязательны'}), 400
-        
-        stored = reset_codes_tg.get(email)
-        if not stored:
-            return jsonify({'success': False, 'error': 'Код не найден или истёк'}), 400
-        
-        if datetime.now().timestamp() > stored['expires']:
-            del reset_codes_tg[email]
-            return jsonify({'success': False, 'error': 'Код истёк. Запросите новый'}), 400
-        
-        if stored['code'] != code:
-            return jsonify({'success': False, 'error': 'Неверный код'}), 400
+        if not telegram_id:
+            return jsonify({'success': False, 'error': 'Telegram ID обязателен'}), 400
         
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        hashed_pw = hash_password(new_password)
-        cursor.execute('UPDATE users SET password = ? WHERE email = ?', (hashed_pw, email))
+        
+        if email:
+            cursor.execute('UPDATE users SET telegram_id = ? WHERE email = ?', (telegram_id, email))
+        else:
+            # user_id = session.get('user_id')
+            # if not user_id:
+            #     return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+            # cursor.execute('UPDATE users SET telegram_id = ? WHERE id = ?', (telegram_id, user_id))
+            return jsonify({'success': False, 'error': 'Укажите email или авторизуйтесь'}), 400
+        
         conn.commit()
         conn.close()
         
-        del reset_codes_tg[email]
+        send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box!")
         
         return jsonify({'success': True})
     except Exception as e:
-        print(f"[ERROR] confirm_reset_telegram: {e}")
+        print(f"[ERROR] set_telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/set-telegram', methods=['POST'])
