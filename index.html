@@ -1196,6 +1196,9 @@
         <button onclick="doLogin()">Войти</button>
         <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
     </div>
+    <div style="text-align: center; margin-top: 10px;">
+    <a href="#" onclick="openResetPasswordModal(); return false;" style="color: #2d8c4e; font-size: 12px;">Забыли пароль?</a>
+</div>
 
     <!-- Модальное окно регистрации -->
     <div class="modal-auth" id="registerModal">
@@ -1209,16 +1212,51 @@
         <button onclick="doRegister()">Зарегистрироваться</button>
         <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
     </div>
+ <div style="text-align: center; margin-top: 10px;">
+    <a href="#" onclick="openResetPasswordModal(); return false;" style="color: #2d8c4e; font-size: 12px;">Забыли пароль?</a>
+</div>
 
     <!-- Модальное окно личного кабинета -->
     <div class="cabinet-modal" id="cabinetModal">
-        <h3>📦 Мои заказы</h3>
-        <div id="ordersHistory"></div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button onclick="closeCabinet()" style="flex: 1; background: #2d8c4e; color: white; border: none; padding: 12px; border-radius: 12px;">Закрыть</button>
-            <button onclick="openCabinet()" style="flex: 1; background: #555; color: white; border: none; padding: 12px; border-radius: 12px;">🔄 Обновить</button>
+    <h3>📦 Мои заказы</h3>
+    <div id="ordersHistory"></div>
+    
+    <!-- Блок привязки Telegram -->
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+        <h4 style="color: #2d8c4e; margin-bottom: 10px;">🔐 Настройки аккаунта</h4>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="telegramChatId" placeholder="Ваш Telegram ID (число)" style="flex: 1; background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px; border-radius: 10px;">
+            <button onclick="saveTelegramId()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Привязать Telegram</button>
+        </div>
+        <div style="font-size: 11px; color: #aaa; margin-top: 8px;">
+            Как получить Telegram ID? Напишите <strong>@userinfobot</strong> в Telegram и скопируйте число.
         </div>
     </div>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="closeCabinet()" style="flex: 1; background: #2d8c4e; color: white; border: none; padding: 12px; border-radius: 12px;">Закрыть</button>
+    </div>
+</div>
+<!-- Модальное окно восстановления пароля -->
+<div class="modal-auth" id="resetPasswordModal">
+    <h3>🔐 Восстановление пароля</h3>
+    <p style="color: #ccc; font-size: 12px; margin-bottom: 15px;">Код будет отправлен в Telegram, указанный при регистрации</p>
+    <input type="email" id="resetEmail" placeholder="Ваш Email">
+    <div id="resetError" class="auth-error"></div>
+    <button onclick="sendResetCodeTelegram()">Отправить код в Telegram</button>
+    <div class="auth-switch" onclick="closeAuthModals()">Вернуться ко входу</div>
+</div>
+
+<!-- Модальное окно ввода кода и нового пароля -->
+<div class="modal-auth" id="resetCodeModal">
+    <h3>✉️ Код из Telegram</h3>
+    <input type="text" id="resetCode" placeholder="Введите код из Telegram">
+    <input type="password" id="newPassword" placeholder="Новый пароль">
+    <input type="password" id="confirmPassword" placeholder="Повторите пароль">
+    <div id="resetCodeError" class="auth-error"></div>
+    <button onclick="confirmResetTelegram()">Сбросить пароль</button>
+    <div class="auth-switch" onclick="closeAuthModals()">Вернуться ко входу</div>
+</div>
     <!-- Подключение виджета CloudPayments -->
     <script src="https://checkout.cloudpayments.ru/checkout.js"></script>
 
@@ -1921,6 +1959,118 @@ ${getStatusProgress(order.status, order.tracking_number)}
         return progressHtml;
     }
 }
+                // === ВОССТАНОВЛЕНИЕ ПАРОЛЯ ЧЕРЕЗ TELEGRAM ===
+        
+        function openResetPasswordModal() {
+            closeAuthModals();
+            document.getElementById('resetPasswordModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+            document.getElementById('resetError').textContent = '';
+        }
+        
+        async function sendResetCodeTelegram() {
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!email) {
+                document.getElementById('resetError').textContent = 'Введите email';
+                return;
+            }
+            
+            document.getElementById('resetError').textContent = 'Отправка кода...';
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/reset-password-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('resetPasswordModal').classList.remove('open');
+                    document.getElementById('resetCodeModal').classList.add('open');
+                } else {
+                    document.getElementById('resetError').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('resetError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        async function confirmResetTelegram() {
+            const email = document.getElementById('resetEmail').value;
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!code || !newPassword) {
+                document.getElementById('resetCodeError').textContent = 'Заполните все поля';
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                document.getElementById('resetCodeError').textContent = 'Пароли не совпадают';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/confirm-reset-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code, new_password: newPassword })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Пароль успешно изменён! Войдите с новым паролем.');
+                    closeAuthModals();
+                    openLoginModal();
+                    document.getElementById('resetCode').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    document.getElementById('resetCodeError').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('resetCodeError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        // === ПРИВЯЗКА TELEGRAM В ЛИЧНОМ КАБИНЕТЕ ===
+        
+        async function saveTelegramId() {
+            const chatId = document.getElementById('telegramChatId').value;
+            
+            if (!chatId) {
+                showToast('Введите Telegram ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/set-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ telegram_id: chatId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Telegram успешно привязан!');
+                    // Отправляем тестовое сообщение
+                    await fetch('https://arturchik-box-2.onrender.com/api/test-telegram', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include'
+                    });
+                } else {
+                    showToast('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                showToast('Ошибка соединения');
+            }
+        }
+
     </script>
     </body>
     </html>
