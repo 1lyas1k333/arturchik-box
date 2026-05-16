@@ -87,48 +87,84 @@
                 }
             }
 
+                        /* ИСПРАВЛЕННЫЙ блок для слайдера */
             .product-image {
                 width: 750px;
                 height: 550px;
                 margin: 0 auto 25px;
                 position: relative;
                 cursor: pointer;
-                perspective: 1200px;
                 border-radius: 35px;
                 overflow: hidden;
                 background: #0d1f0d;
-                box-shadow: none;
             }
 
-                    .slides-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.15s ease-out;
-            will-change: transform;
-            background: #0d1f0d;
-            border-radius: 35px;
-        }
+            .slides-container {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                background: #0d1f0d;
+                border-radius: 35px;
+            }
 
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius: 35px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            z-index: 1;
-        }
+            .slide {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                border-radius: 35px;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+                z-index: 1;
+            }
 
-        .slide.active {
-            opacity: 1;
-            z-index: 2;
-        }
+            .slide.active {
+                opacity: 1;
+                z-index: 2;
+            }
+
+                /* Кнопки переключения */
+                .slide-prev, .slide-next {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: rgba(0,0,0,0.6);
+                    color: white;
+                    border: none;
+                    padding: 12px 18px;
+                    cursor: pointer;
+                    border-radius: 50%;
+                    font-size: 20px;
+                    z-index: 10;
+                    transition: all 0.3s;
+                }
+
+                .slide-prev { left: 15px; }
+                .slide-next { right: 15px; }
+
+                .slide-prev:hover, .slide-next:hover {
+                    background: rgba(0,0,0,0.9);
+                    transform: translateY(-50%) scale(1.05);
+                }
+
+                @media (max-width: 600px) {
+                .product-image {
+                    width: 100%;
+                    height: auto;
+                    aspect-ratio: 1 / 1;
+                    max-width: 350px;
+                }
+                .slide-prev, .slide-next {
+                    padding: 8px 12px;
+                    font-size: 16px;
+                }
+            }
+               
+          
 
             .slide.active {
                 z-index: 1;
@@ -1364,28 +1400,60 @@
         });
     }
                 
-            // === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ ===
-        let slides = [];
-        let currentSlide = 0;
+        // === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (ИСПРАВЛЕНО) ===
+let currentSlideIndex = 0;
+let slides = [];
 
-        function initGallery() {
-            slides = document.querySelectorAll('.slide');
-            if (slides.length > 0) showSlide(0);
-        }
+function initGallery() {
+    slides = Array.from(document.querySelectorAll('.slide'));
+    if (slides.length === 0) return;
+    
+    // Показываем первый слайд
+    showSlide(0);
+    
+    // Добавляем обработчики на кнопки, если они есть
+    const prevBtn = document.querySelector('.slide-prev');
+    const nextBtn = document.querySelector('.slide-next');
+    
+    if (prevBtn) prevBtn.onclick = (e) => {
+        e.stopPropagation();
+        prevSlide();
+    };
+    if (nextBtn) nextBtn.onclick = (e) => {
+        e.stopPropagation();
+        nextSlide();
+    };
+}
 
-        function showSlide(index) {
-            if (!slides.length) return;
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-            currentSlide = index;
-        }
+function showSlide(index) {
+    if (!slides.length) return;
+    
+    // Зацикливаем индекс
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+    
+    // Скрываем все слайды
+    slides.forEach(slide => {
+        slide.classList.remove('active');
+    });
+    
+    // Показываем текущий
+    slides[index].classList.add('active');
+    currentSlideIndex = index;
+}
 
-        function nextSlide() { showSlide((currentSlide + 1) % slides.length); }
-        function prevSlide() { showSlide((currentSlide - 1 + slides.length) % slides.length); }
+function nextSlide() {
+    showSlide(currentSlideIndex + 1);
+}
 
-        // Запускаем галерею после загрузки страницы
-        document.addEventListener('DOMContentLoaded', initGallery);        
+function prevSlide() {
+    showSlide(currentSlideIndex - 1);
+}
+
+// Запускаем галерею после полной загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    initGallery();
+});
         
           
     </script>
