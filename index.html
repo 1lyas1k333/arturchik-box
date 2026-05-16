@@ -87,88 +87,77 @@
                 }
             }
 
-                        /* ИСПРАВЛЕННЫЙ блок для слайдера */
-            .product-image {
-                width: 750px;
-                height: 550px;
-                margin: 0 auto 25px;
-                position: relative;
-                cursor: pointer;
-                border-radius: 35px;
-                overflow: hidden;
-                background: #0d1f0d;
-            }
+            /* СЛАЙДЕР - ИСПРАВЛЕННАЯ ВЕРСИЯ */
+.product-image {
+    width: 750px;
+    height: 550px;
+    margin: 0 auto 25px;
+    position: relative;
+    border-radius: 35px;
+    overflow: hidden;
+    background: #0d1f0d;
+}
 
-            .slides-container {
-                width: 100%;
-                height: 100%;
-                position: relative;
-                background: #0d1f0d;
-                border-radius: 35px;
-            }
+.slides-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
 
-            .slide {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                border-radius: 35px;
-                opacity: 0;
-                transition: opacity 0.5s ease-in-out;
-                z-index: 1;
-            }
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
 
-            .slide.active {
-                opacity: 1;
-                z-index: 2;
-            }
+.slide.active {
+    opacity: 1;
+}
 
-                /* Кнопки переключения */
-                .slide-prev, .slide-next {
-                    position: absolute;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    background: rgba(0,0,0,0.6);
-                    color: white;
-                    border: none;
-                    padding: 12px 18px;
-                    cursor: pointer;
-                    border-radius: 50%;
-                    font-size: 20px;
-                    z-index: 10;
-                    transition: all 0.3s;
-                }
+/* Кнопки переключения */
+.slide-prev, .slide-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 20px;
+    z-index: 10;
+    transition: all 0.3s;
+}
 
-                .slide-prev { left: 15px; }
-                .slide-next { right: 15px; }
+.slide-prev { left: 15px; }
+.slide-next { right: 15px; }
 
-                .slide-prev:hover, .slide-next:hover {
-                    background: rgba(0,0,0,0.9);
-                    transform: translateY(-50%) scale(1.05);
-                }
+.slide-prev:hover, .slide-next:hover {
+    background: rgba(0,0,0,0.9);
+    transform: translateY(-50%) scale(1.05);
+}
 
-                @media (max-width: 600px) {
-                .product-image {
-                    width: 100%;
-                    height: auto;
-                    aspect-ratio: 1 / 1;
-                    max-width: 350px;
-                }
-                .slide-prev, .slide-next {
-                    padding: 8px 12px;
-                    font-size: 16px;
-                }
-            }
-               
-          
-
-            .slide.active {
-                z-index: 1;
-            }
+@media (max-width: 600px) {
+    .product-image {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        max-width: 350px;
+    }
+    .slide-prev, .slide-next {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+}
+            
 
             h1 {
                 font-size: 32px;
@@ -1081,10 +1070,10 @@
     <div class="product-card">
                 <div class="product-image" id="productImage">
             <div class="slides-container" id="slidesContainer">
-                <div class="slide active" style="background-image: url('https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 35px;"></div>
-                <div class="slide" style="background-image: url('https://i.postimg.cc/J0CvM3yc/C24A4D35-BBD9-423C-A3E1-8274EE8B28A3.png'); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 35px;"></div>
-                <div class="slide" style="background-image: url('https://i.postimg.cc/tJzSbKGx/1FADCCFB-E2A5-4F73-B1AD-81D74261F0F3.png'); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 35px;"></div>
-            </div>
+    <div class="slide active" style="background-image: url('https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg');"></div>
+    <div class="slide" style="background-image: url('https://i.postimg.cc/J0CvM3yc/C24A4D35-BBD9-423C-A3E1-8274EE8B28A3.png');"></div>
+    <div class="slide" style="background-image: url('https://i.postimg.cc/tJzSbKGx/1FADCCFB-E2A5-4F73-B1AD-81D74261F0F3.png');"></div>
+</div>
             <button class="slide-prev" onclick="prevSlide()">❮</button>
             <button class="slide-next" onclick="nextSlide()">❯</button>
         </div>
