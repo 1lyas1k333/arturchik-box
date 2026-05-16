@@ -1059,6 +1059,18 @@
         @media (max-width: 600px) {
             .slide-prev, .slide-next { padding: 8px 12px; font-size: 14px; }
         }
+
+        .slide-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    border-radius: 35px;
+}
+.slide-img.active { display: block; }
         </style>
     </head>
     <body>
@@ -1069,14 +1081,14 @@
 
     <div class="product-card">
                 <div class="product-image" id="productImage">
-            <div class="slides-container" id="slidesContainer">
-    <div class="slide active" style="background-image: url('https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg');"></div>
-    <div class="slide" style="background-image: url('https://i.postimg.cc/J0CvM3yc/C24A4D35-BBD9-423C-A3E1-8274EE8B28A3.png');"></div>
-    <div class="slide" style="background-image: url('https://i.postimg.cc/tJzSbKGx/1FADCCFB-E2A5-4F73-B1AD-81D74261F0F3.png');"></div>
+    <div class="slides-container" id="slidesContainer">
+        <img class="slide-img active" src="https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg" alt="Фото 1">
+        <img class="slide-img" src="https://i.postimg.cc/J0CvM3yc/C24A4D35-BBD9-423C-A3E1-8274EE8B28A3.png" alt="Фото 2">
+        <img class="slide-img" src="https://i.postimg.cc/tJzSbKGx/1FADCCFB-E2A5-4F73-B1AD-81D74261F0F3.png" alt="Фото 3">
+    </div>
+    <button class="slide-prev" onclick="prevSlide()">❮</button>
+    <button class="slide-next" onclick="nextSlide()">❯</button>
 </div>
-            <button class="slide-prev" onclick="prevSlide()">❮</button>
-            <button class="slide-next" onclick="nextSlide()">❯</button>
-        </div>
 
         <h1>📦 АРТУРЧИК box</h1>
         <div class="price">3 490 ₽</div>
@@ -1390,55 +1402,50 @@
     }
                 
         // === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (ИСПРАВЛЕНО) ===
-// === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (УПРОЩЕННАЯ ВЕРСИЯ) ===
-let currentSlideIndex = 0;
-let slides = [];
+// === ПРОСТОЙ СЛАЙДЕР НА IMG ===
+let currentSlide = 0;
+let slidesImages = [];
 
-function initGallery() {
-    // Находим все слайды
-    slides = document.querySelectorAll('.slide');
-    console.log('Найдено слайдов:', slides.length);
+function initSimpleGallery() {
+    slidesImages = document.querySelectorAll('.slide-img');
+    console.log('Найдено изображений:', slidesImages.length);
     
-    if (slides.length === 0) return;
+    if (slidesImages.length === 0) return;
     
-    // Скрываем все слайды, показываем первый
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
-    }
-    slides[0].classList.add('active');
-    currentSlideIndex = 0;
+    // Показываем первый слайд
+    showSlideImage(0);
 }
 
-function showSlide(index) {
-    if (!slides.length) return;
+function showSlideImage(index) {
+    if (!slidesImages.length) return;
     
     // Зацикливание
-    if (index < 0) index = slides.length - 1;
-    if (index >= slides.length) index = 0;
+    if (index < 0) index = slidesImages.length - 1;
+    if (index >= slidesImages.length) index = 0;
     
     // Скрываем все
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove('active');
+    for (let i = 0; i < slidesImages.length; i++) {
+        slidesImages[i].classList.remove('active');
     }
     
-    // Показываем нужный
-    slides[index].classList.add('active');
-    currentSlideIndex = index;
+    // Показываем текущий
+    slidesImages[index].classList.add('active');
+    currentSlide = index;
     
-    console.log('Показываю слайд:', index);
+    console.log('Показываю фото:', index + 1);
 }
 
 function nextSlide() {
-    showSlide(currentSlideIndex + 1);
+    showSlideImage(currentSlide + 1);
 }
 
 function prevSlide() {
-    showSlide(currentSlideIndex - 1);
+    showSlideImage(currentSlide - 1);
 }
 
 // Запускаем после загрузки страницы
 document.addEventListener('DOMContentLoaded', function() {
-    initGallery();
+    initSimpleGallery();
 });
     
         
