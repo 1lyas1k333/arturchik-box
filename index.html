@@ -1401,45 +1401,42 @@
     }
                 
         // === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (ИСПРАВЛЕНО) ===
+// === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (УПРОЩЕННАЯ ВЕРСИЯ) ===
 let currentSlideIndex = 0;
 let slides = [];
 
 function initGallery() {
-    slides = Array.from(document.querySelectorAll('.slide'));
+    // Находим все слайды
+    slides = document.querySelectorAll('.slide');
+    console.log('Найдено слайдов:', slides.length);
+    
     if (slides.length === 0) return;
     
-    // Показываем первый слайд
-    showSlide(0);
-    
-    // Добавляем обработчики на кнопки, если они есть
-    const prevBtn = document.querySelector('.slide-prev');
-    const nextBtn = document.querySelector('.slide-next');
-    
-    if (prevBtn) prevBtn.onclick = (e) => {
-        e.stopPropagation();
-        prevSlide();
-    };
-    if (nextBtn) nextBtn.onclick = (e) => {
-        e.stopPropagation();
-        nextSlide();
-    };
+    // Скрываем все слайды, показываем первый
+    for (let i = 0; i < slides.length; i++) {
+        slides[i].classList.remove('active');
+    }
+    slides[0].classList.add('active');
+    currentSlideIndex = 0;
 }
 
 function showSlide(index) {
     if (!slides.length) return;
     
-    // Зацикливаем индекс
+    // Зацикливание
     if (index < 0) index = slides.length - 1;
     if (index >= slides.length) index = 0;
     
-    // Скрываем все слайды
-    slides.forEach(slide => {
-        slide.classList.remove('active');
-    });
+    // Скрываем все
+    for (let i = 0; i < slides.length; i++) {
+        slides[i].classList.remove('active');
+    }
     
-    // Показываем текущий
+    // Показываем нужный
     slides[index].classList.add('active');
     currentSlideIndex = index;
+    
+    console.log('Показываю слайд:', index);
 }
 
 function nextSlide() {
@@ -1450,10 +1447,11 @@ function prevSlide() {
     showSlide(currentSlideIndex - 1);
 }
 
-// Запускаем галерею после полной загрузки страницы
+// Запускаем после загрузки страницы
 document.addEventListener('DOMContentLoaded', function() {
     initGallery();
 });
+    
         
           
     </script>
