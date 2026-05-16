@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html lang="ru">
     <head>
         <meta charset="UTF-8">
@@ -700,4 +700,1447 @@
             @media (max-width: 400px) {
                 .cart-modal {
                     padding: 15px;
-               
+                }
+                
+                .cart-header h2 {
+                    font-size: 20px;
+                }
+                
+                .clear-cart {
+                    font-size: 12px;
+                    padding: 5px 10px;
+                }
+                
+                .cart-item span {
+                    font-size: 13px;
+                }
+                
+                .quantity-btn, .remove-item {
+                    padding: 5px 8px;
+                    font-size: 12px;
+                }
+                
+                .size-table th, .size-table td {
+                    padding: 6px 2px;
+                    font-size: 10px;
+                }
+                
+                .product-image {
+                    max-width: 280px;
+                }
+            }
+            
+            @media (max-width: 450px) {
+                .product-image {
+                    max-width: 280px;
+                }
+            }
+
+            /* Стили для формы в корзине */
+            .customer-form {
+                max-height: 400px;
+                overflow-y: auto;
+                padding-right: 5px;
+            }
+            .customer-form h3 {
+                margin-bottom: 15px;
+            }
+            .form-group {
+                margin-bottom: 5px;
+            }
+            .form-input:focus {
+                outline: none;
+                border-color: #4ade80;
+                box-shadow: 0 0 5px rgba(74,222,128,0.3);
+            }
+            .cart-modal {
+                overflow-y: auto;
+                max-height: 100vh;
+            }
+
+            /* Кнопки входа и регистрации */
+            .auth-buttons {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                display: flex;
+                gap: 10px;
+                z-index: 100;
+            }
+            .auth-btn {
+                background: rgba(0,0,0,0.7);
+                backdrop-filter: blur(10px);
+                border: 1px solid #2d8c4e;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 50px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s;
+            }
+            .auth-btn:hover {
+                background: #2d8c4e;
+                transform: scale(1.05);
+            }
+            .user-info {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.7);
+                backdrop-filter: blur(10px);
+                border: 1px solid #2d8c4e;
+                padding: 8px 16px;
+                border-radius: 50px;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                z-index: 100;
+            }
+            .user-name {
+                color: #2d8c4e;
+                font-weight: bold;
+            }
+            .logout-link {
+                color: #ff4444;
+                cursor: pointer;
+                font-size: 12px;
+            }
+            .logout-link:hover {
+                text-decoration: underline;
+            }
+            
+            /* Модальные окна для входа/регистрации */
+            .modal-auth {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #0d1f0d;
+                padding: 30px;
+                border-radius: 30px;
+                z-index: 1002;
+                width: 90%;
+                max-width: 400px;
+                border: 1px solid #2d8c4e;
+                animation: zoomIn 0.3s ease;
+            }
+            .modal-auth.open {
+                display: block;
+            }
+            .modal-auth h3 {
+                color: #2d8c4e;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .modal-auth input {
+                width: 100%;
+                padding: 12px;
+                margin: 10px 0;
+                border: 1px solid #2d8c4e;
+                border-radius: 12px;
+                background: rgba(0,0,0,0.5);
+                color: white;
+                font-size: 14px;
+            }
+            .modal-auth button {
+                width: 100%;
+                padding: 12px;
+                background: #2d8c4e;
+                border: none;
+                border-radius: 12px;
+                color: white;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+            .modal-auth button:hover {
+                background: #1a5f3a;
+            }
+            .auth-switch {
+                text-align: center;
+                margin-top: 15px;
+                color: #ccc;
+                font-size: 14px;
+            }
+            .auth-switch span {
+                color: #2d8c4e;
+                cursor: pointer;
+                text-decoration: underline;
+            }
+            .auth-error {
+                color: #ff4444;
+                font-size: 12px;
+                margin-top: 5px;
+                text-align: center;
+            }
+            
+            /* Личный кабинет */
+            .cabinet-modal {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #0d1f0d;
+                padding: 30px;
+                border-radius: 30px;
+                z-index: 1002;
+                width: 90%;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 1px solid #2d8c4e;
+            }
+            .cabinet-modal.open {
+                display: block;
+                animation: zoomIn 0.3s ease;
+            }
+            .cabinet-modal h3 {
+                color: #2d8c4e;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .order-history-item {
+                background: rgba(0,0,0,0.5);
+                padding: 15px;
+                border-radius: 15px;
+                margin-bottom: 15px;
+            }
+            .order-history-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                font-size: 14px;
+            }
+            .order-id {
+                color: #2d8c4e;
+                font-weight: bold;
+            }
+            .order-status {
+                color: #ffaa44;
+            }
+            .order-total {
+                font-weight: bold;
+                margin-top: 10px;
+                text-align: right;
+            }
+                    .order-history-item {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            color: white !important;
+        }
+        .order-history-item div {
+            color: white !important;
+        }
+                    /* Стили для личного кабинета - белый текст */
+            .cabinet-modal .order-history-item {
+                color: white;
+            }
+            .cabinet-modal .order-history-item div {
+                color: white;
+            }
+            .cabinet-modal .order-total {
+                color: #2d8c4e;
+                font-weight: bold;
+            }
+            .cabinet-modal .order-date {
+                color: #aaa;
+            }
+            .cabinet-modal p {
+                color: white;
+            }
+            .user-name {
+                color: #2d8c4e;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .user-name:hover {
+                color: #4ade80;
+                text-decoration: underline;
+            }
+                    /* Стили для статистики в личном кабинете */
+            .cabinet-modal .stats-text {
+                color: white;
+            }
+            .cabinet-modal .stats-number {
+                color: #2d8c4e;
+                font-weight: bold;
+            }
+            /* Белый текст для всех div внутри кабинета */
+            .cabinet-modal div {
+                color: white;
+            }
+            /* Но для статистики оставляем зелёные цифры */
+            .cabinet-modal .stats-number {
+                color: #2d8c4e;
+            }
+                    .delivery-note {
+                font-size: 13px;
+                background: rgba(0,0,0,0.4);
+                padding: 12px;
+                border-radius: 12px;
+                margin: 15px 0;
+            }
+            .delivery-note span:first-child {
+                color: #ffaa44;
+                font-weight: bold;
+            }
+        
+
+        .slide-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    border-radius: 35px;
+}
+.slide-img.active { display: block; }
+
+/* Кнопки переключения */
+.slide-prev, .slide-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 20px;
+    z-index: 10;
+    transition: all 0.3s;
+}
+
+.slide-prev { left: 15px; }
+.slide-next { right: 15px; }
+
+.slide-prev:hover, .slide-next:hover {
+    background: rgba(0,0,0,0.9);
+    transform: translateY(-50%) scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .slide-prev, .slide-next {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+}
+        </style>
+    </head>
+    <body>
+
+    <div class="cart-icon" onclick="toggleCart()">
+        🛒 <span class="cart-count" id="cartCount">0</span>
+    </div>
+
+    <div class="product-card">
+                <div class="product-image" id="productImage">
+    <div class="slides-container" id="slidesContainer">
+        <img class="slide-img active" src="https://i.postimg.cc/6phSKZDV/63FEAFEB-6289-4664-9EAD-D20A2F32E29B.jpg" alt="Фото 1">
+        <img class="slide-img" src="https://i.postimg.cc/J0CvM3yc/C24A4D35-BBD9-423C-A3E1-8274EE8B28A3.png" alt="Фото 2">
+        <img class="slide-img" src="https://i.postimg.cc/tJzSbKGx/1FADCCFB-E2A5-4F73-B1AD-81D74261F0F3.png" alt="Фото 3">
+    </div>
+    <button class="slide-prev" onclick="prevSlide()">❮</button>
+    <button class="slide-next" onclick="nextSlide()">❯</button>
+</div>
+
+        <h1>📦 АРТУРЧИК box</h1>
+        <div class="price">3 490 ₽</div>
+        <div class="description">
+            Футбольный бокс с футболкой топ-клуба внутри!<br>
+            Внутри вас ждёт качественная футболка любимой команды, специальная записка и дополнительный аксессуар.
+        </div>
+
+        <div class="exclusions-section">
+            <label>🚫 Выберите до 5 клубов, которые вы НЕ хотите видеть в своём боксе:</label>
+            <textarea class="exclusions-input" id="exclusionsInput" rows="2" placeholder="Например: Зенит, Спартак, Челси, Бавария, ПСЖ"></textarea>
+            <div class="exclusions-hint">Введите названия клубов через запятую (до 5 штук)</div>
+        </div>
+
+            <div class="size-selector">
+            <label>📏 Выберите размер футболки:</label>
+            <div class="size-buttons">
+                <button class="size-btn" onclick="selectSize('XS')">XS</button>
+                <button class="size-btn selected" onclick="selectSize('S')">S</button>
+                <button class="size-btn" onclick="selectSize('M')">M</button>
+                <button class="size-btn" onclick="selectSize('L')">L</button>
+                <button class="size-btn" onclick="selectSize('XL')">XL</button>
+            </div>
+            <button class="add-to-cart" onclick="addToCart()">🛍️ Добавить в корзину</button>
+        </div>
+
+        <div class="section">
+            <h3>📋 Как заказать</h3>
+            <div class="steps">
+                <div class="step"><div class="step-number">1</div><div class="step-title">Выберите размер</div><div class="step-desc">От XS до XL</div></div>
+                <div class="step"><div class="step-number">2</div><div class="step-title">Укажите клубы-исключения</div><div class="step-desc">Те, что не хотите получать</div></div>
+                <div class="step"><div class="step-number">3</div><div class="step-title">Добавьте в корзину</div><div class="step-desc">Проверьте заказ</div></div>
+                <div class="step"><div class="step-number">4</div><div class="step-title">Оплатите</div><div class="step-desc">QR-код через СБП</div></div>
+            </div>
+        </div>
+
+                    <div class="section">
+                    <h3>📏 Размерная сетка</h3>
+                    <table class="size-table">
+                        <thead>
+                            <tr>
+                                <th>Размер</th>
+                                <th>Рост (см)</th>
+                                <th>Ширина груди (см)</th>
+                                <th>Длина (см)</th>
+                            </td>
+                        </thead>
+                        <tbody>
+                            <tr><td>XS</td><td>158-164</td><td>46</td><td>68</td></tr>
+                            <tr><td>S</td><td>164-172</td><td>48</td><td>71</td></tr>
+                            <tr><td>M</td><td>172-180</td><td>50</td><td>73</td></tr>
+                            <tr><td>L</td><td>180-188</td><td>52</td><td>75</td></tr>
+                            <tr><td>XL</td><td>188-196</td><td>54</td><td>77</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 12px; color: #aaa; margin-top: 10px;">* Размеры указаны в сантиметрах. Возможны отклонения ±1-2 см.</p>
+                </div>
+    </div>
+
+    <div class="toast" id="toast">✓ Товар добавлен</div>
+    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h2>🛒 Корзина (<span id="cartCountModal">0</span>)</h2>
+            <button class="clear-cart" onclick="clearCart()">Очистить</button>
+        </div>
+        
+        <div class="cart-items" id="cartItems">
+            <p style="text-align: center; color: #999;">Корзина пуста</p>
+        </div>
+        
+            <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+        <div class="delivery-note" style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center;">
+            <span style="color: #ffaa44;">📦 Обратите внимание:</span><br>
+            <span style="color: #ccc; font-size: 13px;">Доставка оплачивается в вашем пункте выдачи СДЭК<br>(цена зависит от местонахождения получателя)</span>
+        </div>
+
+        
+                <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+            <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
+                <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+            </div>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
+                <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+            </div>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
+                <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+            </div>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
+                <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+            </div>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес пункта выдачи СДЭК *</label>
+                <input type="text" id="address" placeholder="Улица, дом, корпус/строение" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+                <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Например: ул. Летниковская, д. 2, стр. 4</div>
+            </div>
+            
+            <div class="form-group">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
+                <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
+            </div>
+        </div>
+        
+            <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
+        <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
+        <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
+    </div>
+    <div class="payment-modal" id="paymentModal">
+    <div style="max-height: 80vh; overflow-y: auto; padding: 0 10px;">
+        <h2 style="color: #fff; margin-bottom: 15px;">💳 Тестовая оплата</h2>
+        
+        <div class="payment-amount" id="paymentAmount" style="font-size: 36px; font-weight: bold; color: #2d8c4e; margin: 15px 0;">0 ₽</div>
+        
+        <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin: 15px 0;">
+            <p style="color: #ccc; margin-bottom: 10px;">💳 <strong>Тестовые данные карты:</strong></p>
+            <p style="color: #2d8c4e; font-family: monospace; font-size: 14px;">4242 4242 4242 4242</p>
+            <p style="color: #2d8c4e; font-family: monospace; font-size: 14px;">Срок: 12/25 | CVV: 111</p>
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Номер карты</label>
+            <input type="text" id="testCardNumber" placeholder="4242 4242 4242 4242" class="form-input" value="4242 4242 4242 4242" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Срок (MM/YY)</label>
+            <input type="text" id="testCardExpiry" placeholder="12/25" class="form-input" value="12/25" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">CVV</label>
+            <input type="text" id="testCardCvv" placeholder="111" class="form-input" value="111" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <button class="test-payment-btn" onclick="processTestPayment()" style="background: #28a745; width: 100%; padding: 15px; border: none; border-radius: 12px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px;">
+            ✅ Я оплатил(а)
+        </button>
+        
+        <button class="close-payment" onclick="closePaymentModal()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">
+            ✕ Закрыть
+        </button>
+    </div>
+</div>
+            
+            
+
+    <!-- Кнопки авторизации -->
+    <div id="authButtons" class="auth-buttons">
+        <button class="auth-btn" onclick="openLoginModal()">Вход</button>
+        <button class="auth-btn" onclick="openRegisterModal()">Регистрация</button>
+    </div>
+    <div id="userInfo" class="user-info" style="display: none;">
+        <span>👋 <span id="userNameDisplay" class="user-name" onclick="openCabinet()" style="cursor: pointer;"></span></span>
+        <span class="logout-link" onclick="logout()">Выйти</span>
+    </div>
+
+    <!-- Модальное окно входа -->
+<div class="modal-auth" id="loginModal">
+    <h3>🔐 Вход</h3>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Пароль">
+    <div id="loginError" class="auth-error"></div>
+    <button onclick="doLogin()">Войти</button>
+    
+    <!-- КНОПКА ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ МОДАЛЬНОГО ОКНА -->
+    <div style="text-align: center; margin-top: 10px;">
+        <a href="#" onclick="openResetPasswordModal(); return false;" style="color: #2d8c4e; font-size: 12px;">Забыли пароль?</a>
+    </div>
+    
+    <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
+</div>
+
+    <!-- Модальное окно регистрации -->
+    <div class="modal-auth" id="registerModal">
+        <h3>📝 Регистрация</h3>
+        <input type="text" id="regName" placeholder="Ваше имя">
+        <input type="email" id="regEmail" placeholder="Email">
+        <input type="text" id="regTelegram" placeholder="Telegram username (например: @username)">
+        <input type="tel" id="regPhone" placeholder="Телефон">
+        <input type="password" id="regPassword" placeholder="Пароль">
+        <div id="registerError" class="auth-error"></div>
+        <button onclick="doRegister()">Зарегистрироваться</button>
+        <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
+    </div>
+
+
+    <!-- Модальное окно личного кабинета -->
+    <div class="cabinet-modal" id="cabinetModal">
+    <h3>📦 Мои заказы</h3>
+    <div id="ordersHistory"></div>
+    
+    <!-- Блок привязки Telegram -->
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+        <h4 style="color: #2d8c4e; margin-bottom: 10px;">🔐 Настройки аккаунта</h4>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="telegramChatId" placeholder="Ваш Telegram ID (число)" style="flex: 1; background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px; border-radius: 10px;">
+            <button onclick="saveTelegramId()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Привязать Telegram</button>
+        </div>
+        <div style="font-size: 11px; color: #aaa; margin-top: 8px;">
+            Как получить Telegram ID? Напишите <strong>@userinfobot</strong> в Telegram и скопируйте число.
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="closeCabinet()" style="flex: 1; background: #2d8c4e; color: white; border: none; padding: 12px; border-radius: 12px;">Закрыть</button>
+    </div>
+</div>
+<!-- Модальное окно восстановления пароля -->
+<div class="modal-auth" id="resetPasswordModal">
+    <h3>🔐 Восстановление пароля</h3>
+    <p style="color: #ccc; font-size: 12px; margin-bottom: 15px;">Код будет отправлен в Telegram, указанный при регистрации</p>
+    <input type="email" id="resetEmail" placeholder="Ваш Email">
+    <div id="resetError" class="auth-error"></div>
+    <button onclick="sendResetCodeTelegram()">Отправить код в Telegram</button>
+    <div class="auth-switch" onclick="closeAuthModals()">Вернуться ко входу</div>
+</div>
+
+<!-- Модальное окно ввода кода и нового пароля -->
+<div class="modal-auth" id="resetCodeModal">
+    <h3>✉️ Код из Telegram</h3>
+    <input type="text" id="resetCode" placeholder="Введите код из Telegram">
+    <input type="password" id="newPassword" placeholder="Новый пароль">
+    <input type="password" id="confirmPassword" placeholder="Повторите пароль">
+    <div id="resetCodeError" class="auth-error"></div>
+    <button onclick="confirmResetTelegram()">Сбросить пароль</button>
+    <div class="auth-switch" onclick="closeAuthModals()">Вернуться ко входу</div>
+</div>
+    <!-- Подключение виджета CloudPayments -->
+    <script src="https://checkout.cloudpayments.ru/checkout.js"></script>
+
+    <script>
+        // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
+        
+            
+          
+      
+                   function openCloudPayment(amount, orderId, email, name, phone) {
+        // Демо-режим: показываем QR-код и кнопку
+        document.getElementById('paymentAmount').innerHTML = amount + ' ₽';
+        
+        const qrContainer = document.getElementById('paymentQrContainer');
+        const paymentUrl = 'https://www.tinkoff.ru/';
+        
+        if (qrContainer) {
+            qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
+        }
+        
+        const linkElement = document.getElementById('paymentUrlLink');
+        if (linkElement) {
+            linkElement.href = paymentUrl;
+            linkElement.textContent = '🔗 Открыть страницу оплаты (демо)';
+            linkElement.setAttribute('target', '_blank');
+        }
+        
+        document.getElementById('paymentModal').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+        
+        // Очищаем корзину
+        cart = [];
+        saveCart();
+        updateUI();
+        closeCart();
+    }
+                    function processTestPayment() {
+        if (!window.currentOrderId) {
+            showToast('Ошибка: заказ не найден. Попробуйте снова.');
+            return;
+        }
+        
+        showToast('Обработка платежа...');
+        
+        // Обновляем статус заказа на "оплачен"
+        fetch('https://arturchik-box-2.onrender.com/api/update-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                order_id: window.currentOrderId,
+                status: 'paid'
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showToast('✅ Заказ успешно оплачен!');
+                // Очищаем корзину только после успешной оплаты
+                cart = [];
+                saveCart();
+                updateUI();
+                closeCart();
+                closePaymentModal();
+                window.currentOrderId = null;
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showToast('Ошибка: ' + error.message);
+        });
+    }
+                
+        // === УПРАВЛЕНИЕ ГАЛЕРЕЕЙ (ИСПРАВЛЕНО) ===
+// === ПРОСТОЙ СЛАЙДЕР НА IMG ===
+let currentSlide = 0;
+let slidesImages = [];
+
+function initSimpleGallery() {
+    slidesImages = document.querySelectorAll('.slide-img');
+    console.log('Найдено изображений:', slidesImages.length);
+    
+    if (slidesImages.length === 0) return;
+    
+    // Показываем первый слайд
+    showSlideImage(0);
+}
+
+function showSlideImage(index) {
+    if (!slidesImages.length) return;
+    
+    // Зацикливание
+    if (index < 0) index = slidesImages.length - 1;
+    if (index >= slidesImages.length) index = 0;
+    
+    // Скрываем все
+    for (let i = 0; i < slidesImages.length; i++) {
+        slidesImages[i].classList.remove('active');
+    }
+    
+    // Показываем текущий
+    slidesImages[index].classList.add('active');
+    currentSlide = index;
+    
+    console.log('Показываю фото:', index + 1);
+}
+
+function nextSlide() {
+    showSlideImage(currentSlide + 1);
+}
+
+function prevSlide() {
+    showSlideImage(currentSlide - 1);
+}
+
+// Запускаем после загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    initSimpleGallery();
+});
+    
+        
+          
+    </script>
+    <script>
+        
+        let cart = [];
+        let selectedSize = 'S';
+
+                function init3DEffect() {
+            // Отключено для корректной работы кнопок галереи
+            // 3D эффект можно включить позже
+        }
+
+           
+
+        function selectSize(size) {
+            selectedSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === size) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        function getExcludedClubs() {
+            const input = document.getElementById('exclusionsInput').value;
+            if (!input.trim()) return [];
+            return input.split(',').map(c => c.trim().toLowerCase()).filter(c => c.length > 0).slice(0, 5);
+        }
+
+        function loadCart() {
+            const saved = localStorage.getItem('cart');
+            if (saved) cart = JSON.parse(saved);
+            updateUI();
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message || '✓ Товар добавлен в корзину';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        function addToCart() {
+            const excludedList = getExcludedClubs();
+            let exclusionsText = excludedList.length ? ` (без клубов: ${excludedList.join(', ')})` : ' (без исключений)';
+            const product = {
+                id: Date.now(),
+                name: 'АРТУРЧИК box',
+                size: selectedSize,
+                exclusions: excludedList,
+                price: 3490,
+                quantity: 1
+            };
+            const existing = cart.find(item =>
+                item.name === product.name &&
+                item.size === product.size &&
+                JSON.stringify(item.exclusions) === JSON.stringify(product.exclusions)
+            );
+            if (existing) existing.quantity++;
+            else cart.push(product);
+            saveCart();
+            updateUI();
+            showToast(`✓ Размер ${selectedSize} добавлен${exclusionsText}`);
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Добавлено!';
+            setTimeout(() => btn.textContent = originalText, 1000);
+        }
+
+        function changeQuantity(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+                saveCart();
+                updateUI();
+            }
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateUI();
+        }
+
+        function clearCart() {
+            if (confirm('Очистить всю корзину?')) {
+                cart = [];
+                saveCart();
+                updateUI();
+            }
+        }
+
+        function getTotalPrice() {
+            return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+
+        function formatExclusions(exclusions) {
+            return (!exclusions || exclusions.length === 0) ? 'без исключений' : 'исключены: ' + exclusions.join(', ');
+        }
+
+        function updateUI() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = count;
+            const cartCountModal = document.getElementById('cartCountModal');
+            if (cartCountModal) cartCountModal.textContent = count;
+            
+            const cartItems = document.getElementById('cartItems');
+            const total = getTotalPrice();
+            
+            const customerForm = document.getElementById('customerForm');
+            if (customerForm) {
+                customerForm.style.display = cart.length > 0 ? 'block' : 'none';
+            }
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
+            } else {
+                            cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-size">📏 Размер: ${item.size}</div>
+                            <div class="item-exclude">🚫 ${formatExclusions(item.exclusions)}</div>
+                            <div class="item-price">${item.price} ₽</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                            <span style="color: white; font-weight: bold; min-width: 30px; text-align: center;">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                            <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
+        }
+
+                    function openPaymentModal() {
+        if (cart.length === 0) {
+            showToast('Корзина пуста! Добавьте товар');
+            return;
+        }
+        
+        // Собираем данные из формы
+        const customerData = {
+            fullName: document.getElementById('fullName')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            address: document.getElementById('address')?.value || '',
+            city: document.getElementById('city')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            extraAddress: document.getElementById('extraAddress')?.value || '',
+            notes: document.getElementById('notes')?.value || ''
+        };
+        
+        // Базовая проверка обязательных полей
+        if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+            showToast('Пожалуйста, заполните все обязательные поля!');
+            return;
+        }
+        
+        const total = getTotalPrice();
+        
+        showToast('Создаём платёж...');
+        
+        // === 1. СНАЧАЛА СОЗДАЁМ ЗАКАЗ НА СЕРВЕРЕ ===
+        fetch('https://arturchik-box-2.onrender.com/create-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: total,
+                items: cart,
+                customer: customerData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Запоминаем ID заказа для последующей оплаты
+                window.currentOrderId = data.order_id;
+                
+                // Показываем окно с тестовой оплатой
+                document.getElementById('paymentAmount').innerHTML = total + ' ₽';
+                
+                // Показываем модальное окно с тестовой картой
+                document.getElementById('paymentModal').classList.add('open');
+                document.getElementById('overlay').classList.add('open');
+                
+                // НЕ ОЧИЩАЕМ КОРЗИНУ ЗДЕСЬ!
+            } else {
+                showToast('Ошибка: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showToast('Ошибка подключения к серверу: ' + error.message);
+        });
+    }
+        
+        
+        
+        function completePayment() {
+            document.getElementById('paymentModal').classList.remove('open');
+            cart = [];
+            saveCart();
+            updateUI();
+            closeCart();
+            document.getElementById('overlay').classList.remove('open');
+            showToast('✅ Спасибо за покупку!');
+        }
+
+        function toggleCart() {
+            const cartModal = document.getElementById('cartModal');
+            const overlay = document.getElementById('overlay');
+            
+            if (cartModal.classList.contains('open')) {
+                cartModal.classList.remove('open');
+                overlay.classList.remove('open');
+            } else {
+                cartModal.classList.add('open');
+                overlay.classList.add('open');
+            }
+        }
+        
+        function closeCart() {
+            console.log('Закрытие корзины');
+            const cartModal = document.getElementById('cartModal');
+            const overlay = document.getElementById('overlay');
+            
+            if (cartModal) cartModal.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+        }
+
+        function closeAllModals() {
+            document.getElementById('cartModal').classList.remove('open');
+            document.getElementById('paymentModal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // init3DEffect(); //
+            loadCart();
+        });
+        
+        function closePaymentModal() {
+            console.log('Закрытие окна оплаты');
+            const paymentModal = document.getElementById('paymentModal');
+            const overlay = document.getElementById('overlay');
+            
+            if (paymentModal) paymentModal.classList.remove('open');
+            if (overlay) overlay.classList.remove('open');
+        }
+        
+        // === АВТОРИЗАЦИЯ ===
+        
+            // === АВТОРИЗАЦИЯ С ТОКЕНАМИ ===
+        
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+            document.getElementById('loginError').textContent = '';
+        }
+        
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+            document.getElementById('registerError').textContent = '';
+        }
+        
+        function switchToRegister() {
+            closeAuthModals();
+            openRegisterModal();
+        }
+        
+        function switchToLogin() {
+            closeAuthModals();
+            openLoginModal();
+        }
+        
+        function closeAuthModals() {
+    document.getElementById('loginModal').classList.remove('open');
+    document.getElementById('registerModal').classList.remove('open');
+    document.getElementById('resetPasswordModal').classList.remove('open');
+    document.getElementById('resetCodeModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}
+        
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                document.getElementById('loginError').textContent = 'Заполните все поля';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Сохраняем токен в localStorage
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('user_name', data.user.name);
+                    localStorage.setItem('user_id', data.user.id);
+                    localStorage.setItem('user_email', data.user.email);
+                    
+                    closeAuthModals();
+                    showToast(`Добро пожаловать, ${data.user.name}!`);
+                    updateAuthUI(true, data.user.name);
+                    
+                    // Очищаем поля
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPassword').value = '';
+                } else {
+                    document.getElementById('loginError').textContent = data.error;
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('loginError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        async function doRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const telegram = document.getElementById('regTelegram')?.value || '';
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!name || !email || !phone || !password) {
+                document.getElementById('registerError').textContent = 'Заполните все поля';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password, telegram })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Регистрация успешна! Теперь войдите');
+                    closeAuthModals();
+                    openLoginModal();
+                    document.getElementById('loginEmail').value = email;
+                    
+                    // Очищаем поля регистрации
+                    document.getElementById('regName').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPhone').value = '';
+                    document.getElementById('regPassword').value = '';
+                } else {
+                    document.getElementById('registerError').textContent = data.error;
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('registerError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_id');
+            updateAuthUI(false, '');
+            showToast('Вы вышли из аккаунта');
+        }
+        
+        function updateAuthUI(isLoggedIn, userName) {
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            
+            if (isLoggedIn) {
+                authButtons.style.display = 'none';
+                userInfo.style.display = 'flex';
+                userNameDisplay.textContent = userName;
+            } else {
+                authButtons.style.display = 'flex';
+                userInfo.style.display = 'none';
+            }
+        }
+        
+        function checkAuthStatus() {
+            const token = localStorage.getItem('auth_token');
+            const userName = localStorage.getItem('user_name');
+            
+            if (token && userName) {
+                updateAuthUI(true, userName);
+            } else {
+                updateAuthUI(false, '');
+            }
+        }
+        
+        // === ЛИЧНЫЙ КАБИНЕТ ===
+        
+            async function openCabinet() {
+    const token = localStorage.getItem('auth_token');
+    const userName = localStorage.getItem('user_name');
+    
+    if (!token || !userName) {
+        showToast('Войдите в аккаунт, чтобы увидеть заказы');
+        openLoginModal();
+        return;
+    }
+    
+    // ВРЕМЕННЫЕ ТЕСТОВЫЕ ЗАКАЗЫ С ТРЕК-НОМЕРАМИ
+    const demoOrders = [
+        {
+            order_id: "DEMO_001",
+            items: [{ name: "АРТУРЧИК box", size: "S", quantity: 1 }],
+            total_amount: 3490,
+            status: "paid",
+            tracking_number: "CDEK123456789",
+            created_at: new Date().toISOString()
+        },
+        {
+            order_id: "DEMO_002",
+            items: [{ name: "АРТУРЧИК box", size: "M", quantity: 2 }],
+            total_amount: 6980,
+            status: "shipped",
+            tracking_number: "CDEK987654321",
+            created_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+            order_id: "DEMO_003",
+            items: [{ name: "АРТУРЧИК box", size: "L", quantity: 1 }],
+            total_amount: 3490,
+            status: "pending",
+            tracking_number: null,
+            created_at: new Date(Date.now() - 172800000).toISOString()
+        }
+    ];
+    
+    const orders = demoOrders;
+    const totalOrders = orders.length;
+    const totalSpent = orders.reduce((sum, order) => sum + order.total_amount, 0);
+    
+    let ordersHtml = '';
+    if (orders.length === 0) {
+        ordersHtml = '<p style="text-align: center; color: #ccc;">У вас пока нет заказов</p>';
+    } else {
+                ordersHtml = orders.map(order => `
+            <div class="order-history-item" style="color: white;">
+                <div class="order-history-header">
+    <span class="order-id">${order.order_id}</span>
+</div>
+${getStatusProgress(order.status, order.tracking_number)}
+                <div style="color: white;">📦 ${order.items.map(i => `${i.name} (${i.size}) x${i.quantity}`).join(', ')}</div>
+                <div class="order-total">💰 ${order.total_amount} ₽</div>
+                <div class="order-date">📅 ${new Date(order.created_at).toLocaleString()}</div>
+                <div class="order-tracking" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    🚚 <strong>Трек-номер:</strong> 
+                    ${order.tracking_number ? 
+                        `<a href="https://www.cdek.ru/track?order_id=${order.tracking_number}" 
+                              target="_blank" style="color: #4ade80;">
+                              ${order.tracking_number}
+                          </a>` : 
+                        '<span style="color: #aaa;">ещё не присвоен</span>'
+                    }
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    const ordersHistory = document.getElementById('ordersHistory');
+    ordersHistory.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+            <div style="font-size: 18px; color: #2d8c4e; margin-bottom: 10px;">👋 ${userName}</div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <div><span style="color: #2d8c4e;">📦 Заказов:</span> ${totalOrders}</div>
+                <div><span style="color: #2d8c4e;">💰 Потрачено:</span> ${totalSpent} ₽</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <h4 style="color: #2d8c4e; margin-bottom: 10px;">История заказов</h4>
+            ${ordersHtml}
+        </div>
+    `;
+    
+    document.getElementById('cabinetModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+        function getStatusText(status) {
+            const statuses = {
+                'pending': '⏳ Ожидает оплаты',
+                'paid': '✅ Оплачен',
+                'shipped': '📦 Отправлен',
+                'completed': '🎉 Завершён'
+            };
+            return statuses[status] || status;
+        }
+        
+        function closeCabinet() {
+            document.getElementById('cabinetModal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+        }
+        
+        function addCabinetButton() {
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal && !document.getElementById('cabinetBtn')) {
+                const closeBtn = cartModal.querySelector('button:last-child');
+                if (closeBtn) {
+                    const cabinetBtn = document.createElement('button');
+                    cabinetBtn.id = 'cabinetBtn';
+                    cabinetBtn.textContent = '📦 Мои заказы';
+                    cabinetBtn.style.cssText = 'background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;';
+                    cabinetBtn.onclick = () => {
+                        closeCart();
+                        openCabinet();
+                    };
+                    closeBtn.parentNode.insertBefore(cabinetBtn, closeBtn);
+                }
+            }
+        }
+        
+        const originalUpdateUI = updateUI;
+        updateUI = function() {
+            originalUpdateUI();
+            addCabinetButton();
+        };
+        
+        // Инициализация
+        checkAuthStatus();
+        
+        document.getElementById('overlay').onclick = function() {
+            closeAuthModals();
+            closeCabinet();
+            closeCart();
+            closePaymentModal();
+        };
+        function getStatusProgress(status, tracking_number) {
+    let steps = [
+        { name: 'Создан', value: 'pending', completed: false },
+        { name: 'Оплачен', value: 'paid', completed: false },
+        { name: 'Отправлен', value: 'shipped', completed: false },
+        { name: 'Завершён', value: 'completed', completed: false }
+    ];
+    
+    // Определяем текущий шаг
+    let currentStep = 0;
+    if (status === 'paid') currentStep = 1;
+    if (status === 'shipped') currentStep = 2;
+    if (status === 'completed') currentStep = 3;
+    
+    // Заполняем completed
+    for (let i = 0; i <= currentStep; i++) {
+        steps[i].completed = true;
+    }
+    
+    // Проверяем, телефон ли это
+    const isMobile = window.innerWidth <= 600;
+    
+    if (isMobile) {
+        // Мобильная версия: вертикальный список
+        let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
+        
+        for (let i = 0; i < steps.length; i++) {
+            let icon = steps[i].completed ? '✅' : '○';
+            let color = steps[i].completed ? '#4ade80' : '#aaa';
+            progressHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <div style="font-size: 18px; min-width: 30px;">${icon}</div>
+                    <div style="color: ${color}; font-size: 14px;">${steps[i].name}</div>
+                    ${i < currentStep ? '<div style="margin-left: auto; color: #2d8c4e;">✓</div>' : ''}
+                </div>
+            `;
+            if (i < steps.length - 1) {
+                progressHtml += `<div style="margin-left: 15px; width: 2px; height: 12px; background: ${steps[i].completed ? '#2d8c4e' : '#333'}; margin-bottom: 8px;"></div>`;
+            }
+        }
+        
+        progressHtml += '</div>';
+        return progressHtml;
+    } else {
+        // Десктопная версия: горизонтальный прогресс-бар
+        let progressHtml = '<div style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;">';
+        progressHtml += '<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">';
+        
+        for (let i = 0; i < steps.length; i++) {
+            let icon = steps[i].completed ? '✅' : '○';
+            progressHtml += `<div style="text-align: center; flex: 1; font-size: 12px; color: ${steps[i].completed ? '#4ade80' : '#aaa'};">`;
+            progressHtml += `<div style="font-size: 16px; margin-bottom: 5px;">${icon}</div>`;
+            progressHtml += steps[i].name;
+            progressHtml += `</div>`;
+        }
+        
+        progressHtml += '</div>';
+        
+        let progressPercent = (currentStep / (steps.length - 1)) * 100;
+        progressHtml += `<div style="height: 4px; background: #333; border-radius: 2px; overflow: hidden;">`;
+        progressHtml += `<div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #2d8c4e, #4ade80);"></div>`;
+        progressHtml += `</div>`;
+        progressHtml += '</div>';
+        
+        return progressHtml;
+    }
+}
+                // === ВОССТАНОВЛЕНИЕ ПАРОЛЯ ЧЕРЕЗ TELEGRAM ===
+        
+        function openResetPasswordModal() {
+            closeAuthModals();
+            document.getElementById('resetPasswordModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+            document.getElementById('resetError').textContent = '';
+        }
+        
+        async function sendResetCodeTelegram() {
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!email) {
+                document.getElementById('resetError').textContent = 'Введите email';
+                return;
+            }
+            
+            document.getElementById('resetError').textContent = 'Отправка кода...';
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/reset-password-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('resetPasswordModal').classList.remove('open');
+                    document.getElementById('resetCodeModal').classList.add('open');
+                } else {
+                    document.getElementById('resetError').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('resetError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        async function confirmResetTelegram() {
+            const email = document.getElementById('resetEmail').value;
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!code || !newPassword) {
+                document.getElementById('resetCodeError').textContent = 'Заполните все поля';
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                document.getElementById('resetCodeError').textContent = 'Пароли не совпадают';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://arturchik-box-2.onrender.com/api/confirm-reset-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code, new_password: newPassword })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Пароль успешно изменён! Войдите с новым паролем.');
+                    closeAuthModals();
+                    openLoginModal();
+                    document.getElementById('resetCode').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    document.getElementById('resetCodeError').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('resetCodeError').textContent = 'Ошибка соединения';
+            }
+        }
+        
+        // === ПРИВЯЗКА TELEGRAM В ЛИЧНОМ КАБИНЕТЕ ===
+        
+        async function saveTelegramId() {
+    const chatId = document.getElementById('telegramChatId').value;
+    const email = localStorage.getItem('user_email');
+    
+    console.log('Telegram ID:', chatId);
+    console.log('Email:', email);
+    
+    if (!chatId) {
+        showToast('Введите Telegram ID');
+        return;
+    }
+    
+    if (!email) {
+        showToast('Email не найден. Выйдите и войдите заново.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://arturchik-box-2.onrender.com/api/set-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ telegram_id: chatId, email: email })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Telegram успешно привязан!');
+        } else {
+            showToast('Ошибка: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('Ошибка соединения');
+    }
+}
+    
+  
+    
+
+    </script>
+    </body>
+    </html>
