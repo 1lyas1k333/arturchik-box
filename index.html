@@ -1,4 +1,4 @@
-     <!DOCTYPE html>
+        <!DOCTYPE html>
     <html lang="ru">
     <head>
         <meta charset="UTF-8">
@@ -1024,9 +1024,12 @@
         <h1>📦 АРТУРЧИК box</h1>
         <div class="price">3 490 ₽</div>
         <div class="description">
-            Футбольный бокс с футболкой топ-клуба внутри!<br>
-            Внутри вас ждёт качественная футболка любимой команды, специальная записка и дополнительный аксессуар.
-        </div>
+    <strong>🎁 В каждом боксе вы получаете:</strong><br>
+    🔹 Футболка топ-футбольного клуба (размер на выбор: XS, S, M, L, XL)<br>
+    🔹 Персональная записка<br>
+    🔹 Дополнительный аксессуар<br>
+    🔹 Качественная упаковка
+</div>
 
         <div class="exclusions-section">
             <label>🚫 Выберите до 5 клубов, которые вы НЕ хотите видеть в своём боксе:</label>
@@ -1257,6 +1260,58 @@
     <div id="resetCodeError" class="auth-error"></div>
     <button onclick="confirmResetTelegram()">Сбросить пароль</button>
     <div class="auth-switch" onclick="closeAuthModals()">Вернуться ко входу</div>
+</div>
+
+<!-- ФУТЕР: КОНТАКТЫ И ПУБЛИЧНАЯ ИЗВЕСТНОСТЬ -->
+<div style="text-align: center; margin-top: 50px; padding: 25px 20px; background: rgba(0,0,0,0.6); border-radius: 25px; backdrop-filter: blur(10px);">
+    <p style="color: white; margin-bottom: 15px;">📢 <strong>Наши соцсети и публичные каналы:</strong></p>
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <a href="https://t.me/arturchikkk777" target="_blank" style="color: #4ade80; text-decoration: none;">📱 Telegram-канал</a>
+        <span style="color: #aaa;">|</span>
+        <a href="https://t.me/ARTURCHIK_box" target="_blank" style="color: #4ade80; text-decoration: none;">🛟 Поддержка (@ARTURCHIK_box)</a>
+    </div>
+    
+    <hr style="margin: 20px 0; border-color: rgba(45,140,78,0.3);">
+    
+    <p style="color: white; margin-bottom: 10px;">📄 <strong>Юридическая информация:</strong></p>
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #2d8c4e;">Политика конфиденциальности</a>
+        <a href="#" onclick="showTermsOfUse(); return false;" style="color: #2d8c4e;">Пользовательское соглашение</a>
+    </div>
+    
+    <p style="color: #aaa; font-size: 12px; margin-top: 20px;">© 2026 АРТУРЧИК box | Футбольные боксы</p>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ -->
+<div id="privacyModal" class="modal-auth" style="max-width: 600px; max-height: 80vh; overflow-y: auto; display: none;">
+    <h3>📋 Политика конфиденциальности</h3>
+    <div style="color: white; text-align: left; padding: 15px; font-size: 14px; line-height: 1.5;">
+        <p><strong>1. Общие положения</strong><br>Настоящая Политика регулирует обработку информации пользователей сервиса АРТУРЧИК box.</p>
+        <p><strong>2. Сбор информации</strong><br>Сервис собирает: идентификаторы аккаунта, email, телефон, адрес доставки, историю заказов, технические данные.</p>
+        <p><strong>3. Использование данных</strong><br>Данные используются для оформления заказов, доставки, связи с клиентом, улучшения сервиса.</p>
+        <p><strong>4. Передача третьим лицам</strong><br>Данные не передаются третьим лицам, кроме: платёжных систем, служб доставки, требований закона.</p>
+        <p><strong>5. Хранение и защита</strong><br>Данные хранятся в течение необходимого срока. Принимаются разумные меры защиты.</p>
+        <p><strong>6. Отказ от ответственности</strong><br>Передача данных через интернет сопряжена с рисками. Администрация не гарантирует абсолютную безопасность.</p>
+        <p><strong>7. Изменения</strong><br>Администрация вправе изменять Политику. Продолжение использования = согласие с изменениями.</p>
+        <p style="margin-top: 15px; font-size: 12px; color: #aaa;">Актуально на: 2026 год</p>
+    </div>
+    <button onclick="closePrivacyModal()" style="background: #2d8c4e; width: 100%; padding: 12px; border-radius: 12px; color: white; margin-top: 10px;">Закрыть</button>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО: ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ -->
+<div id="termsModal" class="modal-auth" style="max-width: 600px; max-height: 80vh; overflow-y: auto; display: none;">
+    <h3>📜 Пользовательское соглашение</h3>
+    <div style="color: white; text-align: left; padding: 15px; font-size: 14px; line-height: 1.5;">
+        <p><strong>1. Общие положения</strong><br>Использование сервиса означает полное согласие с условиями.</p>
+        <p><strong>2. Характер услуг</strong><br>Сервис предоставляет футбольные боксы: футболка клуба, записка, аксессуар.</p>
+        <p><strong>3. Отказ от гарантий</strong><br>Сервис предоставляется «как есть». Администрация не гарантирует достижение результатов.</p>
+        <p><strong>4. Платежи и возвраты</strong><br>В связи с нематериальным характером цифровых товаров (состав бокса), возврат не осуществляется, кроме случаев: услуга не оказана по вине сервиса, доступ не предоставлен.</p>
+        <p><strong>5. Ограничение доступа</strong><br>Администрация вправе ограничить доступ при нарушении условий.</p>
+        <p><strong>6. Конфиденциальность</strong><br>Данные обрабатываются согласно Политике конфиденциальности.</p>
+        <p><strong>7. Изменение условий</strong><br>Администрация вправе менять соглашение. Продолжение использования = согласие.</p>
+        <p><strong>8. Контакты</strong><br>Поддержка: @ARTURCHIK_box в Telegram</p>
+    </div>
+    <button onclick="closeTermsModal()" style="background: #2d8c4e; width: 100%; padding: 12px; border-radius: 12px; color: white; margin-top: 10px;">Закрыть</button>
 </div>
     <!-- Подключение виджета CloudPayments -->
     <script src="https://checkout.cloudpayments.ru/checkout.js"></script>
@@ -1595,6 +1650,10 @@
             document.getElementById('cartModal').classList.remove('open');
             document.getElementById('paymentModal').classList.remove('open');
             document.getElementById('overlay').classList.remove('open');
+            document.getElementById('privacyModal')?.classList.remove('open');
+    document.getElementById('termsModal')?.classList.remove('open');
+    if (document.getElementById('privacyModal')) document.getElementById('privacyModal').style.display = 'none';
+    if (document.getElementById('termsModal')) document.getElementById('termsModal').style.display = 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2079,7 +2138,27 @@ ${getStatusProgress(order.status, order.tracking_number)}
     }
 }
     
-  
+// === МОДАЛКИ ДЛЯ ДОКУМЕНТОВ ===
+function showPrivacyPolicy() {
+    document.getElementById('privacyModal').style.display = 'block';
+    document.getElementById('privacyModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+function closePrivacyModal() {
+    document.getElementById('privacyModal').style.display = 'none';
+    document.getElementById('privacyModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}
+function showTermsOfUse() {
+    document.getElementById('termsModal').style.display = 'block';
+    document.getElementById('termsModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+function closeTermsModal() {
+    document.getElementById('termsModal').style.display = 'none';
+    document.getElementById('termsModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}  
     
 
     </script>
