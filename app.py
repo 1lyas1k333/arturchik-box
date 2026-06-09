@@ -893,6 +893,11 @@ def login():
         
         result = authenticate_user(email, password)
         if result['success']:
+            # 👇 ДОБАВЬ ЭТИ ТРИ СТРОКИ — они сохраняют данные в сессию
+            session['user_id'] = result['user_id']
+            session['user_name'] = result['name']
+            session['user_email'] = result['email']
+            
             token = generate_token(result['user_id'])
             return jsonify({
                 'success': True,
@@ -930,20 +935,13 @@ def get_current_user():
 
 @app.route('/api/my-orders', methods=['GET'])
 def get_my_orders():
-    # ВРЕМЕННО: возвращаем заказы для пользователя с telegram_id = 1056646376
-    # Потом заменишь на нормальную проверку токена
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('SELECT id FROM users WHERE telegram_id = ?', ('1056646376',))
-    user = cursor.fetchone()
-    conn.close()
+    # Проверяем, авторизован ли пользователь (по сессии)
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
     
-    if user:
-        orders = get_user_orders(user[0])
-        return jsonify({'success': True, 'orders': orders})
-    
-    return jsonify({'success': True, 'orders': []})
-
+    # Получаем заказы текущего пользователя
+    orders = get_user_orders(session['user_id'])
+    return jsonify({'success': True, 'orders': orders})
 @app.route('/api/orders', methods=['GET'])
 def get_api_orders():
     orders = get_all_orders()
