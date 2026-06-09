@@ -1638,7 +1638,8 @@
             body: JSON.stringify({
                 amount: total,
                 items: cart,
-                customer: customerData
+                customer: customerData,
+                user_id: localStorage.getItem('user_id')  // ← ДОБАВИТЬ ЭТУ СТРОКУ
             })
         })
         .then(response => response.json())
