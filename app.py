@@ -178,6 +178,16 @@ def generate_token(user_id):
     token_data = f"{user_id}:{datetime.now().isoformat()}:{secrets.token_hex(8)}"
     return hashlib.sha256(token_data.encode()).hexdigest()
 
+def get_user_from_token(token):
+    """Возвращает user_id по токену, или None если токен недействителен"""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id FROM user_tokens WHERE token = ? AND expires_at > ?', 
+                   (token, datetime.now().timestamp()))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
+
 def init_db():
     """Создаём таблицы при первом запуске"""
     conn = sqlite3.connect(DB_NAME)
@@ -216,6 +226,17 @@ def init_db():
             tracking_number TEXT,
             created_at TEXT,
             updated_at TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    ''')
+        # Таблица для хранения токенов авторизации
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_tokens (
+            id TEXT PRIMARY KEY,
+            user_id TEXT,
+            token TEXT UNIQUE,
+            created_at TEXT,
+            expires_at TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
@@ -893,12 +914,23 @@ def login():
         
         result = authenticate_user(email, password)
         if result['success']:
-            # 👇 ДОБАВЬ ЭТИ ТРИ СТРОКИ — они сохраняют данные в сессию
-            session['user_id'] = result['user_id']
-            session['user_name'] = result['name']
-            session['user_email'] = result['email']
-            
+            # Генерируем токен
             token = generate_token(result['user_id'])
+            
+            # Сохраняем токен в базу
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            # Удаляем старые токены этого пользователя
+            cursor.execute('DELETE FROM user_tokens WHERE user_id = ?', (result['user_id'],))
+            # Сохраняем новый токен
+            expires_at = (datetime.now().timestamp() + 30 * 24 * 3600)  # 30 дней
+            cursor.execute('''
+                INSERT INTO user_tokens (id, user_id, token, created_at, expires_at)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (str(uuid.uuid4()), result['user_id'], token, datetime.now().isoformat(), expires_at))
+            conn.commit()
+            conn.close()
+            
             return jsonify({
                 'success': True,
                 'token': token,
@@ -935,18 +967,21 @@ def get_current_user():
 
 @app.route('/api/my-orders', methods=['GET'])
 def get_my_orders():
-    # ВРЕМЕННО: возвращаем заказы для пользователя с email = 123@bk.ru
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('SELECT id FROM users WHERE email = ?', ('123@bk.ru',))
-    user = cursor.fetchone()
-    conn.close()
+    # Получаем токен из заголовка Authorization
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
     
-    if user:
-        orders = get_user_orders(user[0])
-        return jsonify({'success': True, 'orders': orders})
+    token = auth_header.split(' ')[1]
     
-    return jsonify({'success': True, 'orders': []})
+    # Проверяем токен и получаем user_id
+    user_id = get_user_from_token(token)
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    # Возвращаем заказы пользователя
+    orders = get_user_orders(user_id)
+    return jsonify({'success': True, 'orders': orders})
 def get_api_orders():
     orders = get_all_orders()
     return jsonify({'success': True, 'orders': orders, 'count': len(orders)})
