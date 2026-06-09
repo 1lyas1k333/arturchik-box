@@ -1043,6 +1043,9 @@ def create_payment():
         cart_items = data.get('items', [])
         customer = data.get('customer', {})
         
+        # 👇 ЭТОЙ СТРОКИ НЕ ХВАТАЕТ
+        user_id = data.get('user_id')  # может быть None, если пользователь не авторизован
+        
         customer_name = customer.get('fullName', '')
         customer_phone = customer.get('phone', '')
         customer_email = customer.get('email', '')
@@ -1055,7 +1058,7 @@ def create_payment():
         
         order_data = {
             'order_id': order_id,
-            'user_id': None,
+            'user_id': user_id,  # ← теперь user_id определён
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'customer_email': customer_email,
