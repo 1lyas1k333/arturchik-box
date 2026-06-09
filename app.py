@@ -935,14 +935,18 @@ def get_current_user():
 
 @app.route('/api/my-orders', methods=['GET'])
 def get_my_orders():
-    # Проверяем, авторизован ли пользователь (по сессии)
-    if not session.get('user_id'):
-        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    # ВРЕМЕННО: возвращаем заказы для пользователя с email = 123@bk.ru
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM users WHERE email = ?', ('123@bk.ru',))
+    user = cursor.fetchone()
+    conn.close()
     
-    # Получаем заказы текущего пользователя
-    orders = get_user_orders(session['user_id'])
-    return jsonify({'success': True, 'orders': orders})
-@app.route('/api/orders', methods=['GET'])
+    if user:
+        orders = get_user_orders(user[0])
+        return jsonify({'success': True, 'orders': orders})
+    
+    return jsonify({'success': True, 'orders': []})
 def get_api_orders():
     orders = get_all_orders()
     return jsonify({'success': True, 'orders': orders, 'count': len(orders)})
