@@ -88,6 +88,10 @@ def send_order_status_email(order_id, customer_name, customer_email, status, tra
 # === TELEGRAM НАСТРОЙКИ ===
 TELEGRAM_TOKEN = "8694164916:AAEYQey-DSovguWmgy-mZLG4nMVhSV4BunQ"
 TELEGRAM_CHAT_ID = "1056646376"
+# === PLATEGA НАСТРОЙКИ ===
+PLATEGA_SHOP_ID = "a8922d02-2beb-44a0-b24a-4b6e6caa33ef"
+PLATEGA_API_KEY = "osj9xJrzJb9jeFXjUHBMucfuR8DXydxScLOGImdzGaiMXNLj8KuiBDsH3AUBZ1vlsckfPWD4jZhdw5HQzJPJdQJWTkitFDtBCAtL"
+PLATEGA_API_URL = "https://app.platega.io/api/v1/payment"  # базовый URL из документации
 
 def send_telegram_message(message):
     try:
@@ -101,6 +105,48 @@ def send_telegram_message(message):
         requests.post(url, json=payload, timeout=5)
     except Exception as e:
         print(f"[TG] Ошибка: {e}")
+
+def create_platega_payment(amount, email, phone, name, order_id):
+    """Создание платежа через Platega API"""
+    try:
+        headers = {
+            "X-MerchantId": PLATEGA_SHOP_ID,
+            "X-Secret": PLATEGA_API_KEY,
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "order_id": order_id,
+            "amount": amount,
+            "currency": "RUB",
+            "customer": {
+                "email": email,
+                "phone": phone,
+                "name": name
+            },
+            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
+        }
+        
+        print(f"[PLATEGA] Отправка запроса: {payload}")
+        
+        response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
+        result = response.json()
+        
+        print(f"[PLATEGA] Ответ: {result}")
+        
+        if response.status_code == 200 and result.get('payment_url'):
+            return {
+                'success': True,
+                'payment_url': result['payment_url'],
+                'payment_id': result.get('payment_id')
+            }
+        else:
+            return {'success': False, 'error': result.get('message', 'Ошибка создания платежа')}
+            
+    except Exception as e:
+        print(f"[PLATEGA] Ошибка: {e}")
+        return {'success': False, 'error': str(e)}
+
 def send_telegram_to_user(chat_id, message):
     """Отправка сообщения конкретному пользователю в Telegram"""
     try:
@@ -1088,9 +1134,7 @@ def create_payment():
         amount = data.get('amount', 3490)
         cart_items = data.get('items', [])
         customer = data.get('customer', {})
-        
-        # 👇 ЭТОЙ СТРОКИ НЕ ХВАТАЕТ
-        user_id = data.get('user_id')  # может быть None, если пользователь не авторизован
+        user_id = data.get('user_id')
         
         customer_name = customer.get('fullName', '')
         customer_phone = customer.get('phone', '')
@@ -1102,9 +1146,10 @@ def create_payment():
         
         order_id = f"ORDER_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
         
+        # Сохраняем заказ в БД со статусом pending
         order_data = {
             'order_id': order_id,
-            'user_id': user_id,  # ← теперь user_id определён
+            'user_id': user_id,
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'customer_email': customer_email,
@@ -1119,17 +1164,33 @@ def create_payment():
         }
         save_order(order_data)
         
-        print(f"[DEBUG] Заказ создан: {order_id}, город={customer_city}, адрес={customer_address}")
+        # Создаём платёж в Platega
+        payment = create_platega_payment(amount, customer_email, customer_phone, customer_name, order_id)
         
+        if not payment['success']:
+            return jsonify({'success': False, 'error': payment.get('error', 'Ошибка создания платежа')}), 500
+        
+        # Обновляем payment_id в заказе
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE orders SET payment_id = ? WHERE order_id = ?', (payment.get('payment_id'), order_id))
+        conn.commit()
+        conn.close()
+        
+        print(f"[DEBUG] Платёж создан: {order_id}, сумма={amount}, ссылка={payment.get('payment_url')}")
+        
+        # Возвращаем ссылку на оплату
         return jsonify({
             'success': True,
             'order_id': order_id,
-            'amount': amount
+            'amount': amount,
+            'payment_url': payment.get('payment_url')
         })
         
     except Exception as e:
         print(f"[ERROR] create_payment: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/update-tracking', methods=['POST'])
 def update_tracking():
     try:
@@ -1366,13 +1427,69 @@ def platega_webhook():
     if request.method == 'GET':
         return jsonify({'status': 'ok', 'message': 'Webhook is active'}), 200
     
-    # Для POST-запроса (уведомление об оплате) — пока заглушка
+    # Для POST-запроса — обрабатываем уведомление об оплате
     try:
+        # Проверяем заголовки (если Platega их отправляет)
+        merchant_id = request.headers.get('X-MerchantId')
+        secret = request.headers.get('X-Secret')
+        
+        # Если заголовки есть — проверяем их
+        if merchant_id and merchant_id != PLATEGA_SHOP_ID:
+            print(f"[WEBHOOK] Неверный Merchant ID: {merchant_id}")
+            return jsonify({'error': 'Unauthorized'}), 401
+        
         data = request.get_json()
         print(f"[WEBHOOK] Получены данные: {data}")
+        
+        order_id = data.get('order_id')
+        status = data.get('status')
+        
+        if not order_id:
+            return jsonify({'error': 'order_id required'}), 400
+        
+        # Если статус CONFIRMED — обновляем заказ
+        if status == 'CONFIRMED':
+            update_order_status(order_id, 'paid')
+            print(f"[WEBHOOK] Заказ {order_id} оплачен")
+            
+            # Уведомление админу в Telegram
+            send_telegram_message(f"✅ ОПЛАЧЕН ЗАКАЗ\n📦 Заказ: {order_id}")
+            
+            # Уведомление покупателю (если есть telegram_id)
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT o.customer_name, u.telegram_id
+                FROM orders o
+                LEFT JOIN users u ON o.user_id = u.id
+                WHERE o.order_id = ?
+            ''', (order_id,))
+            order = cursor.fetchone()
+            conn.close()
+            
+            if order and order[1]:
+                msg_user = f"""✅ <b>Заказ оплачен!</b>
+
+Здравствуйте, {order[0]}!
+
+Ваш заказ №{order_id} успешно оплачен.
+
+Мы начинаем комплектацию и скоро отправим трек-номер для отслеживания.
+
+Спасибо за покупку!"""
+                send_telegram_to_user(order[1], msg_user)
+        
+        elif status == 'CANCELED':
+            print(f"[WEBHOOK] Заказ {order_id} отменён")
+        
+        elif status == 'CHARGEBACK':
+            print(f"[WEBHOOK] Возврат по заказу {order_id}")
+        
         return jsonify({'success': True}), 200
+        
     except Exception as e:
         print(f"[WEBHOOK] Ошибка: {e}")
         return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
