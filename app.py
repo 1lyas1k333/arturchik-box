@@ -124,7 +124,18 @@ def create_platega_payment(amount, email, phone, name, order_id):
                 "phone": phone,
                 "name": name
             },
-            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
+            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
+            "PaymentDetails": {  # ← ЭТОТ БЛОК ДОБАВЛЯЕМ
+                "description": f"Футбольный бокс, заказ {order_id}",
+                "items": [
+                    {
+                        "name": "АРТУРЧИК box",
+                        "quantity": 1,
+                        "price": amount,
+                        "total": amount
+                    }
+                ]
+            }
         }
         
         print(f"[PLATEGA] URL запроса: {PLATEGA_API_URL}")
@@ -133,21 +144,17 @@ def create_platega_payment(amount, email, phone, name, order_id):
         
         response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
         
-        # ПОДРОБНЫЙ ВЫВОД ОТВЕТА
         print(f"[PLATEGA] Статус ответа: {response.status_code}")
         print(f"[PLATEGA] Заголовки ответа: {response.headers}")
         print(f"[PLATEGA] Текст ответа (первые 500 символов): {response.text[:500]}")
         
-        # Пытаемся распарсить JSON
         try:
             result = response.json()
             print(f"[PLATEGA] JSON ответа: {result}")
         except Exception as json_err:
             print(f"[PLATEGA] Ошибка парсинга JSON: {json_err}")
-            print(f"[PLATEGA] Полный текст ответа: {response.text}")
             return {'success': False, 'error': f'Сервер вернул не JSON: {response.text[:200]}'}
         
-        # Проверяем успешность
         if response.status_code == 200 and result.get('payment_url'):
             return {
                 'success': True,
