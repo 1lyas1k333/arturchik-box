@@ -112,7 +112,10 @@ def create_payment():
     cart_items = data.get('items', [])
     customer = data.get('customer', {})
     user_id = data.get('user_id')
+    
     order_id = f"ORDER_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    
+    # Сохраняем заказ в Supabase
     order_data = {
         "id": str(uuid.uuid4()), "order_id": order_id, "user_id": user_id,
         "customer_name": customer.get('fullName'), "customer_phone": customer.get('phone'),
@@ -123,7 +126,41 @@ def create_payment():
         "updated_at": datetime.now().isoformat()
     }
     supabase.table("orders").insert(order_data).execute()
-    return jsonify({"success": True, "order_id": order_id, "amount": amount, "payment_url": None})
+    
+    # === ВЫЗОВ PLATEGA ===
+    try:
+        headers = {
+            "X-MerchantId": PLATEGA_SHOP_ID,
+            "X-Secret": PLATEGA_API_KEY,
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "paymentMethod": 2,
+            "paymentDetails": {"amount": float(amount), "currency": "RUB"},
+            "description": f"Футбольный бокс, заказ {order_id}",
+            "return": "https://1lyas1k333.github.io/payment-success",
+            "failedUrl": "https://1lyas1k333.github.io/payment-failed",
+            "payload": order_id,
+            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
+        }
+        
+        response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
+        result = response.json()
+        
+        if response.status_code == 200 and result.get('redirect'):
+            return jsonify({
+                "success": True,
+                "order_id": order_id,
+                "amount": amount,
+                "payment_url": result['redirect']
+            })
+        else:
+            print(f"[PLATEGA] Ошибка: {result}")
+            return jsonify({"success": False, "error": "Ошибка создания платежа в Platega"}), 500
+            
+    except Exception as e:
+        print(f"[PLATEGA] Исключение: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/platega-webhook', methods=['POST', 'GET'])
 def platega_webhook():
