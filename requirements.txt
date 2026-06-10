@@ -3,3 +3,4 @@ flask-cors
 openpyxl
 requests
 gunicorn
+supabase==2.5.0
