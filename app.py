@@ -91,7 +91,7 @@ TELEGRAM_CHAT_ID = "1056646376"
 # === PLATEGA НАСТРОЙКИ ===
 PLATEGA_SHOP_ID = "a8922d02-2beb-44a0-b24a-4b6e6caa33ef"
 PLATEGA_API_KEY = "osj9xJrzJb9jeFXjUHBMucfuR8DXydxScLOGImdzGaiMXNLj8KuiBDsH3AUBZ1vlsckfPWD4jZhdw5HQzJPJdQJWTkitFDtBCAtL"
-PLATEGA_API_URL = "https://app.platega.io/api/payment"  # базовый URL из документации
+PLATEGA_API_URL = "https://app.platega.io/transaction/process"
 
 def send_telegram_message(message):
     try:
