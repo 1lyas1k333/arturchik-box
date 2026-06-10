@@ -308,6 +308,157 @@ def platega_webhook():
 @app.route('/')
 def home():
     return jsonify({"status": "ok", "time": datetime.now().isoformat()})
+# === АДМИН-ПАНЕЛЬ ===
+ADMIN_PASSWORD = "123"
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_panel():
+    if request.method == 'POST':
+        if request.form.get('password') == ADMIN_PASSWORD:
+            return redirect('/admin/dashboard')
+        return '<h2>❌ Неверный пароль</h2><a href="/admin">Вернуться</a>'
+    
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Вход в админ-панель</title>
+        <style>
+            body {
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a2a1a 100%);
+                font-family: system-ui;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .login-box {
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(10px);
+                padding: 40px;
+                border-radius: 30px;
+                border: 1px solid #2d8c4e;
+                text-align: center;
+                width: 300px;
+            }
+            h2 { color: #2d8c4e; margin-bottom: 20px; }
+            input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; }
+            button { background: #2d8c4e; color: white; padding: 12px; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-size: 16px; }
+            button:hover { background: #1a5f3a; }
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h2>🔐 Вход в админ-панель</h2>
+            <form method="post">
+                <input type="password" name="password" placeholder="Введите пароль" autofocus>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    '''
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    return '''
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Админ-панель | АРТУРЧИК box</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: system-ui;
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a2a1a 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .container { max-width: 1400px; margin: 0 auto; }
+            h1 { color: #2d8c4e; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+            .stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+            .stat-card { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; border: 1px solid #2d8c4e; min-width: 150px; text-align: center; }
+            .stat-number { font-size: 36px; font-weight: bold; color: #2d8c4e; }
+            .stat-label { color: #ccc; font-size: 14px; }
+            table { width: 100%; background: rgba(0,0,0,0.6); border-radius: 20px; overflow: hidden; border-collapse: collapse; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
+            th { background: #2d8c4e; }
+            select, input { background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px 10px; border-radius: 8px; }
+            .refresh-btn, .logout-btn { background: #2d8c4e; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+            .logout-btn { background: #ff4444; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📦 Админ-панель АРТУРЧИК box 
+                <div><button class="refresh-btn" onclick="loadOrders()">🔄 Обновить</button>
+                <button class="logout-btn" onclick="logout()">🚪 Выйти</button></div>
+            </h1>
+            <div class="stats">
+                <div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Всего заказов</div></div>
+                <div class="stat-card"><div class="stat-number" id="totalAmount">0</div><div class="stat-label">Сумма (₽)</div></div>
+                <div class="stat-card"><div class="stat-number" id="pendingOrders">0</div><div class="stat-label">Ожидают оплаты</div></div>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>№ заказа</th><th>Покупатель</th><th>Email</th><th>Сумма</th><th>Статус</th><th>Трек-номер</th><th>Дата</th></tr>
+                </thead>
+                <tbody id="ordersBody"><tr><td colspan="7">Загрузка...</td></tr>
+            </table>
+        </div>
+        <script>
+            async function loadOrders() {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                if (!data.success) return;
+                const orders = data.orders;
+                document.getElementById('totalOrders').innerText = orders.length;
+                document.getElementById('totalAmount').innerText = orders.reduce((s,o) => s + o.total_amount, 0);
+                document.getElementById('pendingOrders').innerText = orders.filter(o => o.status === 'pending').length;
+                const tbody = document.getElementById('ordersBody');
+                if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7">Нет заказов</td></tr>'; return; }
+                tbody.innerHTML = orders.map(order => `
+                    <tr>
+                        <td>${order.order_id}</td>
+                        <td>${order.customer_name || '—'}</td>
+                        <td>${order.customer_email || '—'}</td>
+                        <td>${order.total_amount} ₽</td>
+                        <td>
+                            <select onchange="updateStatus('${order.order_id}', this.value)">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
+                                <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
+                                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🎉 Завершён</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="Трек-номер" onchange="updateTracking('${order.order_id}', this.value)"></td>
+                        <td>${new Date(order.created_at).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+            async function updateStatus(orderId, status) {
+                await fetch('/api/update-status', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({order_id: orderId, status})});
+                loadOrders();
+            }
+            async function updateTracking(orderId, tracking) {
+                await fetch('/api/update-tracking', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({order_id: orderId, tracking_number: tracking})});
+            }
+            function logout() { window.location.href = '/admin/logout'; }
+            loadOrders();
+            setInterval(loadOrders, 30000);
+        </script>
+    </body>
+    </html>
+    '''
+
+@app.route('/admin/logout')
+def admin_logout():
+    return redirect('/admin')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.getenv("PORT", 10000)))
