@@ -1360,5 +1360,19 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
+@app.route('/platega-webhook', methods=['POST', 'GET'])
+def platega_webhook():
+    # Для GET-запроса (проверка Platega) просто возвращаем ok
+    if request.method == 'GET':
+        return jsonify({'status': 'ok', 'message': 'Webhook is active'}), 200
+    
+    # Для POST-запроса (уведомление об оплате) — пока заглушка
+    try:
+        data = request.get_json()
+        print(f"[WEBHOOK] Получены данные: {data}")
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        print(f"[WEBHOOK] Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
