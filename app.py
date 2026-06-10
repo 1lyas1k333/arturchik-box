@@ -117,7 +117,7 @@ def create_platega_payment(amount, email, phone, name, order_id):
         
         payload = {
             "order_id": order_id,
-            "amount": amount,
+            "amount": float(amount),
             "currency": "RUB",
             "command": "SALE",
             "paymentMethod": 2,
@@ -134,8 +134,8 @@ def create_platega_payment(amount, email, phone, name, order_id):
                     {
                         "name": "АРТУРЧИК box",
                         "quantity": 1,
-                        "price": amount,
-                        "total": amount
+                        "price": float(amount),
+                        "total": float(amount)
                     }
                 ]
             }
