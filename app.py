@@ -114,13 +114,13 @@ def create_platega_payment(amount, email, phone, name, order_id):
             "X-Secret": PLATEGA_API_KEY,
             "Content-Type": "application/json"
         }
-        
+
         payload = {
             "order_id": order_id,
             "amount": amount,
             "currency": "RUB",
             "command": "pay",
-            "paymentMethod": 1,
+            "paymentMethod": "SBP",
             "customer": {
                 "email": email,
                 "phone": phone,
@@ -140,15 +140,15 @@ def create_platega_payment(amount, email, phone, name, order_id):
                 ]
             }
         }
-        
+
         print(f"[PLATEGA] Отправка запроса на URL: {PLATEGA_API_URL}")
         print(f"[PLATEGA] Тело: {payload}")
-        
+
         response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
-        
+
         print(f"[PLATEGA] Статус ответа: {response.status_code}")
         print(f"[PLATEGA] Текст ответа: {response.text}")
-        
+
         if response.status_code == 200:
             result = response.json()
             if result.get('payment_url'):
@@ -157,9 +157,9 @@ def create_platega_payment(amount, email, phone, name, order_id):
                     'payment_url': result['payment_url'],
                     'payment_id': result.get('payment_id')
                 }
-        
+
         return {'success': False, 'error': f'HTTP {response.status_code}: {response.text[:200]}'}
-        
+
     except Exception as e:
         print(f"[PLATEGA] Ошибка: {e}")
         return {'success': False, 'error': str(e)}
