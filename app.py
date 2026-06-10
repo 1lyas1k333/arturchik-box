@@ -55,6 +55,137 @@ def generate_token(user_id):
 def update_order_status(order_id, status):
     supabase.table("orders").update({"status": status, "updated_at": datetime.now().isoformat()}).eq("order_id", order_id).execute()
     print(f"[DB] Заказ {order_id} обновлён → {status}")
+# === TELEGRAM ПРИВЯЗКА ===
+@app.route('/api/set-telegram', methods=['POST'])
+def set_telegram():
+    try:
+        data = request.get_json()
+        telegram_id = data.get('telegram_id')
+        email = data.get('email')
+        
+        print(f"[DEBUG] set_telegram: telegram_id={telegram_id}, email={email}")
+        
+        if not telegram_id:
+            return jsonify({'success': False, 'error': 'Telegram ID не указан'}), 400
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email не указан'}), 400
+        
+        # Обновляем telegram_id у пользователя в Supabase
+        result = supabase.table("users").update({"telegram_id": telegram_id}).eq("email", email).execute()
+        
+        if not result.data:
+            return jsonify({'success': False, 'error': 'Пользователь с таким email не найден'}), 404
+        
+        # Отправляем тестовое сообщение
+        try:
+            send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box!")
+        except Exception as e:
+            print(f"[TG] Ошибка отправки: {e}")
+        
+        return jsonify({'success': True, 'message': 'Telegram успешно привязан!'})
+        
+    except Exception as e:
+        print(f"[ERROR] set_telegram: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/test-telegram', methods=['POST'])
+def test_telegram():
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+        
+        token = auth_header.split(' ')[1]
+        res = supabase.table("user_tokens").select("user_id").eq("token", token).execute()
+        if not res.data:
+            return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+        
+        user_id = res.data[0]['user_id']
+        user_res = supabase.table("users").select("telegram_id").eq("id", user_id).execute()
+        
+        if user_res.data and user_res.data[0].get('telegram_id'):
+            send_telegram_to_user(user_res.data[0]['telegram_id'], "✅ Связь с ботом работает! Если вы видите это сообщение, всё настроено правильно.")
+            return jsonify({'success': True})
+        return jsonify({'success': False, 'error': 'Telegram не привязан'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# === ВОССТАНОВЛЕНИЕ ПАРОЛЯ ЧЕРЕЗ TELEGRAM ===
+reset_codes_tg = {}
+
+@app.route('/api/reset-password-telegram', methods=['POST'])
+def reset_password_telegram():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email обязателен'}), 400
+        
+        res = supabase.table("users").select("id, name, telegram_id").eq("email", email).execute()
+        if not res.data:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        user = res.data[0]
+        telegram_id = user.get('telegram_id')
+        
+        if not telegram_id:
+            return jsonify({'success': False, 'error': 'У этого аккаунта не указан Telegram. Привяжите его в личном кабинете.'}), 400
+        
+        import random
+        import string
+        code = ''.join(random.choices(string.digits, k=6))
+        expires = datetime.now().timestamp() + 900
+        
+        reset_codes_tg[email] = {'code': code, 'expires': expires}
+        
+        msg = f"""🔐 <b>Восстановление пароля АРТУРЧИК box</b>
+
+Ваш код для сброса пароля: <code>{code}</code>
+
+Код действителен в течение 15 минут.
+
+Если вы не запрашивали сброс пароля, просто проигнорируйте это сообщение."""
+        
+        send_telegram_to_user(telegram_id, msg)
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"[ERROR] reset_password_telegram: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/confirm-reset-telegram', methods=['POST'])
+def confirm_reset_telegram():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        code = data.get('code')
+        new_password = data.get('new_password')
+        
+        if not email or not code or not new_password:
+            return jsonify({'success': False, 'error': 'Все поля обязательны'}), 400
+        
+        stored = reset_codes_tg.get(email)
+        if not stored:
+            return jsonify({'success': False, 'error': 'Код не найден или истёк'}), 400
+        
+        if datetime.now().timestamp() > stored['expires']:
+            del reset_codes_tg[email]
+            return jsonify({'success': False, 'error': 'Код истёк. Запросите новый'}), 400
+        
+        if stored['code'] != code:
+            return jsonify({'success': False, 'error': 'Неверный код'}), 400
+        
+        hashed_pw = hash_password(new_password)
+        supabase.table("users").update({"password": hashed_pw}).eq("email", email).execute()
+        
+        del reset_codes_tg[email]
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"[ERROR] confirm_reset_telegram: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # === API ===
 @app.route('/api/register', methods=['POST'])
