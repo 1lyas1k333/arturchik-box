@@ -115,10 +115,11 @@ def create_platega_payment(amount, email, phone, name, order_id):
             "Content-Type": "application/json"
         }
         
-        payload = {
+       payload = {
     "order_id": order_id,
     "amount": amount,
     "currency": "RUB",
+    "paymentMethod": "CARD",
     "customer": {
         "email": email,
         "phone": phone,
