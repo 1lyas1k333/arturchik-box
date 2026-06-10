@@ -127,13 +127,27 @@ def create_platega_payment(amount, email, phone, name, order_id):
             "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
         }
         
-        print(f"[PLATEGA] Отправка запроса: {payload}")
+        print(f"[PLATEGA] URL запроса: {PLATEGA_API_URL}")
+        print(f"[PLATEGA] Заголовки: {headers}")
+        print(f"[PLATEGA] Тело запроса: {payload}")
         
         response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
-        result = response.json()
         
-        print(f"[PLATEGA] Ответ: {result}")
+        # ПОДРОБНЫЙ ВЫВОД ОТВЕТА
+        print(f"[PLATEGA] Статус ответа: {response.status_code}")
+        print(f"[PLATEGA] Заголовки ответа: {response.headers}")
+        print(f"[PLATEGA] Текст ответа (первые 500 символов): {response.text[:500]}")
         
+        # Пытаемся распарсить JSON
+        try:
+            result = response.json()
+            print(f"[PLATEGA] JSON ответа: {result}")
+        except Exception as json_err:
+            print(f"[PLATEGA] Ошибка парсинга JSON: {json_err}")
+            print(f"[PLATEGA] Полный текст ответа: {response.text}")
+            return {'success': False, 'error': f'Сервер вернул не JSON: {response.text[:200]}'}
+        
+        # Проверяем успешность
         if response.status_code == 200 and result.get('payment_url'):
             return {
                 'success': True,
@@ -141,10 +155,10 @@ def create_platega_payment(amount, email, phone, name, order_id):
                 'payment_id': result.get('payment_id')
             }
         else:
-            return {'success': False, 'error': result.get('message', 'Ошибка создания платежа')}
+            return {'success': False, 'error': result.get('message', f'Ошибка {response.status_code}')}
             
     except Exception as e:
-        print(f"[PLATEGA] Ошибка: {e}")
+        print(f"[PLATEGA] Исключение: {e}")
         return {'success': False, 'error': str(e)}
 
 def send_telegram_to_user(chat_id, message):
