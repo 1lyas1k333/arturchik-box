@@ -1141,42 +1141,7 @@
         <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
         <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
     </div>
-    <div class="payment-modal" id="paymentModal">
-    <div style="max-height: 80vh; overflow-y: auto; padding: 0 10px;">
-        <h2 style="color: #fff; margin-bottom: 15px;">💳 Тестовая оплата</h2>
-        
-        <div class="payment-amount" id="paymentAmount" style="font-size: 36px; font-weight: bold; color: #2d8c4e; margin: 15px 0;">0 ₽</div>
-        
-        <div style="background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; margin: 15px 0;">
-            <p style="color: #ccc; margin-bottom: 10px;">💳 <strong>Тестовые данные карты:</strong></p>
-            <p style="color: #2d8c4e; font-family: monospace; font-size: 14px;">4242 4242 4242 4242</p>
-            <p style="color: #2d8c4e; font-family: monospace; font-size: 14px;">Срок: 12/25 | CVV: 111</p>
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Номер карты</label>
-            <input type="text" id="testCardNumber" placeholder="4242 4242 4242 4242" class="form-input" value="4242 4242 4242 4242" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Срок (MM/YY)</label>
-            <input type="text" id="testCardExpiry" placeholder="12/25" class="form-input" value="12/25" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">CVV</label>
-            <input type="text" id="testCardCvv" placeholder="111" class="form-input" value="111" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <button class="test-payment-btn" onclick="processTestPayment()" style="background: #28a745; width: 100%; padding: 15px; border: none; border-radius: 12px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px;">
-            ✅ Я оплатил(а)
-        </button>
-        
-        <button class="close-payment" onclick="closePaymentModal()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">
-            ✕ Закрыть
-        </button>
-    </div>
-</div>
+    
             
             
 
@@ -1370,76 +1335,8 @@
     <script src="https://checkout.cloudpayments.ru/checkout.js"></script>
 
     <script>
-        // === ОПЛАТА ЧЕРЕЗ CLOUDPAYMENTS ===
         
-            
-          
-      
-                   function openCloudPayment(amount, orderId, email, name, phone) {
-        // Демо-режим: показываем QR-код и кнопку
-        document.getElementById('paymentAmount').innerHTML = amount + ' ₽';
-        
-        const qrContainer = document.getElementById('paymentQrContainer');
-        const paymentUrl = 'https://www.tinkoff.ru/';
-        
-        if (qrContainer) {
-            qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentUrl)}" style="width:200px; height:200px; border-radius:15px;">`;
-        }
-        
-        const linkElement = document.getElementById('paymentUrlLink');
-        if (linkElement) {
-            linkElement.href = paymentUrl;
-            linkElement.textContent = '🔗 Открыть страницу оплаты (демо)';
-            linkElement.setAttribute('target', '_blank');
-        }
-        
-        document.getElementById('paymentModal').classList.add('open');
-        document.getElementById('overlay').classList.add('open');
-        
-        // Очищаем корзину
-        cart = [];
-        saveCart();
-        updateUI();
-        closeCart();
-    }
-                    function processTestPayment() {
-        if (!window.currentOrderId) {
-            showToast('Ошибка: заказ не найден. Попробуйте снова.');
-            return;
-        }
-        
-        showToast('Обработка платежа...');
-        
-        // Обновляем статус заказа на "оплачен"
-        fetch('https://arturchik-box-2.onrender.com/api/update-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                order_id: window.currentOrderId,
-                status: 'paid'
-            })
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                showToast('✅ Заказ успешно оплачен!');
-                // Очищаем корзину только после успешной оплаты
-                cart = [];
-                saveCart();
-                updateUI();
-                closeCart();
-                closePaymentModal();
-                window.currentOrderId = null;
-            } else {
-                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            showToast('Ошибка: ' + error.message);
-        });
-    }
-                
+                 
             
         
           
@@ -1605,66 +1502,53 @@
         }
 
                     function openPaymentModal() {
-        if (cart.length === 0) {
-            showToast('Корзина пуста! Добавьте товар');
-            return;
-        }
-        
-        // Собираем данные из формы
-        const customerData = {
-            fullName: document.getElementById('fullName')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            address: document.getElementById('address')?.value || '',
-            city: document.getElementById('city')?.value || '',
-            phone: document.getElementById('phone')?.value || '',
-            extraAddress: document.getElementById('extraAddress')?.value || '',
-            notes: document.getElementById('notes')?.value || ''
-        };
-        
-        // Базовая проверка обязательных полей
-        if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
-            showToast('Пожалуйста, заполните все обязательные поля!');
-            return;
-        }
-        
-        const total = getTotalPrice();
-        
-        showToast('Создаём платёж...');
-        
-        // === 1. СНАЧАЛА СОЗДАЁМ ЗАКАЗ НА СЕРВЕРЕ ===
-        fetch('https://arturchik-box-2.onrender.com/create-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                amount: total,
-                items: cart,
-                customer: customerData,
-                user_id: localStorage.getItem('user_id')  // ← ДОБАВИТЬ ЭТУ СТРОКУ
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Запоминаем ID заказа для последующей оплаты
-                window.currentOrderId = data.order_id;
-                
-                // Показываем окно с тестовой оплатой
-                document.getElementById('paymentAmount').innerHTML = total + ' ₽';
-                
-                // Показываем модальное окно с тестовой картой
-                document.getElementById('paymentModal').classList.add('open');
-                document.getElementById('overlay').classList.add('open');
-                
-                // НЕ ОЧИЩАЕМ КОРЗИНУ ЗДЕСЬ!
-            } else {
-                showToast('Ошибка: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            showToast('Ошибка подключения к серверу: ' + error.message);
-        });
+    if (cart.length === 0) {
+        showToast('Корзина пуста! Добавьте товар');
+        return;
     }
+    
+    const customerData = {
+        fullName: document.getElementById('fullName')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        address: document.getElementById('address')?.value || '',
+        city: document.getElementById('city')?.value || '',
+        phone: document.getElementById('phone')?.value || '',
+        extraAddress: document.getElementById('extraAddress')?.value || '',
+        notes: document.getElementById('notes')?.value || ''
+    };
+    
+    if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+        showToast('Пожалуйста, заполните все обязательные поля!');
+        return;
+    }
+    
+    const total = getTotalPrice();
+    
+    showToast('Перенаправление на оплату...');
+    
+    fetch('https://arturchik-box-2.onrender.com/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: total,
+            items: cart,
+            customer: customerData,
+            user_id: localStorage.getItem('user_id')
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            showToast('Ошибка: ' + (data.error || 'Не удалось создать платёж'));
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка подключения к серверу: ' + error.message);
+    });
+}
         
         
         
