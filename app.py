@@ -107,7 +107,7 @@ def send_telegram_message(message):
         print(f"[TG] Ошибка: {e}")
 
 def create_platega_payment(amount, email, phone, name, order_id):
-    """Создание платежа через Platega API"""
+    """Создание платежа через Platega API (по документации)"""
     try:
         headers = {
             "X-MerchantId": PLATEGA_SHOP_ID,
@@ -116,29 +116,16 @@ def create_platega_payment(amount, email, phone, name, order_id):
         }
         
         payload = {
-            "order_id": order_id,
-            "amount": float(amount),
-            "currency": "RUB",
-            "command": "SALE",
-            "paymentMethod": 2,
-            "customer": {
-                "email": email,
-                "phone": phone,
-                "name": name
+            "paymentMethod": 2,  # СБП QR
+            "paymentDetails": {
+                "amount": float(amount),
+                "currency": "RUB"
             },
-            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
-            "PaymentDetails": {
-                "description": f"Футбольный бокс, заказ {order_id}",
-                "currency": "RUB",
-                "items": [
-                    {
-                        "name": "АРТУРЧИК box",
-                        "quantity": 1,
-                        "price": float(amount),
-                        "total": float(amount)
-                    }
-                ]
-            }
+            "description": f"Футбольный бокс, заказ {order_id}",
+            "return": "https://1lyas1k333.github.io/payment-success",
+            "failedUrl": "https://1lyas1k333.github.io/payment-failed",
+            "payload": order_id,
+            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
         }
         
         print(f"[PLATEGA] Отправка запроса на URL: {PLATEGA_API_URL}")
@@ -151,11 +138,11 @@ def create_platega_payment(amount, email, phone, name, order_id):
         
         if response.status_code == 200:
             result = response.json()
-            if result.get('payment_url'):
+            if result.get('redirect'):
                 return {
                     'success': True,
-                    'payment_url': result['payment_url'],
-                    'payment_id': result.get('payment_id')
+                    'payment_url': result['redirect'],  # поле redirect из документации
+                    'payment_id': result.get('transactionId')
                 }
         
         return {'success': False, 'error': f'HTTP {response.status_code}: {response.text[:200]}'}
