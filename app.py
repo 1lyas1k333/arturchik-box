@@ -1433,28 +1433,26 @@ def platega_webhook():
     
     # Для POST-запроса — обрабатываем уведомление об оплате
     try:
-        # Проверяем заголовки (если Platega их отправляет)
-        merchant_id = request.headers.get('X-MerchantId')
-        secret = request.headers.get('X-Secret')
-        
-        # Если заголовки есть — проверяем их
-        if merchant_id and merchant_id != PLATEGA_SHOP_ID:
-            print(f"[WEBHOOK] Неверный Merchant ID: {merchant_id}")
-            return jsonify({'error': 'Unauthorized'}), 401
-        
         data = request.get_json()
         print(f"[WEBHOOK] Получены данные: {data}")
         
-        order_id = data.get('order_id')
+        if not data:
+            return jsonify({'error': 'No data received'}), 400
+        
+        # Platega отправляет order_id в поле payload
+        order_id = data.get('payload') or data.get('order_id')
         status = data.get('status')
         
         if not order_id:
+            print(f"[WEBHOOK] Не найден order_id в данных: {data}")
             return jsonify({'error': 'order_id required'}), 400
+        
+        print(f"[WEBHOOK] Обработка заказа {order_id}, статус: {status}")
         
         # Если статус CONFIRMED — обновляем заказ
         if status == 'CONFIRMED':
             update_order_status(order_id, 'paid')
-            print(f"[WEBHOOK] Заказ {order_id} оплачен")
+            print(f"[WEBHOOK] Заказ {order_id} ОПЛАЧЕН")
             
             # Уведомление админу в Telegram
             send_telegram_message(f"✅ ОПЛАЧЕН ЗАКАЗ\n📦 Заказ: {order_id}")
@@ -1484,11 +1482,16 @@ def platega_webhook():
                 send_telegram_to_user(order[1], msg_user)
         
         elif status == 'CANCELED':
-            print(f"[WEBHOOK] Заказ {order_id} отменён")
+            print(f"[WEBHOOK] Заказ {order_id} ОТМЕНЁН (неоплачен)")
+            # Не меняем статус, просто логируем
         
         elif status == 'CHARGEBACK':
             print(f"[WEBHOOK] Возврат по заказу {order_id}")
         
+        else:
+            print(f"[WEBHOOK] Неизвестный статус: {status}")
+        
+        # Всегда возвращаем 200, даже при отмене
         return jsonify({'success': True}), 200
         
     except Exception as e:
