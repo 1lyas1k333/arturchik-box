@@ -109,24 +109,39 @@ def get_all_orders():
     orders = supabase.table("orders").select("*").execute()
     return jsonify({"success": True, "orders": orders.data, "count": len(orders.data)})
 
-@app.route('/api/update-status', methods=['POST'])
-def update_status_api():
-    data = request.get_json()
-    order_id = data.get('order_id')
-    status = data.get('status')
-    if not order_id or not status:
-        return jsonify({"success": False, "error": "Missing fields"}), 400
-    update_order_status(order_id, status)
-    send_telegram_message(f"🔄 Статус заказа {order_id} изменён на {status}")
-    return jsonify({"success": True})
+
 
 @app.route('/api/update-tracking', methods=['POST'])
 def update_tracking():
     data = request.get_json()
     order_id = data.get('order_id')
     tracking_number = data.get('tracking_number')
+    
+    # Обновляем трек-номер в базе данных
     supabase.table("orders").update({"tracking_number": tracking_number}).eq("order_id", order_id).execute()
+    
+    # Уведомление админу (в Telegram)
     send_telegram_message(f"📦 Трек-номер для заказа {order_id}: {tracking_number}")
+    
+    # Получаем информацию о заказе и пользователе для уведомления покупателя
+    order_res = supabase.table("orders").select("customer_name, user_id").eq("order_id", order_id).execute()
+    if order_res.data:
+        user_res = supabase.table("users").select("telegram_id").eq("id", order_res.data[0].get('user_id')).execute()
+        if user_res.data and user_res.data[0].get('telegram_id'):
+            msg_user = f"""📦 <b>Ваш заказ отправлен!</b>
+
+Здравствуйте, {order_res.data[0].get('customer_name')}!
+
+Ваш заказ №{order_id} отправлен.
+
+📦 Трек-номер: {tracking_number}
+🔗 Отследить: https://www.cdek.ru/track?order_id={tracking_number}
+
+Спасибо за покупку!"""
+            send_telegram_to_user(user_res.data[0]['telegram_id'], msg_user)
+        else:
+            print(f"[TRACKING] У пользователя нет Telegram ID для заказа {order_id}")
+    
     return jsonify({"success": True})
 
 @app.route('/create-payment', methods=['POST'])
@@ -176,7 +191,26 @@ def platega_webhook():
     order_id = data.get('payload')
     if order_id and data.get('status') == 'CONFIRMED':
         update_order_status(order_id, 'paid')
+        
+        # Уведомление админу
         send_telegram_message(f"✅ ОПЛАЧЕН ЗАКАЗ {order_id}")
+        
+        # Уведомление покупателю
+        order_res = supabase.table("orders").select("customer_name, user_id").eq("order_id", order_id).execute()
+        if order_res.data:
+            user_res = supabase.table("users").select("telegram_id").eq("id", order_res.data[0].get('user_id')).execute()
+            if user_res.data and user_res.data[0].get('telegram_id'):
+                msg_user = f"""✅ <b>Заказ оплачен!</b>
+
+Здравствуйте, {order_res.data[0].get('customer_name')}!
+
+Ваш заказ №{order_id} успешно оплачен.
+
+Мы начинаем комплектацию и скоро отправим трек-номер для отслеживания.
+
+Спасибо за покупку!"""
+                send_telegram_to_user(user_res.data[0]['telegram_id'], msg_user)
+    
     return jsonify({"success": True}), 200
 
 # ========== АДМИН-ПАНЕЛЬ ==========
@@ -416,7 +450,7 @@ def update_status_api():
     send_telegram_message(f"🔄 Статус заказа {order_id} изменён на {status}")
     
     # Получаем информацию для уведомления покупателя
-    order_res = supabase.table("orders").select("customer_name, user_id, customer_email").eq("order_id", order_id).execute()
+    order_res = supabase.table("orders").select("customer_name, user_id").eq("order_id", order_id).execute()
     if order_res.data:
         user_res = supabase.table("users").select("telegram_id").eq("id", order_res.data[0].get('user_id')).execute()
         if user_res.data and user_res.data[0].get('telegram_id'):
@@ -434,11 +468,56 @@ def update_status_api():
 
 Спасибо, что выбрали нас!"""
             send_telegram_to_user(user_res.data[0]['telegram_id'], msg_user)
-        
-        # Email-заглушка
-        send_order_status_email(order_id, order_res.data[0].get('customer_name'), order_res.data[0].get('customer_email'), status)
     
     return jsonify({"success": True})
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"success": True})
+@app.route('/api/delete-order', methods=['POST'])
+def delete_order():
+    try:
+        data = request.get_json()
+        order_id = data.get('order_id')
+        if not order_id:
+            return jsonify({'success': False, 'error': 'order_id required'}), 400
+        supabase.table("orders").delete().eq("order_id", order_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+@app.route('/export-orders', methods=['GET'])
+def export_orders():
+    try:
+        from openpyxl import Workbook
+        orders = supabase.table("orders").select("*").execute()
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Заказы"
+        
+        headers = ['№ заказа', 'Покупатель', 'Email', 'Телефон', 'Товары', 'Сумма (₽)', 'Статус', 'Дата создания']
+        ws.append(headers)
+        
+        for order in orders.data:
+            items = json.loads(order.get('items', '[]')) if order.get('items') else []
+            items_text = ', '.join([f"{i.get('name')} ({i.get('size')}) x{i.get('quantity')}" for i in items])
+            ws.append([
+                order.get('order_id'),
+                order.get('customer_name'),
+                order.get('customer_email'),
+                order.get('customer_phone'),
+                items_text,
+                order.get('total_amount'),
+                order.get('status'),
+                order.get('created_at')
+            ])
+        
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        return send_file(output, as_attachment=True, download_name=f"orders_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 10000))
