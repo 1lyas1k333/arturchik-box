@@ -116,27 +116,28 @@ def create_platega_payment(amount, email, phone, name, order_id):
         }
         
         payload = {
-            "order_id": order_id,
-            "amount": amount,
-            "currency": "RUB",
-            "customer": {
-                "email": email,
-                "phone": phone,
-                "name": name
-            },
-            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
-            "PaymentDetails": {  # ← ЭТОТ БЛОК ДОБАВЛЯЕМ
-                "description": f"Футбольный бокс, заказ {order_id}",
-                "items": [
-                    {
-                        "name": "АРТУРЧИК box",
-                        "quantity": 1,
-                        "price": amount,
-                        "total": amount
-                    }
-                ]
+    "order_id": order_id,
+    "amount": amount,
+    "currency": "RUB",
+    "customer": {
+        "email": email,
+        "phone": phone,
+        "name": name
+    },
+    "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
+    "PaymentDetails": {
+        "description": f"Футбольный бокс, заказ {order_id}",
+        "currency": "RUB",
+        "items": [
+            {
+                "name": "АРТУРЧИК box",
+                "quantity": 1,
+                "price": amount,
+                "total": amount
             }
-        }
+        ]
+    }
+}
         
         print(f"[PLATEGA] URL запроса: {PLATEGA_API_URL}")
         print(f"[PLATEGA] Заголовки: {headers}")
