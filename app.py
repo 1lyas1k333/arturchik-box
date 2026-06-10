@@ -1032,6 +1032,7 @@ def get_my_orders():
     # Возвращаем заказы пользователя
     orders = get_user_orders(user_id)
     return jsonify({'success': True, 'orders': orders})
+@app.route('/api/orders', methods=['GET'])
 def get_api_orders():
     orders = get_all_orders()
     return jsonify({'success': True, 'orders': orders, 'count': len(orders)})
