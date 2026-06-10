@@ -119,7 +119,8 @@ def create_platega_payment(amount, email, phone, name, order_id):
             "order_id": order_id,
             "amount": amount,
             "currency": "RUB",
-            "paymentMethod": "CARD",
+            "command": "pay",
+            "paymentMethod": 1,
             "customer": {
                 "email": email,
                 "phone": phone,
