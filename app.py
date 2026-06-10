@@ -115,59 +115,52 @@ def create_platega_payment(amount, email, phone, name, order_id):
             "Content-Type": "application/json"
         }
         
-       payload = {
-    "order_id": order_id,
-    "amount": amount,
-    "currency": "RUB",
-    "paymentMethod": "CARD",
-    "customer": {
-        "email": email,
-        "phone": phone,
-        "name": name
-    },
-    "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
-    "PaymentDetails": {
-        "description": f"Футбольный бокс, заказ {order_id}",
-        "currency": "RUB",
-        "items": [
-            {
-                "name": "АРТУРЧИК box",
-                "quantity": 1,
-                "price": amount,
-                "total": amount
+        payload = {
+            "order_id": order_id,
+            "amount": amount,
+            "currency": "RUB",
+            "paymentMethod": "CARD",
+            "customer": {
+                "email": email,
+                "phone": phone,
+                "name": name
+            },
+            "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook",
+            "PaymentDetails": {
+                "description": f"Футбольный бокс, заказ {order_id}",
+                "currency": "RUB",
+                "items": [
+                    {
+                        "name": "АРТУРЧИК box",
+                        "quantity": 1,
+                        "price": amount,
+                        "total": amount
+                    }
+                ]
             }
-        ]
-    }
-}
+        }
         
-        print(f"[PLATEGA] URL запроса: {PLATEGA_API_URL}")
-        print(f"[PLATEGA] Заголовки: {headers}")
-        print(f"[PLATEGA] Тело запроса: {payload}")
+        print(f"[PLATEGA] Отправка запроса на URL: {PLATEGA_API_URL}")
+        print(f"[PLATEGA] Тело: {payload}")
         
         response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
         
         print(f"[PLATEGA] Статус ответа: {response.status_code}")
-        print(f"[PLATEGA] Заголовки ответа: {response.headers}")
-        print(f"[PLATEGA] Текст ответа (первые 500 символов): {response.text[:500]}")
+        print(f"[PLATEGA] Текст ответа: {response.text}")
         
-        try:
+        if response.status_code == 200:
             result = response.json()
-            print(f"[PLATEGA] JSON ответа: {result}")
-        except Exception as json_err:
-            print(f"[PLATEGA] Ошибка парсинга JSON: {json_err}")
-            return {'success': False, 'error': f'Сервер вернул не JSON: {response.text[:200]}'}
+            if result.get('payment_url'):
+                return {
+                    'success': True,
+                    'payment_url': result['payment_url'],
+                    'payment_id': result.get('payment_id')
+                }
         
-        if response.status_code == 200 and result.get('payment_url'):
-            return {
-                'success': True,
-                'payment_url': result['payment_url'],
-                'payment_id': result.get('payment_id')
-            }
-        else:
-            return {'success': False, 'error': result.get('message', f'Ошибка {response.status_code}')}
-            
+        return {'success': False, 'error': f'HTTP {response.status_code}: {response.text[:200]}'}
+        
     except Exception as e:
-        print(f"[PLATEGA] Исключение: {e}")
+        print(f"[PLATEGA] Ошибка: {e}")
         return {'success': False, 'error': str(e)}
 
 def send_telegram_to_user(chat_id, message):
