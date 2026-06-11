@@ -13,7 +13,21 @@ app = Flask(__name__)
 app.secret_key = 'secret_key_for_session_12345'
 
 # === CORS ===
-CORS(app, origins=["https://1lyas1k333.github.io", "https://arturchik-box-2.onrender.com"], supports_credentials=True)
+CORS(app, 
+     origins=["https://1lyas1k333.github.io", "https://arturchik-box-2.onrender.com", "http://127.0.0.1:5500", "http://localhost:5500"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        response.headers.add('Access-Control-Allow-Origin', 'https://1lyas1k333.github.io')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
 # === SUPABASE ===
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://xszdufdzgvzwtiyppyxs.supabase.co")
