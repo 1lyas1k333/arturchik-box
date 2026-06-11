@@ -85,6 +85,23 @@ def update_order_status(order_id, status):
 🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
     send_telegram_message(admin_msg)
     
+    # 👇 ДОБАВЛЯЕМ УВЕДОМЛЕНИЕ КЛИЕНТУ ОБ ОПЛАТЕ
+    if status == 'paid':
+        res = supabase.table("orders").select("customer_name, user_id").eq("order_id", order_id).execute()
+        if res.data:
+            customer_name = res.data[0]['customer_name']
+            user_id = res.data[0]['user_id']
+            user_res = supabase.table("users").select("telegram_id").eq("id", user_id).execute()
+            if user_res.data and user_res.data[0].get('telegram_id'):
+                client_msg = f"""📦 <b>АРТУРЧИК box</b>
+            
+Здравствуйте, {customer_name}!
+Статус вашего заказа <b>№{order_id}</b> изменился на:
+✅ Оплачен
+
+Спасибо, что выбрали нас!"""
+                send_telegram_to_user(user_res.data[0]['telegram_id'], client_msg)
+    
     print(f"[DB] Заказ {order_id} обновлён → {status}")
 
 # === API ===
@@ -219,7 +236,26 @@ def create_payment():
 
 🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
     send_telegram_message(admin_msg)
-    
+# Уведомление клиенту о создании заказа (если привязан Telegram)
+if user_id:
+    user_res = supabase.table("users").select("telegram_id").eq("id", user_id).execute()
+    if user_res.data and user_res.data[0].get('telegram_id'):
+        items_text = ', '.join([f"{item.get('name', '')} ({item.get('size', '')}) x{item.get('quantity', 1)}" for item in cart_items])
+        client_msg = f"""📦 <b>АРТУРЧИК box</b>
+            
+Здравствуйте, {customer_name}!
+Ваш заказ <b>№{order_id}</b> успешно создан.
+
+📋 Состав заказа:
+{items_text}
+
+💰 Сумма: {amount} ₽
+📌 Статус: ⏳ Ожидает оплаты
+
+✅ После оплаты мы отправим вам трек-номер для отслеживания.
+
+Спасибо за покупку!"""
+        send_telegram_to_user(user_res.data[0]['telegram_id'], client_msg)
     # Создаём платёж в Platega
     headers = {
         "X-MerchantId": PLATEGA_SHOP_ID,
