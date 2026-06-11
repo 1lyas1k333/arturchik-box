@@ -258,7 +258,61 @@ def platega_webhook():
         update_order_status(order_id, 'paid')
         send_telegram_message(f"✅ ОПЛАЧЕН ЗАКАЗ\n📦 Заказ: {order_id}")
     return jsonify({"success": True}), 200
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    try:
+        data = request.get_json()
+        message = data.get('message', {})
+        chat_id = message.get('chat', {}).get('id')
+        text = message.get('text', '')
+        
+        if not chat_id:
+            return jsonify({"ok": False}), 400
+        
+        # Игнорируем сообщения от админа (чтобы не спамить)
+        if str(chat_id) == TELEGRAM_CHAT_ID:
+            return jsonify({"ok": True}), 200
+        
+        # Обрабатываем команду /status
+        if text and text.startswith('/status'):
+            parts = text.split(' ')
+            if len(parts) > 1:
+                order_id = parts[1]
+                # Ищем заказ в Supabase
+                res = supabase.table("orders").select("*").eq("order_id", order_id).execute()
+                if res.data:
+                    order = res.data[0]
+                    status_text = {
+                        'pending': '⏳ Ожидает оплаты',
+                        'paid': '✅ Оплачен',
+                        'shipped': '📦 Отправлен',
+                        'completed': '🎉 Завершён'
+                    }.get(order['status'], order['status'])
+                    
+                    msg = f"""📦 <b>Заказ {order_id}</b>
 
+👤 Получатель: {order.get('customer_name', '—')}
+💰 Сумма: {order.get('total_amount', 0)} ₽
+📌 Статус: {status_text}
+📅 Дата: {order.get('created_at', '—')[:10]}"""
+                    
+                    if order.get('tracking_number'):
+                        msg += f"\n\n📦 Трек-номер: {order['tracking_number']}\n🔗 Отследить: https://www.cdek.ru/track?order_id={order['tracking_number']}"
+                    
+                    send_telegram_to_user(chat_id, msg)
+                else:
+                    send_telegram_to_user(chat_id, "❌ Заказ не найден. Проверьте номер.")
+            else:
+                send_telegram_to_user(chat_id, "ℹ️ Используйте: /status НОМЕР_ЗАКАЗА\nНапример: /status ORDER_20260611123456")
+        else:
+            # Ответ на любое другое сообщение
+            send_telegram_to_user(chat_id, "ℹ️ Доступные команды:\n/status НОМЕР — узнать статус заказа")
+        
+        return jsonify({"ok": True}), 200
+        
+    except Exception as e:
+        print(f"[WEBHOOK] Ошибка: {e}")
+        return jsonify({"ok": False}), 500
 # === АДМИН-ПАНЕЛЬ ===
 ADMIN_HTML = '''
 <!DOCTYPE html>
