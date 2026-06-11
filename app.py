@@ -570,24 +570,24 @@ ADMIN_HTML = '''
             loadOrders();
         }
         
-        async function updateTracking(orderId, trackingNumber) {
-            try {
-                const response = await fetch('/api/update-tracking', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ order_id: orderId, tracking_number: trackingNumber })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Трек-номер сохранён');
-                } else {
-                    alert('Ошибка: ' + data.error);
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Ошибка соединения');
-            }
+      async function updateTracking(orderId, trackingNumber) {
+    try {
+        const response = await fetch('/api/update-tracking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId, tracking_number: trackingNumber })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast('✅ Трек-номер сохранён, уведомление отправлено клиенту');
+        } else {
+            showToast('❌ Ошибка: ' + data.error);
         }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('❌ Ошибка соединения');
+    }
+}
         
         async function showOrderDetails(orderId) {
             try {
@@ -650,6 +650,23 @@ ADMIN_HTML = '''
             if (modal) modal.remove();
             if (overlay) overlay.remove();
         }
+
+        function showToast(message) {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = '#2d8c4e';
+    toast.style.color = 'white';
+    toast.style.padding = '12px 24px';
+    toast.style.borderRadius = '50px';
+    toast.style.zIndex = '10000';
+    toast.style.fontSize = '14px';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
         
         function exportExcel() { window.open('/export-orders', '_blank'); }
         function logout() { window.location.href = '/admin/logout'; }
