@@ -321,6 +321,39 @@ def webhook():
     except Exception as e:
         print(f"[WEBHOOK] Ошибка: {e}")
         return jsonify({"ok": False}), 500
+@app.route('/api/set-telegram', methods=['POST'])
+def set_telegram():
+    try:
+        data = request.get_json()
+        telegram_id = data.get('telegram_id')
+        email = data.get('email')
+        
+        print(f"[DEBUG] set_telegram: telegram_id={telegram_id}, email={email}")
+        
+        if not telegram_id:
+            return jsonify({'success': False, 'error': 'Telegram ID не указан'}), 400
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email не указан'}), 400
+        
+        # Обновляем telegram_id у пользователя
+        res = supabase.table("users").update({"telegram_id": telegram_id}).eq("email", email).execute()
+        
+        if not res.data:
+            return jsonify({'success': False, 'error': 'Пользователь с таким email не найден'}), 404
+        
+        # Отправляем тестовое сообщение
+        try:
+            send_telegram_to_user(telegram_id, "✅ Ваш Telegram успешно привязан к аккаунту АРТУРЧИК box!")
+        except Exception as e:
+            print(f"[TG] Ошибка отправки: {e}")
+        
+        return jsonify({'success': True, 'message': 'Telegram успешно привязан!'})
+        
+    except Exception as e:
+        print(f"[ERROR] set_telegram: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # === АДМИН-ПАНЕЛЬ ===
 ADMIN_HTML = '''
 <!DOCTYPE html>
