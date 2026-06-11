@@ -1191,16 +1191,20 @@
     <div id="ordersHistory"></div>
     
     <!-- Блок привязки Telegram -->
-    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-        <h4 style="color: #2d8c4e; margin-bottom: 10px;">🔐 Настройки аккаунта</h4>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="telegramChatId" placeholder="Ваш Telegram ID (число)" style="flex: 1; background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px; border-radius: 10px;">
-            <button onclick="saveTelegramId()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Привязать Telegram</button>
-        </div>
-        <div style="font-size: 11px; color: #aaa; margin-top: 8px;">
-            Как получить Telegram ID? Напишите <strong>@userinfobot</strong> в Telegram и скопируйте число.
-        </div>
+<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+    <h4 style="color: #2d8c4e; margin-bottom: 10px;">🔐 Настройки аккаунта</h4>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="text" id="telegramChatId" placeholder="Ваш Telegram ID (число)" style="flex: 1; background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 10px; border-radius: 10px;">
+        <button onclick="saveTelegramId()" style="background: #2d8c4e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Привязать Telegram</button>
     </div>
+    <div style="font-size: 12px; color: #aaa; margin-top: 12px;">
+        🔹 1. Откройте Telegram и найдите бота <strong>@userinfobot</strong><br>
+        🔹 2. Нажмите «Старт» или отправьте команду <strong>/start</strong><br>
+        🔹 3. Бот пришлёт сообщение с вашим ID (например, <strong>123456789</strong>)<br>
+        🔹 4. Скопируйте ЭТО ЧИСЛО и вставьте в поле выше<br>
+        🔹 5. Нажмите «Привязать Telegram» — и вы будете получать уведомления о заказах
+    </div>
+</div>
     
     <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button onclick="closeCabinet()" style="flex: 1; background: #2d8c4e; color: white; border: none; padding: 12px; border-radius: 12px;">Закрыть</button>
