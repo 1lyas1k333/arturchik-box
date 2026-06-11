@@ -262,23 +262,28 @@ def platega_webhook():
 def webhook():
     try:
         data = request.get_json()
+        print(f"[WEBHOOK] Получены данные: {data}")
+        
         message = data.get('message', {})
         chat_id = message.get('chat', {}).get('id')
         text = message.get('text', '')
         
+        print(f"[WEBHOOK] chat_id={chat_id}, text={text}")
+        
         if not chat_id:
+            print("[WEBHOOK] Нет chat_id")
             return jsonify({"ok": False}), 400
         
-        # Игнорируем сообщения от админа (чтобы не спамить)
         if str(chat_id) == TELEGRAM_CHAT_ID:
+            print("[WEBHOOK] Сообщение от админа, игнорируем")
             return jsonify({"ok": True}), 200
         
-        # Обрабатываем команду /status
         if text and text.startswith('/status'):
+            print("[WEBHOOK] Обнаружена команда /status")
             parts = text.split(' ')
             if len(parts) > 1:
                 order_id = parts[1]
-                # Ищем заказ в Supabase
+                print(f"[WEBHOOK] Ищем заказ: {order_id}")
                 res = supabase.table("orders").select("*").eq("order_id", order_id).execute()
                 if res.data:
                     order = res.data[0]
@@ -299,13 +304,16 @@ def webhook():
                     if order.get('tracking_number'):
                         msg += f"\n\n📦 Трек-номер: {order['tracking_number']}\n🔗 Отследить: https://www.cdek.ru/track?order_id={order['tracking_number']}"
                     
+                    print(f"[WEBHOOK] Отправляем ответ пользователю {chat_id}")
                     send_telegram_to_user(chat_id, msg)
                 else:
+                    print(f"[WEBHOOK] Заказ {order_id} не найден")
                     send_telegram_to_user(chat_id, "❌ Заказ не найден. Проверьте номер.")
             else:
+                print("[WEBHOOK] Неверный формат команды")
                 send_telegram_to_user(chat_id, "ℹ️ Используйте: /status НОМЕР_ЗАКАЗА\nНапример: /status ORDER_20260611123456")
         else:
-            # Ответ на любое другое сообщение
+            print("[WEBHOOK] Неизвестная команда")
             send_telegram_to_user(chat_id, "ℹ️ Доступные команды:\n/status НОМЕР — узнать статус заказа")
         
         return jsonify({"ok": True}), 200
