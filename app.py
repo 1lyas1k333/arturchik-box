@@ -268,8 +268,8 @@ def create_payment():
     "paymentMethod": 2,
     "paymentDetails": {"amount": float(amount), "currency": "RUB"},
     "description": f"Футбольный бокс, заказ {order_id}",
-    "return": "https://1lyas1k333.github.io",          # ← заменил
-    "failedUrl": "https://1lyas1k333.github.io",       # ← заменил
+    "return": "https://1lyas1k333.github.io/payment-success.html",
+    "failedUrl": "https://1lyas1k333.github.io/payment-failed.html",
     "payload": order_id,
     "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
 }
