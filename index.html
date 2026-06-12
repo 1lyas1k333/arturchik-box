@@ -1171,19 +1171,28 @@
     <div class="auth-switch">Нет аккаунта? <span onclick="switchToRegister()">Зарегистрироваться</span></div>
 </div>
 
-    <!-- Модальное окно регистрации -->
-    <div class="modal-auth" id="registerModal">
-        <h3>📝 Регистрация</h3>
-        <input type="text" id="regName" placeholder="Ваше имя">
-        <input type="email" id="regEmail" placeholder="Email">
-        <input type="text" id="regTelegram" placeholder="Telegram username (например: @username)">
-        <input type="tel" id="regPhone" placeholder="Телефон">
-        <input type="password" id="regPassword" placeholder="Пароль">
-        <div id="registerError" class="auth-error"></div>
-        <button onclick="doRegister()">Зарегистрироваться</button>
-        <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
+ <!-- Модальное окно регистрации -->
+<div class="modal-auth" id="registerModal">
+    <h3>📝 Регистрация</h3>
+    <input type="text" id="regName" placeholder="Ваше имя">
+    <input type="email" id="regEmail" placeholder="Email">
+    
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="regTelegram" placeholder="Ваш Telegram ID (число)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; box-sizing: border-box;">
+        <div style="font-size: 11px; color: #aaa; margin-top: 5px; line-height: 1.4;">
+            🤖 <strong>Как получить Telegram ID?</strong><br>
+            1. Напишите боту <strong>@userinfobot</strong> в Telegram<br>
+            2. Он пришлёт сообщение с вашим ID (число, например <strong>123456789</strong>)<br>
+            3. Скопируйте ЭТО ЧИСЛО и вставьте в поле выше
+        </div>
     </div>
-
+    
+    <input type="tel" id="regPhone" placeholder="Телефон">
+    <input type="password" id="regPassword" placeholder="Пароль">
+    <div id="registerError" class="auth-error"></div>
+    <button onclick="doRegister()">Зарегистрироваться</button>
+    <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
+</div>
 
     <!-- Модальное окно личного кабинета -->
     <div class="cabinet-modal" id="cabinetModal">
