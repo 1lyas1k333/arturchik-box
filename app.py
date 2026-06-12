@@ -265,14 +265,14 @@ def create_payment():
         "Content-Type": "application/json"
     }
     payload = {
-        "paymentMethod": 2,
-        "paymentDetails": {"amount": float(amount), "currency": "RUB"},
-        "description": f"Футбольный бокс, заказ {order_id}",
-        "return": "https://1lyas1k333.github.io/payment-success",
-        "failedUrl": "https://1lyas1k333.github.io/payment-failed",
-        "payload": order_id,
-        "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
-    }
+    "paymentMethod": 2,
+    "paymentDetails": {"amount": float(amount), "currency": "RUB"},
+    "description": f"Футбольный бокс, заказ {order_id}",
+    "return": "https://1lyas1k333.github.io",          # ← заменил
+    "failedUrl": "https://1lyas1k333.github.io",       # ← заменил
+    "payload": order_id,
+    "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
+}
     
     try:
         response = requests.post(PLATEGA_API_URL, json=payload, headers=headers, timeout=30)
