@@ -99,7 +99,9 @@ def update_order_status(order_id, status):
 Статус вашего заказа <b>№{order_id}</b> изменился на:
 ✅ Оплачен
 
-Спасибо, что выбрали нас!"""
+Спасибо, что выбрали нас!
+
+❓ Если у вас есть вопросы или проблемы с заказом, свяжитесь с нами в Telegram: @ARTURCHIK_box"""
                 send_telegram_to_user(user_res.data[0]['telegram_id'], client_msg)
     
     print(f"[DB] Заказ {order_id} обновлён → {status}")
@@ -187,9 +189,11 @@ def update_tracking():
 Ваш заказ <b>№{order_id}</b> отправлен!
 
 📦 Трек-номер: {tracking_number}
-🔗 Отследить: https://www.cdek.ru/track?order_id={tracking_number}
+🔗 Отследить: https://www.cdek.ru/ru/tracking/
 
-Спасибо за покупку!"""
+Спасибо за покупку!
+
+❓ Если у вас есть вопросы или проблемы с заказом, свяжитесь с нами в Telegram: @ARTURCHIK_box"""
             send_telegram_to_user(user_res.data[0]['telegram_id'], msg_user)
     
     return jsonify({"success": True})
@@ -255,7 +259,9 @@ def create_payment():
 
 ✅ После оплаты мы отправим вам трек-номер для отслеживания.
 
-Спасибо за покупку!"""
+Спасибо за покупку!
+
+❓ Если у вас есть вопросы или проблемы с заказом, свяжитесь с нами в Telegram: @ARTURCHIK_box"""
             send_telegram_to_user(user_res.data[0]['telegram_id'], client_msg)
 
     # Создаём платёж в Platega
