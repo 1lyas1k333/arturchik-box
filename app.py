@@ -104,12 +104,34 @@ def register():
     data = request.get_json()
     user_id = str(uuid.uuid4())
     hashed_pw = hash_password(data['password'])
+    telegram_id = data.get('telegram')  # получаем Telegram ID
+    
     try:
         supabase.table("users").insert({
             "id": user_id, "email": data['email'], "password": hashed_pw,
-            "name": data['name'], "phone": data['phone'], "telegram_id": data.get('telegram'),
+            "name": data['name'], "phone": data['phone'], "telegram_id": telegram_id,
             "created_at": datetime.now().isoformat()
         }).execute()
+        
+        # Если при регистрации указан Telegram ID — отправляем приветствие
+        if telegram_id:
+            welcome_msg = f"""✅ <b>Добро пожаловать в АРТУРЧИК box!</b>
+
+Здравствуйте, {data['name']}!
+
+Вы успешно зарегистрировались в нашем магазине.
+
+🔹 Теперь вы можете:
+- Оформлять заказы
+- Получать уведомления о статусе заказа
+- Отслеживать заказы в личном кабинете
+
+❓ Если у вас есть вопросы, обращайтесь в поддержку: @ARTURCHIK_box
+
+Спасибо, что выбрали нас!"""
+            send_telegram_to_user(telegram_id, welcome_msg)
+            print(f"[TG] Приветствие отправлено пользователю {telegram_id}")
+        
         return jsonify({"success": True, "user_id": user_id})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
