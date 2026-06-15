@@ -30,8 +30,8 @@ def handle_preflight():
         return response
 
 # === SUPABASE ===
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://xszdufdzgvzwtiyppyxs.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_URL = "https://xszdufdzgvzwtiyppyxs.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzemR1ZmR6Z3Z6d3RpeXBweXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDYyNjUsImV4cCI6MjA5NjY4MjI2NX0.Y5wfZVX5fnglLDLGX-w8mkCJ3CQDf1LHVyWv_sXy3Zc"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # === TELEGRAM ===
@@ -82,7 +82,7 @@ def update_order_status(order_id, status):
     admin_msg = f"""🔄 <b>СТАТУС ЗАКАЗА ИЗМЕНЁН</b>
 📦 Заказ: {order_id}
 📌 Новый статус: {status_text}
-🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
+🔗 Админка: http://api.arturchikbox.store/admin"""
     send_telegram_message(admin_msg)
     
     # 👇 ДОБАВЛЯЕМ УВЕДОМЛЕНИЕ КЛИЕНТУ ОБ ОПЛАТЕ
@@ -238,7 +238,7 @@ def create_payment():
 💰 Сумма: {amount} ₽
 📍 Адрес: {customer_city}, {customer_address}
 
-🔗 Админка: https://arturchik-box-2.onrender.com/admin"""
+🔗 Админка: http://api.arturchikbox.store/admin"""
     send_telegram_message(admin_msg)
 
     # Уведомление клиенту о создании заказа (если привязан Telegram)
@@ -277,7 +277,7 @@ def create_payment():
     "return": "https://1lyas1k333.github.io/payment-success.html",
     "failedUrl": "https://1lyas1k333.github.io/payment-failed.html",
     "payload": order_id,
-    "callback_url": "https://arturchik-box-2.onrender.com/platega-webhook"
+    "callback_url": "http://api.arturchikbox.store/platega-webhook"
 }
     
     try:
@@ -776,4 +776,4 @@ def home():
     return jsonify({"status": "ok", "time": datetime.now().isoformat()})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 10000)))
+    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 5000)))
