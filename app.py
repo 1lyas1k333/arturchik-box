@@ -14,7 +14,7 @@ app.secret_key = 'secret_key_for_session_12345'
 
 # === CORS ===
 CORS(app, 
-     origins=["https://1lyas1k333.github.io", "https://arturchik-box-2.onrender.com", "http://127.0.0.1:5500", "http://localhost:5500"],
+     origins=["https://1lyas1k333.github.io", "https://arturchikbox.store", "https://www.arturchikbox.store", "http://127.0.0.1:5500", "http://localhost:5500"],
      supports_credentials=True,
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
