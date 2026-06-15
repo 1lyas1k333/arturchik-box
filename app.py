@@ -19,15 +19,7 @@ CORS(app,
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = app.make_default_options_response()
-        response.headers.add('Access-Control-Allow-Origin', 'https://1lyas1k333.github.io')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
+
 
 # === SUPABASE ===
 SUPABASE_URL = "https://xszdufdzgvzwtiyppyxs.supabase.co"
