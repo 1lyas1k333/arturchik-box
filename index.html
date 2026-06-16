@@ -573,15 +573,20 @@
     
     /* === КНОПКИ ПОЛЬЗОВАТЕЛЯ В СТОЛБИК === */
     .user-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        padding: 12px 16px;
-        top: 10px;
-        left: 10px;
-        width: auto;
-        min-width: 150px;
-    }
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2d8c4e;
+    padding: 8px 16px;
+    border-radius: 50px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 100;
+    flex-wrap: nowrap; /* Чтобы не переносилось */
+}
     
     .user-info span,
     .user-info button {
@@ -1029,31 +1034,100 @@
                 transform: scale(1.05);
             }
             .user-info {
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                background: rgba(0,0,0,0.7);
-                backdrop-filter: blur(10px);
-                border: 1px solid #2d8c4e;
-                padding: 8px 16px;
-                border-radius: 50px;
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                z-index: 100;
-            }
-            .user-name {
-                color: #2d8c4e;
-                font-weight: bold;
-            }
-            .logout-link {
-                color: #ff4444;
-                cursor: pointer;
-                font-size: 12px;
-            }
-            .logout-link:hover {
-                text-decoration: underline;
-            }
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(10px);
+        padding: 6px 12px 6px 10px;
+        border-radius: 50px;
+        border: 1px solid rgba(45,140,78,0.3);
+        z-index: 99;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        flex-wrap: nowrap;
+        max-width: 90%;
+    }
+    
+    .user-info .user-name {
+        font-size: 13px !important;
+        color: #4ade80;
+        font-weight: bold;
+        white-space: nowrap;
+        cursor: pointer;
+        padding: 0;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .user-info .user-name::before {
+        content: "👋 ";
+    }
+    
+    /* Кнопка "Кабинет" */
+    .user-info .cabinet-link {
+        display: inline !important;
+        font-size: 11px !important;
+        color: #2d8c4e;
+        cursor: pointer;
+        white-space: nowrap;
+        padding: 3px 8px;
+        background: rgba(45,140,78,0.15);
+        border-radius: 30px;
+        border: 1px solid rgba(45,140,78,0.2);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .user-info .cabinet-link:active {
+        background: rgba(45,140,78,0.3);
+        transform: scale(0.95);
+    }
+    
+    .user-info .cabinet-link::before {
+        content: "📁";
+        margin-right: 2px;
+    }
+    
+    /* Кнопка "Выйти" */
+    .user-info .logout-link {
+        display: inline !important;
+        font-size: 11px !important;
+        color: #ff6666;
+        cursor: pointer;
+        white-space: nowrap;
+        padding: 3px 8px;
+        background: rgba(255,68,68,0.1);
+        border-radius: 30px;
+        border: 1px solid rgba(255,68,68,0.15);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .user-info .logout-link:active {
+        background: rgba(255,68,68,0.2);
+        transform: scale(0.95);
+    }
+    
+    .user-info .logout-link::before {
+        content: "🚪";
+        margin-right: 2px;
+    }
+    
+    /* Скрываем старые ненужные элементы */
+    .user-info span:not(.user-name):not(.cabinet-link):not(.logout-link) {
+        display: none !important;
+    }
+    
+    /* Разделитель между элементами */
+    .user-info .divider {
+        display: none !important;
+    }
+}
             
             /* Модальные окна для входа/регистрации */
             .modal-auth {
@@ -1385,9 +1459,9 @@
         <button class="auth-btn" onclick="openLoginModal()">Вход</button>
         <button class="auth-btn" onclick="openRegisterModal()">Регистрация</button>
     </div>
-    <div id="userInfo" class="user-info" style="display: none;">
-    <span>👋 <span id="userNameDisplay" class="user-name" onclick="openCabinet()" style="cursor: pointer;"></span></span>
-    <span style="color: #aaa; font-size: 12px; margin-left: 5px; cursor: pointer;" onclick="openCabinet()">📁 Личный кабинет</span>
+   <div id="userInfo" class="user-info" style="display: none;">
+    <span id="userNameDisplay" class="user-name" onclick="openCabinet()"></span>
+    <span class="cabinet-link" onclick="openCabinet()">Кабинет</span>
     <span class="logout-link" onclick="logout()">Выйти</span>
 </div>
 
@@ -1991,20 +2065,19 @@
         }
         
         function updateAuthUI(isLoggedIn, userName) {
-            const authButtons = document.getElementById('authButtons');
-            const userInfo = document.getElementById('userInfo');
-            const userNameDisplay = document.getElementById('userNameDisplay');
-            
-            if (isLoggedIn) {
-                authButtons.style.display = 'none';
-                userInfo.style.display = 'flex';
-                userNameDisplay.textContent = userName;
-            } else {
-                authButtons.style.display = 'flex';
-                userInfo.style.display = 'none';
-            }
-        }
-        
+    const authButtons = document.getElementById('authButtons');
+    const userInfo = document.getElementById('userInfo');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    
+    if (isLoggedIn) {
+        authButtons.style.display = 'none';
+        userInfo.style.display = 'flex';
+        userNameDisplay.textContent = userName;
+    } else {
+        authButtons.style.display = 'flex';
+        userInfo.style.display = 'none';
+    }
+}
         function checkAuthStatus() {
             const token = localStorage.getItem('auth_token');
             const userName = localStorage.getItem('user_name');
