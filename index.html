@@ -1256,6 +1256,66 @@
                 color: #ffaa44;
                 font-weight: bold;
             }
+            /* ФИКС ДЛЯ ПК — ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ КНОПКИ И СКРЫВАЕМ КОРЗИНУ */
+@media (min-width: 601px) {
+    .cart-modal {
+        display: none !important;
+    }
+    
+    .cart-modal.open {
+        display: none !important;
+    }
+    
+    .auth-buttons {
+        display: flex !important;
+    }
+    
+    .auth-btn {
+        display: inline-block !important;
+    }
+    
+    .user-info {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+        padding: 8px 16px !important;
+        top: 20px !important;
+        left: 20px !important;
+        background: rgba(0,0,0,0.7) !important;
+        border: 1px solid #2d8c4e !important;
+        border-radius: 50px !important;
+        min-width: auto !important;
+        max-width: none !important;
+    }
+    
+    .user-info span,
+    .user-info button {
+        font-size: 14px !important;
+        width: auto !important;
+        padding: 0 !important;
+        background: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .user-info .user-name {
+        font-size: 14px !important;
+        max-width: none !important;
+    }
+    
+    .user-info .logout-link {
+        font-size: 14px !important;
+        padding: 0 !important;
+        background: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .user-info span:not(.user-name):not(.logout-link) {
+        font-size: 14px !important;
+        padding: 0 !important;
+        background: none !important;
+        border-radius: 0 !important;
+    }
+}
         </style>
     </head>
     <body>
