@@ -1,3 +1,4 @@
+короче я вернул старый код снова 
 <!DOCTYPE html>
     <html lang="ru">
     <head>
@@ -571,50 +572,32 @@
         font-size: 11px;
     }
     
-    /* === КОМПАКТНЫЙ БЛОК ПОЛЬЗОВАТЕЛЯ (ТОЛЬКО ДЛЯ ТЕЛЕФОНА) === */
-.user-info {
-    flex-direction: row !important;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    top: 10px;
-    left: 10px;
-    width: auto;
-    min-width: auto;
-    max-width: 65%;
-    border-radius: 50px;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(45,140,78,0.3);
-}
-
-.user-info span,
-.user-info button {
-    font-size: 11px !important;
-    width: auto !important;
-    text-align: center;
-}
-
-.user-info .user-name {
-    font-size: 12px !important;
-    max-width: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.user-info .logout-link {
-    font-size: 11px !important;
-    padding: 2px 6px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 30px;
-}
-
-.user-info span:not(.user-name):not(.logout-link) {
-    font-size: 11px !important;
-    padding: 2px 6px;
-    background: rgba(45,140,78,0.1);
-    border-radius: 30px;
+    /* === КНОПКИ ПОЛЬЗОВАТЕЛЯ В СТОЛБИК === */
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        padding: 12px 16px;
+        top: 10px;
+        left: 10px;
+        width: auto;
+        min-width: 150px;
+    }
+    
+    .user-info span,
+    .user-info button {
+        font-size: 14px !important;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .user-info .user-name {
+        font-size: 16px !important;
+    }
+    
+    .user-info .logout-link {
+        font-size: 14px !important;
+    }
 }
     
     
@@ -2380,4 +2363,4 @@ function togglePassword(inputId, eyeIcon) {
 
     </script>
     </body>
-    </html>
+    </html> 
