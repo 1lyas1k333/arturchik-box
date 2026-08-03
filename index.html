@@ -1499,8 +1499,24 @@
     <span onclick="togglePassword('regPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; font-size: 18px;">👁️</span>
 </div>
 
+<!-- ===== ЧЕКБОКС СОГЛАСИЯ ===== -->
+<div style="margin: 15px 0; text-align: left; font-size: 13px; color: #ccc;">
+    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+        <input type="checkbox" id="agreeCheck" style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #2d8c4e;">
+        <span>
+            Я принимаю условия 
+            <a href="#" onclick="showTermsOfUse(); return false;" style="color: #2d8c4e; text-decoration: underline;">Пользовательского соглашения</a>
+            и даю согласие на обработку моих персональных данных в соответствии с 
+            <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #2d8c4e; text-decoration: underline;">Политикой конфиденциальности</a>.
+        </span>
+    </label>
+    <div style="font-size: 11px; color: #888; margin-top: 5px; padding-left: 28px;">
+        Ваши данные используются только для оформления и доставки заказов.
+    </div>
+</div>
+
 <div id="registerError" class="auth-error"></div>
-<button onclick="doRegister()">Зарегистрироваться</button>
+<button onclick="doRegister()" id="registerBtn">Зарегистрироваться</button>
 <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
 </div>
 
@@ -2010,46 +2026,84 @@
                 document.getElementById('loginError').textContent = 'Ошибка соединения';
             }
         }
-        
         async function doRegister() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const telegram = document.getElementById('regTelegram')?.value || '';
-            const phone = document.getElementById('regPhone').value;
-            const password = document.getElementById('regPassword').value;
+    // === ПРОВЕРКА СОГЛАСИЯ НА ОБРАБОТКУ ДАННЫХ ===
+    const agreeCheck = document.getElementById('agreeCheck');
+    if (!agreeCheck || !agreeCheck.checked) {
+        document.getElementById('registerError').textContent = 'Для регистрации необходимо согласие на обработку персональных данных';
+        return;
+    }
+    
+    // === ОСНОВНАЯ ЛОГИКА РЕГИСТРАЦИИ ===
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const telegram = document.getElementById('regTelegram')?.value || '';
+    const phone = document.getElementById('regPhone').value;
+    const password = document.getElementById('regPassword').value;
+    
+    if (!name || !email || !phone || !password) {
+        document.getElementById('registerError').textContent = 'Заполните все поля';
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://api.arturchikbox.store/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, phone, password, telegram })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Регистрация успешна! Теперь войдите');
+            closeAuthModals();
+            openLoginModal();
+            document.getElementById('loginEmail').value = email;
             
-            if (!name || !email || !phone || !password) {
-                document.getElementById('registerError').textContent = 'Заполните все поля';
-                return;
+            // Очищаем поля регистрации
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPhone').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regTelegram').value = '';
+            
+            // 👇 СБРАСЫВАЕМ ЧЕКБОКС
+            if (agreeCheck) {
+                agreeCheck.checked = false;
             }
             
-            try {
-                const response = await fetch('https://api.arturchikbox.store/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, phone, password, telegram })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Регистрация успешна! Теперь войдите');
-                    closeAuthModals();
-                    openLoginModal();
-                    document.getElementById('loginEmail').value = email;
-                    
-                    // Очищаем поля регистрации
-                    document.getElementById('regName').value = '';
-                    document.getElementById('regEmail').value = '';
-                    document.getElementById('regPhone').value = '';
-                    document.getElementById('regPassword').value = '';
-                } else {
-                    document.getElementById('registerError').textContent = data.error;
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                document.getElementById('registerError').textContent = 'Ошибка соединения';
-            }
+        } else {
+            document.getElementById('registerError').textContent = data.error;
         }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        document.getElementById('registerError').textContent = 'Ошибка соединения';
+    }
+}
+// Активация кнопки регистрации только после согласия
+document.addEventListener('DOMContentLoaded', function() {
+    const agreeCheck = document.getElementById('agreeCheck');
+    const registerBtn = document.querySelector('#registerModal button[onclick="doRegister()"]');
+    
+    if (agreeCheck && registerBtn) {
+        registerBtn.disabled = true;
+        registerBtn.style.opacity = '0.5';
+        registerBtn.style.cursor = 'not-allowed';
+        
+        agreeCheck.addEventListener('change', function() {
+            if (this.checked) {
+                registerBtn.disabled = false;
+                registerBtn.style.opacity = '1';
+                registerBtn.style.cursor = 'pointer';
+            } else {
+                registerBtn.disabled = true;
+                registerBtn.style.opacity = '0.5';
+                registerBtn.style.cursor = 'not-allowed';
+            }
+        });
+    }
+});
+        
         
         function logout() {
             localStorage.removeItem('auth_token');
