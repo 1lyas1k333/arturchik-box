@@ -1478,6 +1478,27 @@
 
  <!-- Модальное окно регистрации -->
 <div class="modal-auth" id="registerModal">
+    
+    <!-- ===== КРЕСТИК В ВЕРХНЕМ УГЛУ (добавьте для удобства) ===== -->
+    <button onclick="closeAuthModals()" style="
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 26px;
+        cursor: pointer;
+        transition: 0.3s;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        z-index: 10;
+    " onmouseover="this.style.color='#ff4444'; this.style.transform='scale(1.2)'" 
+       onmouseout="this.style.color='#888'; this.style.transform='scale(1)'">✕</button>
+    
     <h3>📝 Регистрация</h3>
     <input type="text" id="regName" placeholder="Ваше имя">
     <input type="email" id="regEmail" placeholder="Email">
@@ -1492,33 +1513,70 @@
         </div>
     </div>
     
-   <input type="tel" id="regPhone" placeholder="Телефон">
+    <input type="tel" id="regPhone" placeholder="Телефон">
 
-<div style="position: relative; margin-bottom: 15px;">
-    <input type="password" id="regPassword" placeholder="Пароль" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; padding-right: 45px; box-sizing: border-box;">
-    <span onclick="togglePassword('regPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; font-size: 18px;">👁️</span>
-</div>
-
-<!-- ===== ЧЕКБОКС СОГЛАСИЯ ===== -->
-<div style="margin: 15px 0; text-align: left; font-size: 13px; color: #ccc;">
-    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
-        <input type="checkbox" id="agreeCheck" style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #2d8c4e;">
-        <span>
-            Я принимаю условия 
-            <a href="#" onclick="showTermsOfUse(); return false;" style="color: #2d8c4e; text-decoration: underline;">Пользовательского соглашения</a>
-            и даю согласие на обработку моих персональных данных в соответствии с 
-            <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #2d8c4e; text-decoration: underline;">Политикой конфиденциальности</a>.
-        </span>
-    </label>
-    <div style="font-size: 11px; color: #888; margin-top: 5px; padding-left: 28px;">
-        Ваши данные используются только для оформления и доставки заказов.
+    <div style="position: relative; margin-bottom: 15px;">
+        <input type="password" id="regPassword" placeholder="Пароль" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; padding-right: 45px; box-sizing: border-box;">
+        <span onclick="togglePassword('regPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; font-size: 18px;">👁️</span>
     </div>
-</div>
 
-<div id="registerError" class="auth-error"></div>
-<button onclick="doRegister()" id="registerBtn">Зарегистрироваться</button>
-<div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
-</div>
+    <!-- ===== ЧЕКБОКС СОГЛАСИЯ ===== -->
+    <div style="margin: 15px 0; text-align: left; font-size: 13px; color: #ccc;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="agreeCheck" style="width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #2d8c4e;">
+            <span>
+                Я принимаю условия 
+                <a href="#" onclick="showTermsOfUse(); return false;" style="color: #2d8c4e; text-decoration: underline;">Пользовательского соглашения</a>
+                и даю согласие на обработку моих персональных данных в соответствии с 
+                <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #2d8c4e; text-decoration: underline;">Политикой конфиденциальности</a>.
+            </span>
+        </label>
+        <div style="font-size: 11px; color: #888; margin-top: 5px; padding-left: 28px;">
+            Ваши данные используются только для оформления и доставки заказов.
+        </div>
+    </div>
+
+    <div id="registerError" class="auth-error"></div>
+    
+    <!-- ===== КНОПКА РЕГИСТРАЦИИ (добавлен disabled и стили) ===== -->
+    <button onclick="doRegister()" id="registerBtn" 
+        disabled 
+        style="
+            width: 100%;
+            padding: 12px;
+            background: #2d8c4e;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            cursor: not-allowed;
+            margin-top: 10px;
+            opacity: 0.5;
+            transition: all 0.3s;
+        ">
+        Зарегистрироваться
+    </button>
+    
+    <!-- ===== ОДНА ССЫЛКА "Уже есть аккаунт?" (дубликат удален) ===== -->
+    <div class="auth-switch">Уже есть аккаунт? <span onclick="switchToLogin()">Войти</span></div>
+
+    <!-- ===== КНОПКА ЗАКРЫТИЯ ВНИЗУ ===== -->
+    <button onclick="closeAuthModals()" style="
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #555;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+    " onmouseover="this.style.background='#777'" onmouseout="this.style.background='#555'">
+        ✕ Закрыть
+    </button>
+    
+</div> <!-- КОНЕЦ modal-auth -->
 
     <!-- Модальное окно личного кабинета -->
     <div class="cabinet-modal" id="cabinetModal">
