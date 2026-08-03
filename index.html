@@ -1390,61 +1390,91 @@
     <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
 
     <div class="cart-modal" id="cartModal">
-        <div class="cart-header">
-            <h2>🛒 Корзина (<span id="cartCountModal">0</span>)</h2>
-            <button class="clear-cart" onclick="clearCart()">Очистить</button>
-        </div>
-        
-        <div class="cart-items" id="cartItems">
-            <p style="text-align: center; color: #999;">Корзина пуста</p>
-        </div>
-        
-            <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
-        <div class="delivery-note" style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center;">
-            <span style="color: #ffaa44;">📦 Обратите внимание:</span><br>
-            <span style="color: #ccc; font-size: 13px;">Доставка оплачивается в вашем пункте выдачи СДЭК<br>(цена зависит от местонахождения получателя)</span>
-        </div>
-
-        
-                <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-            <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
-                <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-            </div>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
-                <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-            </div>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
-                <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-            </div>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
-                <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-            </div>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес пункта выдачи СДЭК *</label>
-                <input type="text" id="address" placeholder="Улица, дом, корпус/строение" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-                <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Например: ул. Летниковская, д. 2, стр. 4</div>
-            </div>
-            
-            <div class="form-group">
-                <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
-                <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
-            </div>
-        </div>
-        
-            <button class="checkout-btn" onclick="openPaymentModal()">💳 Оплатить заказ</button>
-        <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
-        <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
+    <div class="cart-header">
+        <h2>🛒 Корзина (<span id="cartCountModal">0</span>)</h2>
+        <button class="clear-cart" onclick="clearCart()">Очистить</button>
     </div>
+    
+    <div class="cart-items" id="cartItems">
+        <p style="text-align: center; color: #999;">Корзина пуста</p>
+    </div>
+    
+    <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+    
+    <div class="delivery-note" style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center;">
+        <span style="color: #ffaa44;">📦 Обратите внимание:</span><br>
+        <span style="color: #ccc; font-size: 13px;">Доставка оплачивается в вашем пункте выдачи СДЭК<br>(цена зависит от местонахождения получателя)</span>
+    </div>
+    
+    <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+        <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
+            <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
+            <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
+            <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
+            <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес пункта выдачи СДЭК *</label>
+            <input type="text" id="address" placeholder="Улица, дом, корпус/строение" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+            <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Например: ул. Летниковская, д. 2, стр. 4</div>
+        </div>
+        
+        <div class="form-group">
+            <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
+            <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
+        </div>
+    </div>
+    
+    <!-- ===== ЧЕКБОКС СОГЛАСИЯ В КОРЗИНЕ ===== -->
+    <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border-left: 3px solid #2d8c4e;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="agreeOrderCheck" style="
+                width: 18px; 
+                height: 18px; 
+                margin-top: 2px; 
+                flex-shrink: 0; 
+                accent-color: #2d8c4e;
+                cursor: pointer;
+            ">
+            <span style="font-size: 13px; color: #ccc; line-height: 1.4;">
+                Я подтверждаю, что ознакомлен(а) и согласен(на) с условиями 
+                <a href="#" onclick="showTermsOfUse(); return false;" style="color: #2d8c4e; text-decoration: underline;">Публичной оферты</a>
+                и даю согласие на обработку моих персональных данных в соответствии с 
+                <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #2d8c4e; text-decoration: underline;">Политикой конфиденциальности</a>.
+            </span>
+        </label>
+        <div style="font-size: 11px; color: #888; margin-top: 8px; padding-left: 28px;">
+            📋 Данные используются только для оформления и доставки заказа.
+        </div>
+    </div>
+
+    <!-- ===== КНОПКА ОПЛАТЫ (только ОДНА!) ===== -->
+    <button class="checkout-btn" id="orderSubmitBtn" 
+        disabled
+        onclick="openPaymentModal()"
+        style="opacity: 0.5; cursor: not-allowed; transition: all 0.3s;">
+        💳 Оплатить заказ
+    </button>
+    
+    <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
+    <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
+</div>
     
             
             
@@ -2525,6 +2555,106 @@ function togglePassword(inputId, eyeIcon) {
         eyeIcon.textContent = '👁️';
     }
 }
+// =============================================
+// АКТИВАЦИЯ КНОПКИ "ОПЛАТИТЬ" В КОРЗИНЕ
+// =============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const agreeOrderCheck = document.getElementById('agreeOrderCheck');
+    const orderBtn = document.getElementById('orderSubmitBtn');
+    
+    if (agreeOrderCheck && orderBtn) {
+        orderBtn.disabled = true;
+        orderBtn.style.opacity = '0.5';
+        orderBtn.style.cursor = 'not-allowed';
+        
+        agreeOrderCheck.addEventListener('change', function() {
+            if (this.checked) {
+                orderBtn.disabled = false;
+                orderBtn.style.opacity = '1';
+                orderBtn.style.cursor = 'pointer';
+            } else {
+                orderBtn.disabled = true;
+                orderBtn.style.opacity = '0.5';
+                orderBtn.style.cursor = 'not-allowed';
+            }
+        });
+    }
+});
+
+// =============================================
+// ДОПОЛНЯЕМ closeCart() СБРОСОМ ЧЕКБОКСА
+// =============================================
+const originalCloseCart = closeCart;
+closeCart = function() {
+    originalCloseCart();
+    
+    const agreeOrderCheck = document.getElementById('agreeOrderCheck');
+    if (agreeOrderCheck && agreeOrderCheck.checked) {
+        agreeOrderCheck.checked = false;
+        agreeOrderCheck.dispatchEvent(new Event('change'));
+    }
+};
+
+// =============================================
+// ПРОВЕРКА СОГЛАСИЯ В openPaymentModal() 
+// (переопределяем функцию полностью)
+// =============================================
+openPaymentModal = function() {
+    // Проверка согласия
+    const agreeOrderCheck = document.getElementById('agreeOrderCheck');
+    if (!agreeOrderCheck || !agreeOrderCheck.checked) {
+        showToast('Для оформления заказа необходимо согласие на обработку персональных данных');
+        return;
+    }
+    
+    // ===== ОРИГИНАЛЬНЫЙ КОД openPaymentModal() =====
+    if (cart.length === 0) {
+        showToast('Корзина пуста! Добавьте товар');
+        return;
+    }
+    
+    const customerData = {
+        fullName: document.getElementById('fullName')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        address: document.getElementById('address')?.value || '',
+        city: document.getElementById('city')?.value || '',
+        phone: document.getElementById('phone')?.value || '',
+        extraAddress: document.getElementById('extraAddress')?.value || '',
+        notes: document.getElementById('notes')?.value || ''
+    };
+    
+    if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+        showToast('Пожалуйста, заполните все обязательные поля!');
+        return;
+    }
+    
+    const total = getTotalPrice();
+    
+    showToast('Перенаправление на оплату...');
+    
+    fetch('https://api.arturchikbox.store/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: total,
+            items: cart,
+            customer: customerData,
+            user_id: localStorage.getItem('user_id')
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            showToast('Ошибка: ' + (data.error || 'Не удалось создать платёж'));
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка подключения к серверу: ' + error.message);
+    });
+};
     
 
     </script>
