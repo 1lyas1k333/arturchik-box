@@ -305,6 +305,89 @@ def create_payment():
         print(f"[PLATEGA] Ошибка: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/create-order-manual', methods=['POST'])
+def create_order_manual():
+    """Создание заказа без Platega (ручная оплата на карту)"""
+    data = request.get_json()
+    
+    amount = data.get('amount', 3490)
+    cart_items = data.get('items', [])
+    customer = data.get('customer', {})
+    user_id = data.get('user_id')
+    
+    customer_name = customer.get('fullName', '')
+    customer_phone = customer.get('phone', '')
+    customer_email = customer.get('email', '')
+    customer_city = customer.get('city', '')
+    customer_address = customer.get('address', '')
+    customer_telegram = customer.get('telegramNick', '')
+    customer_notes = customer.get('notes', '')
+    
+    order_id = f"ORDER_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    
+    # Сохраняем заказ в БД
+    order_data = {
+        "id": str(uuid.uuid4()),
+        "order_id": order_id,
+        "user_id": user_id,
+        "customer_name": customer_name,
+        "customer_phone": customer_phone,
+        "customer_email": customer_email,
+        "customer_city": customer_city,
+        "customer_address": customer_address,
+        "customer_telegram": customer_telegram,
+        "customer_notes": customer_notes,
+        "items": json.dumps(cart_items),
+        "total_amount": amount,
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
+    }
+    supabase.table("orders").insert(order_data).execute()
+    
+    # Уведомление админу
+    admin_msg = f"""🆕 <b>НОВЫЙ ЗАКАЗ (РУЧНАЯ ОПЛАТА НА КАРТУ)!</b>
+
+📦 Заказ: {order_id}
+👤 Клиент: {customer_name}
+📞 Телефон: {customer_phone}
+📧 Email: {customer_email}
+📱 Telegram: @{customer_telegram if customer_telegram else 'не указан'}
+💰 Сумма: {amount} ₽
+📍 Адрес: {customer_city}, {customer_address}
+
+💳 Ожидаем подтверждение оплаты на карту
+
+🔗 Админка: http://api.arturchikbox.store/admin"""
+    send_telegram_message(admin_msg)
+    
+    # Уведомление клиенту (если есть Telegram)
+    if user_id:
+        user_res = supabase.table("users").select("telegram_id").eq("id", user_id).execute()
+        if user_res.data and user_res.data[0].get('telegram_id'):
+            items_text = ', '.join([f"{item.get('name', '')} ({item.get('size', '')}) x{item.get('quantity', 1)}" for item in cart_items])
+            client_msg = f"""📦 <b>АРТУРЧИК box</b>
+                
+Здравствуйте, {customer_name}!
+Ваш заказ <b>№{order_id}</b> успешно создан.
+
+📋 Состав заказа:
+{items_text}
+
+💰 Сумма: {amount} ₽
+📌 Статус: ⏳ Ожидает подтверждения оплаты
+
+💳 Оплатите на карту: 2200 1234 5678 9012 (Иван И.)
+
+✅ После оплаты мы свяжемся с вами для подтверждения.
+
+Спасибо за покупку!
+
+❓ Если у вас есть вопросы, свяжитесь с нами в Telegram: @ARTURCHIK_box"""
+            send_telegram_to_user(user_res.data[0]['telegram_id'], client_msg)
+    
+    return jsonify({"success": True, "order_id": order_id})
+
 @app.route('/platega-webhook', methods=['POST', 'GET'])
 def platega_webhook():
     if request.method == 'GET':
@@ -610,59 +693,71 @@ ADMIN_HTML = '''
 }
         
         async function showOrderDetails(orderId) {
-            try {
-                const response = await fetch('/api/orders');
-                const data = await response.json();
-                if (!data.success) {
-                    alert('Ошибка загрузки заказа');
-                    return;
-                }
-                const order = data.orders.find(o => o.order_id === orderId);
-                if (!order) {
-                    alert('Заказ не найден');
-                    return;
-                }
-                
-                let items = [];
-                try {
-                    items = JSON.parse(order.items || '[]');
-                } catch(e) { items = []; }
-                
-                const itemsHtml = items.map(item => `
-                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; color: white;">
-                        <strong style="color: #2d8c4e;">${item.name}</strong><br>
-                        <span>📏 Размер: ${item.size}</span><br>
-                        <span>🚫 Исключения: ${item.exclusions?.join(', ') || 'нет'}</span><br>
-                        <span>📦 Количество: ${item.quantity}</span><br>
-                        <span>💰 Цена: ${item.price} ₽</span>
-                    </div>
-                `).join('');
-                
-                const modalHtml = `
-                    <div id="orderDetailModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0d1f0d; padding: 25px; border-radius: 20px; z-index: 10003; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid #2d8c4e;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3 style="color: #2d8c4e;">📦 Заказ ${order.order_id}</h3>
-                            <button onclick="closeOrderDetailModal()" style="background: #ff4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">✕</button>
-                        </div>
-                        <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">👤 Покупатель:</strong> <span style="color: white;">${order.customer_name || '—'}</span></div>
-                        <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📧 Email:</strong> <span style="color: white;">${order.customer_email || '—'}</span></div>
-                        <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📞 Телефон:</strong> <span style="color: white;">${order.customer_phone || '—'}</span></div>
-                        <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📍 Адрес:</strong> <span style="color: white;">${order.customer_city || '—'}, ${order.customer_address || '—'}</span></div>
-                        <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📋 Состав заказа:</strong></div>
-                        <div>${itemsHtml}</div>
-                        <div style="margin-top: 10px;"><strong style="color: #2d8c4e;">💰 Сумма:</strong> <span style="color: white;">${order.total_amount} ₽</span></div>
-                        <div><strong style="color: #2d8c4e;">📌 Статус:</strong> <span style="color: white;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : order.status === 'paid' ? '✅ Оплачен' : order.status === 'shipped' ? '📦 Отправлен' : '🎉 Завершён'}</span></div>
-                        <div><strong style="color: #2d8c4e;">📅 Дата:</strong> <span style="color: white;">${new Date(order.created_at).toLocaleString()}</span></div>
-                        ${order.customer_notes ? `<div><strong style="color: #2d8c4e;">📝 Примечание:</strong> <span style="color: white;">${order.customer_notes}</span></div>` : ''}
-                    </div>
-                    <div id="orderDetailOverlay" onclick="closeOrderDetailModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002;"></div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', modalHtml);
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Не удалось загрузить данные заказа');
-            }
+    try {
+        const response = await fetch('/api/orders');
+        const data = await response.json();
+        if (!data.success) {
+            alert('Ошибка загрузки заказа');
+            return;
         }
+        const order = data.orders.find(o => o.order_id === orderId);
+        if (!order) {
+            alert('Заказ не найден');
+            return;
+        }
+        
+        let items = [];
+        try {
+            items = JSON.parse(order.items || '[]');
+        } catch(e) { items = []; }
+        
+        const itemsHtml = items.map(item => {
+            // Определяем текст исключений из clubData
+            let exclusionsText = 'нет';
+            if (item.clubData) {
+                if (item.clubData.clubs && item.clubData.clubs.length > 0) {
+                    exclusionsText = item.clubData.clubs.join(', ');
+                } else if (item.clubData.club) {
+                    exclusionsText = `Выбран клуб: ${item.clubData.club}`;
+                }
+            }
+            
+            return `
+                <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                    <strong style="color: #2d8c4e;">${item.name}</strong><br>
+                    <span>📏 Размер: ${item.size}</span><br>
+                    <span>🚫 Исключения: ${exclusionsText}</span><br>
+                    <span>📦 Количество: ${item.quantity}</span><br>
+                    <span>💰 Цена: ${item.price} ₽</span>
+                </div>
+            `;
+        }).join('');
+        
+        const modalHtml = `
+            <div id="orderDetailModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0d1f0d; padding: 25px; border-radius: 20px; z-index: 10003; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid #2d8c4e;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #2d8c4e;">📦 Заказ ${order.order_id}</h3>
+                    <button onclick="closeOrderDetailModal()" style="background: #ff4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">✕</button>
+                </div>
+                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">👤 Покупатель:</strong> <span style="color: white;">${order.customer_name || '—'}</span></div>
+                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📧 Email:</strong> <span style="color: white;">${order.customer_email || '—'}</span></div>
+                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📞 Телефон:</strong> <span style="color: white;">${order.customer_phone || '—'}</span></div>
+                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📍 Адрес:</strong> <span style="color: white;">${order.customer_city || '—'}, ${order.customer_address || '—'}</span></div>
+                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📋 Состав заказа:</strong></div>
+                <div>${itemsHtml}</div>
+                <div style="margin-top: 10px;"><strong style="color: #2d8c4e;">💰 Сумма:</strong> <span style="color: white;">${order.total_amount} ₽</span></div>
+                <div><strong style="color: #2d8c4e;">📌 Статус:</strong> <span style="color: white;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : order.status === 'paid' ? '✅ Оплачен' : order.status === 'shipped' ? '📦 Отправлен' : '🎉 Завершён'}</span></div>
+                <div><strong style="color: #2d8c4e;">📅 Дата:</strong> <span style="color: white;">${new Date(order.created_at).toLocaleString()}</span></div>
+                ${order.customer_notes ? `<div><strong style="color: #2d8c4e;">📝 Примечание:</strong> <span style="color: white;">${order.customer_notes}</span></div>` : ''}
+            </div>
+            <div id="orderDetailOverlay" onclick="closeOrderDetailModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002;"></div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Не удалось загрузить данные заказа');
+    }
+}
         
         function closeOrderDetailModal() {
             const modal = document.getElementById('orderDetailModal');
