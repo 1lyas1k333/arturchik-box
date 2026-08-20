@@ -1546,19 +1546,19 @@
     <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Переведите сумму по номеру карты</p>
     
     <!-- Цена -->
-    <div style="margin: 15px 0; text-align: center;">
-        <span style="font-size: 22px; color: #888; text-decoration: line-through;">3 490 ₽</span>
-        <br>
-        <span style="font-size: 46px; font-weight: bold; color: #2d8c4e;">2 990 ₽</span>
-        <br>
-        <span style="font-size: 14px; color: #ffaa44; background: rgba(255,170,68,0.15); padding: 4px 14px; border-radius: 20px; display: inline-block; margin-top: 5px;">☀️ Летняя скидка!</span>
-    </div>
+<div style="margin: 15px 0; text-align: center;">
+    <span style="font-size: 22px; color: #888; text-decoration: line-through;" id="paymentOldPrice">3 490 ₽</span>
+    <br>
+    <span style="font-size: 46px; font-weight: bold; color: #2d8c4e;" id="paymentNewPrice">2 990 ₽</span>
+    <br>
+    <span style="font-size: 14px; color: #ffaa44; background: rgba(255,170,68,0.15); padding: 4px 14px; border-radius: 20px; display: inline-block; margin-top: 5px;">☀️ Летняя скидка!</span>
+</div>
     
     <!-- Реквизиты карты -->
     <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
         <p style="color: #ccc; font-size: 13px; margin-bottom: 8px;">📲 Переведите на карту:</p>
         <p style="color: white; font-size: 24px; font-weight: bold; letter-spacing: 2px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; font-family: monospace;">2200 1234 5678 9012</p>
-        <p style="color: #aaa; font-size: 14px; margin-top: 8px;">💳 Получатель: <strong style="color: white;">Иван И.</strong></p>
+        <p style="color: #aaa; font-size: 14px; margin-top: 8px;">💳 Получатель: <strong style="color: white;">Артур М.</strong></p>
     </div>
     
     <!-- Чекбокс -->
@@ -2721,6 +2721,25 @@ closeCart = function() {
     }
 };
 
+// =============================================
+// ОБНОВЛЕНИЕ ЦЕНЫ В ОКНЕ ОПЛАТЫ
+// =============================================
+function updatePaymentPrices() {
+    const total = getTotalPrice(); // Общая сумма корзины
+    const oldPrice = 3490 * cart.reduce((sum, item) => sum + item.quantity, 0); // Старая цена (без скидки)
+    const newPrice = total; // Новая цена (со скидкой)
+    
+    const oldPriceEl = document.getElementById('paymentOldPrice');
+    const newPriceEl = document.getElementById('paymentNewPrice');
+    
+    if (oldPriceEl) {
+        oldPriceEl.textContent = `${oldPrice.toLocaleString()} ₽`;
+    }
+    if (newPriceEl) {
+        newPriceEl.textContent = `${newPrice.toLocaleString()} ₽`;
+    }
+}
+
 openPaymentModal = function() {
     // Проверка корзины
     if (cart.length === 0) {
@@ -2750,6 +2769,9 @@ openPaymentModal = function() {
     
     // 👇 ЗАКРЫВАЕМ КОРЗИНУ ПЕРЕД ОТКРЫТИЕМ ОКНА ОПЛАТЫ
     closeCart();
+    
+    // 👇 ДОБАВЬТЕ ЭТУ СТРОКУ — ОБНОВЛЯЕМ ЦЕНУ ПЕРЕД ОТКРЫТИЕМ
+    updatePaymentPrices();
     
     // Показываем окно оплаты
     document.getElementById('paymentModal').classList.add('open');
