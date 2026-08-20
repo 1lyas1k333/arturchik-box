@@ -1511,7 +1511,93 @@
     <button id="cabinetBtn" onclick="openCabinet()" style="background: #2d8c4e; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">📦 Мои заказы</button>
     <button onclick="closeCart()" style="background: #555; width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px; color: white; font-size: 16px; cursor: pointer;">✕ Закрыть</button>
 </div>
+
+        <!-- ===== МОДАЛЬНОЕ ОКНО ОПЛАТЫ (НОВОЕ) ===== -->
+<div class="payment-modal" id="paymentModal">
     
+    <!-- Крестик закрытия -->
+    <button onclick="closePaymentModal()" style="
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 26px;
+        cursor: pointer;
+        transition: 0.3s;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        z-index: 10;
+    " onmouseover="this.style.color='#ff4444'; this.style.transform='scale(1.2)'" 
+       onmouseout="this.style.color='#888'; this.style.transform='scale(1)'">✕</button>
+    
+    <h2 style="color: white; margin-bottom: 5px;">💳 Оплата заказа</h2>
+    <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Переведите сумму по номеру карты</p>
+    
+    <!-- Цена -->
+    <div style="margin: 15px 0; text-align: center;">
+        <span style="font-size: 22px; color: #888; text-decoration: line-through;">3 490 ₽</span>
+        <br>
+        <span style="font-size: 46px; font-weight: bold; color: #2d8c4e;">2 990 ₽</span>
+        <br>
+        <span style="font-size: 14px; color: #ffaa44; background: rgba(255,170,68,0.15); padding: 4px 14px; border-radius: 20px; display: inline-block; margin-top: 5px;">☀️ Летняя скидка!</span>
+    </div>
+    
+    <!-- Реквизиты карты -->
+    <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+        <p style="color: #ccc; font-size: 13px; margin-bottom: 8px;">📲 Переведите на карту:</p>
+        <p style="color: white; font-size: 24px; font-weight: bold; letter-spacing: 2px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; font-family: monospace;">2200 1234 5678 9012</p>
+        <p style="color: #aaa; font-size: 14px; margin-top: 8px;">💳 Получатель: <strong style="color: white;">Иван И.</strong></p>
+    </div>
+    
+    <!-- Чекбокс -->
+    <div style="margin: 15px 0; text-align: left;">
+        <label style="display: flex; align-items: center; gap: 10px; color: #ccc; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" id="paymentConfirmCheck" style="width: 18px; height: 18px; accent-color: #2d8c4e; cursor: pointer;">
+            <span>Я перевел(а) деньги на указанную карту</span>
+        </label>
+    </div>
+    
+    <!-- Кнопка -->
+    <button id="confirmPaymentBtn" 
+        onclick="confirmManualPayment()"
+        disabled
+        style="
+            width: 100%;
+            padding: 14px;
+            background: #2d8c4e;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transition: all 0.3s;
+            margin-top: 5px;
+        ">
+        ✅ Я оплатил
+    </button>
+    
+    <button onclick="closePaymentModal()" style="
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        background: #555;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+    " onmouseover="this.style.background='#777'" onmouseout="this.style.background='#555'">
+        ✕ Закрыть
+    </button>
+</div>
             
             
 
@@ -2192,6 +2278,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// =============================================
+    // 👇 ДОБАВЬТЕ ЭТОТ БЛОК СЮДА (в конец)
+    // =============================================
+    // Активация кнопки "Я оплатил"
+    const confirmCheck = document.getElementById('paymentConfirmCheck');
+    const confirmBtn = document.getElementById('confirmPaymentBtn');
+    
+    if (confirmCheck && confirmBtn) {
+        confirmCheck.addEventListener('change', function() {
+            if (this.checked) {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.style.cursor = 'pointer';
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.5';
+                confirmBtn.style.cursor = 'not-allowed';
+            }
+        });
+    }
+});
         
         
         function logout() {
@@ -2611,64 +2718,47 @@ closeCart = function() {
 };
 
 // =============================================
-// ПРОВЕРКА СОГЛАСИЯ В openPaymentModal() 
-// (переопределяем функцию полностью)
+// ОТКРЫТИЕ ОКНА ОПЛАТЫ (новая версия)
 // =============================================
 openPaymentModal = function() {
-    // Проверка согласия
-    const agreeOrderCheck = document.getElementById('agreeOrderCheck');
-    if (!agreeOrderCheck || !agreeOrderCheck.checked) {
-        showToast('Для оформления заказа необходимо согласие на обработку персональных данных');
-        return;
-    }
-    
-    // ===== ОРИГИНАЛЬНЫЙ КОД openPaymentModal() =====
+    // Проверка корзины
     if (cart.length === 0) {
         showToast('Корзина пуста! Добавьте товар');
         return;
     }
     
-    const customerData = {
-        fullName: document.getElementById('fullName')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        address: document.getElementById('address')?.value || '',
-        city: document.getElementById('city')?.value || '',
-        phone: document.getElementById('phone')?.value || '',
-        extraAddress: document.getElementById('extraAddress')?.value || '',
-        notes: document.getElementById('notes')?.value || ''
-    };
+    // Проверка согласия
+    const agreeOrderCheck = document.getElementById('agreeOrderCheck');
+    if (!agreeOrderCheck || !agreeOrderCheck.checked) {
+        showToast('Для оформления заказа необходимо согласие на обработку данных');
+        return;
+    }
     
-    if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
+    // Проверка заполнения полей
+    const fullName = document.getElementById('fullName')?.value || '';
+    const email = document.getElementById('email')?.value || '';
+    const phone = document.getElementById('phone')?.value || '';
+    const city = document.getElementById('city')?.value || '';
+    const address = document.getElementById('address')?.value || '';
+    
+    if (!fullName || !email || !phone || !city || !address) {
         showToast('Пожалуйста, заполните все обязательные поля!');
         return;
     }
     
-    const total = getTotalPrice();
+    // Показываем окно оплаты
+    document.getElementById('paymentModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
     
-    showToast('Перенаправление на оплату...');
-    
-    fetch('https://api.arturchikbox.store/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: total,
-            items: cart,
-            customer: customerData,
-            user_id: localStorage.getItem('user_id')
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.payment_url) {
-            window.location.href = data.payment_url;
-        } else {
-            showToast('Ошибка: ' + (data.error || 'Не удалось создать платёж'));
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        showToast('Ошибка подключения к серверу: ' + error.message);
-    });
+    // Сбрасываем чекбокс и кнопку при открытии
+    const confirmCheck = document.getElementById('paymentConfirmCheck');
+    const confirmBtn = document.getElementById('confirmPaymentBtn');
+    if (confirmCheck) confirmCheck.checked = false;
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = '0.5';
+        confirmBtn.style.cursor = 'not-allowed';
+    }
 };
         // =============================================
 // ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ВАРИАНТАМИ
@@ -2780,7 +2870,67 @@ function getClubsData() {
             };
     }
 }
+
+// =============================================
+// ПОДТВЕРЖДЕНИЕ ОПЛАТЫ
+// =============================================
+function confirmManualPayment() {
+    const confirmCheck = document.getElementById('paymentConfirmCheck');
+    if (!confirmCheck || !confirmCheck.checked) {
+        showToast('Подтвердите, что вы перевели деньги на карту');
+        return;
+    }
     
+    // Собираем данные заказа
+    const customerData = {
+        fullName: document.getElementById('fullName')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        phone: document.getElementById('phone')?.value || '',
+        city: document.getElementById('city')?.value || '',
+        address: document.getElementById('address')?.value || '',
+        notes: document.getElementById('notes')?.value || ''
+    };
+    
+    const total = getTotalPrice();
+    
+    showToast('Отправка заказа...');
+    
+    // Отправляем заказ на сервер
+    fetch('https://api.arturchikbox.store/create-order-manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: total,
+            items: cart,
+            customer: customerData,
+            user_id: localStorage.getItem('user_id')
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✅ Заказ оформлен! Спасибо за покупку!');
+            // Очищаем корзину
+            cart = [];
+            saveCart();
+            updateUI();
+            closePaymentModal();
+            closeCart();
+            // Сбрасываем чекбокс в корзине
+            const agreeOrderCheck = document.getElementById('agreeOrderCheck');
+            if (agreeOrderCheck) {
+                agreeOrderCheck.checked = false;
+                agreeOrderCheck.dispatchEvent(new Event('change'));
+            }
+        } else {
+            showToast('❌ Ошибка: ' + (data.error || 'Не удалось оформить заказ'));
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('❌ Ошибка подключения к серверу');
+    });
+}
 
     </script>
     </body>
