@@ -2725,9 +2725,14 @@ closeCart = function() {
 // ОБНОВЛЕНИЕ ЦЕНЫ В ОКНЕ ОПЛАТЫ
 // =============================================
 function updatePaymentPrices() {
-    const total = getTotalPrice(); // Общая сумма корзины
-    const oldPrice = 3490 * cart.reduce((sum, item) => sum + item.quantity, 0); // Старая цена (без скидки)
-    const newPrice = total; // Новая цена (со скидкой)
+    // Считаем общее количество товаров в корзине
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // Старая цена (без скидки): 3490 ₽ × количество
+    const oldPrice = 3490 * count;
+    
+    // Новая цена (со скидкой): 2990 ₽ × количество (скидка 500 ₽ с каждого)
+    const newPrice = 2990 * count;
     
     const oldPriceEl = document.getElementById('paymentOldPrice');
     const newPriceEl = document.getElementById('paymentNewPrice');
