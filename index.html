@@ -2721,9 +2721,6 @@ closeCart = function() {
     }
 };
 
-// =============================================
-// ОТКРЫТИЕ ОКНА ОПЛАТЫ (новая версия)
-// =============================================
 openPaymentModal = function() {
     // Проверка корзины
     if (cart.length === 0) {
@@ -2742,15 +2739,17 @@ openPaymentModal = function() {
     const fullName = document.getElementById('fullName')?.value || '';
     const email = document.getElementById('email')?.value || '';
     const phone = document.getElementById('phone')?.value || '';
-    const telegramNick = document.getElementById('telegramNick')?.value || '';  // 👈 ДОБАВИЛИ
+    const telegramNick = document.getElementById('telegramNick')?.value || '';
     const city = document.getElementById('city')?.value || '';
     const address = document.getElementById('address')?.value || '';
-    const notes = document.getElementById('notes')?.value || '';
     
     if (!fullName || !email || !phone || !city || !address || !telegramNick) {
         showToast('Пожалуйста, заполните все обязательные поля!');
         return;
     }
+    
+    // 👇 ЗАКРЫВАЕМ КОРЗИНУ ПЕРЕД ОТКРЫТИЕМ ОКНА ОПЛАТЫ
+    closeCart();
     
     // Показываем окно оплаты
     document.getElementById('paymentModal').classList.add('open');
