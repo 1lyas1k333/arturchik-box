@@ -1335,11 +1335,34 @@
     <p><a href="https://t.me/ARTURCHIK_box" target="_blank" style="background: #2d8c4e; color: white; padding: 8px 20px; border-radius: 40px; text-decoration: none; display: inline-block;">📩 @ARTURCHIK_box</a></p>
     <p style="color: #aaa; font-size: 11px; margin-top: 8px;">Отвечаем в рабочее время</p>
 </div>
-        <div class="exclusions-section">
-            <label>🚫 Выберите до 5 клубов, которые вы НЕ хотите видеть в своём боксе:</label>
-            <textarea class="exclusions-input" id="exclusionsInput" rows="2" placeholder="Например: Зенит, Спартак, Челси, Бавария, ПСЖ"></textarea>
-            <div class="exclusions-hint">Введите названия клубов через запятую (до 5 штук)</div>
-        </div>
+        <!-- ===== ВЫБОР КЛУБОВ ===== -->
+<div class="exclusions-section">
+    <label style="color: #2d8c4e; font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px;">⚽ Как выбрать клуб для бокса?</label>
+    
+    <!-- Переключатель -->
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; flex: 1; border: 2px solid #2d8c4e;">
+            <input type="radio" name="clubOption" value="exclude" checked onchange="toggleClubOption()">
+            <span>🚫 Исключить клубы (до 5)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; flex: 1; border: 2px solid transparent;">
+            <input type="radio" name="clubOption" value="choose" onchange="toggleClubOption()">
+            <span>❤️ 1 любимый клуб (джерси-сюрприз)</span>
+        </label>
+    </div>
+    
+    <!-- Поле для ввода -->
+    <textarea class="exclusions-input" id="clubsInput" rows="2" placeholder="Например: Зенит, Спартак, Челси, Бавария, ПСЖ"></textarea>
+    
+    <!-- Подсказка (меняется) -->
+    <div class="exclusions-hint" id="clubsHint">
+        🚫 Введите до 5 клубов, которые вы НЕ хотите видеть в боксе. Выпадет ЛЮБОЙ другой клуб (сюрприз!)
+    </div>
+    
+    <div style="font-size: 11px; color: #888; margin-top: 8px;">
+        💡 <span id="exampleText">Например: Зенит, Спартак, Челси, Бавария, ПСЖ</span>
+    </div>
+</div>
 
             <div class="size-selector">
             <label>📏 Выберите размер футболки:</label>
@@ -1800,12 +1823,7 @@
             });
         }
 
-        function getExcludedClubs() {
-            const input = document.getElementById('exclusionsInput').value;
-            if (!input.trim()) return [];
-            return input.split(',').map(c => c.trim().toLowerCase()).filter(c => c.length > 0).slice(0, 5);
-        }
-
+        
         function loadCart() {
             const saved = localStorage.getItem('cart');
             if (saved) cart = JSON.parse(saved);
@@ -1822,33 +1840,52 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
-
-        function addToCart() {
-            const excludedList = getExcludedClubs();
-            let exclusionsText = excludedList.length ? ` (без клубов: ${excludedList.join(', ')})` : ' (без исключений)';
-            const product = {
-                id: Date.now(),
-                name: 'АРТУРЧИК box',
-                size: selectedSize,
-                exclusions: excludedList,
-                price: 3490,
-                quantity: 1
-            };
-            const existing = cart.find(item =>
-                item.name === product.name &&
-                item.size === product.size &&
-                JSON.stringify(item.exclusions) === JSON.stringify(product.exclusions)
-            );
-            if (existing) existing.quantity++;
-            else cart.push(product);
-            saveCart();
-            updateUI();
-            showToast(`✓ Размер ${selectedSize} добавлен${exclusionsText}`);
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Добавлено!';
-            setTimeout(() => btn.textContent = originalText, 1000);
-        }
+                function addToCart() {
+    // Проверка выбора размера
+    if (!selectedSize) {
+        showToast('❌ Выберите размер!');
+        return;
+    }
+    
+    // Получаем данные о выборе клубов
+    const clubData = getClubsData();
+    if (!clubData) return;
+    
+    const product = {
+        id: Date.now(),
+        name: 'АРТУРЧИК box',
+        size: selectedSize,
+        clubOption: clubData.type,
+        clubData: clubData,
+        price: 3490,
+        quantity: 1
+    };
+    
+    // Проверка на дубликат
+    const existing = cart.find(item =>
+        item.name === product.name &&
+        item.size === product.size &&
+        JSON.stringify(item.clubData) === JSON.stringify(product.clubData)
+    );
+    
+    if (existing) {
+        existing.quantity++;
+        showToast(`✅ Ещё один ${selectedSize} размер добавлен!`);
+    } else {
+        cart.push(product);
+        showToast(`✅ Размер ${selectedSize} добавлен! ${clubData.description}`);
+    }
+    
+    saveCart();
+    updateUI();
+    
+    // Анимация кнопки
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Добавлено!';
+    setTimeout(() => btn.textContent = originalText, 1000);
+}
+        
 
         function changeQuantity(id, delta) {
             const item = cart.find(i => i.id === id);
@@ -1878,11 +1915,9 @@
             return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         }
 
-        function formatExclusions(exclusions) {
-            return (!exclusions || exclusions.length === 0) ? 'без исключений' : 'исключены: ' + exclusions.join(', ');
-        }
+        
 
-        function updateUI() {
+                function updateUI() {
             const count = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = count;
             const cartCountModal = document.getElementById('cartCountModal');
@@ -1899,12 +1934,21 @@
             if (cart.length === 0) {
                 cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
             } else {
-                            cartItems.innerHTML = cart.map(item => `
+                cartItems.innerHTML = cart.map(item => {
+                    // Формируем описание клубов
+                    let clubText = '';
+                    if (item.clubOption === 'exclude') {
+                        clubText = `🚫 Исключены: ${item.clubData.clubs.join(', ')}`;
+                    } else {
+                        clubText = `❤️ Клуб: ${item.clubData.club} (джерси-сюрприз)`;
+                    }
+                    
+                    return `
                     <div class="cart-item">
                         <div class="item-info">
                             <div class="item-name">${item.name}</div>
                             <div class="item-size">📏 Размер: ${item.size}</div>
-                            <div class="item-exclude">🚫 ${formatExclusions(item.exclusions)}</div>
+                            <div class="item-exclude">${clubText}</div>
                             <div class="item-price">${item.price} ₽</div>
                         </div>
                         <div class="item-actions">
@@ -1914,61 +1958,11 @@
                             <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
             
             document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
-        }
-
-                    function openPaymentModal() {
-    if (cart.length === 0) {
-        showToast('Корзина пуста! Добавьте товар');
-        return;
-    }
-    
-    const customerData = {
-        fullName: document.getElementById('fullName')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        address: document.getElementById('address')?.value || '',
-        city: document.getElementById('city')?.value || '',
-        phone: document.getElementById('phone')?.value || '',
-        extraAddress: document.getElementById('extraAddress')?.value || '',
-        notes: document.getElementById('notes')?.value || ''
-    };
-    
-    if (!customerData.fullName || !customerData.email || !customerData.address || !customerData.city || !customerData.phone) {
-        showToast('Пожалуйста, заполните все обязательные поля!');
-        return;
-    }
-    
-    const total = getTotalPrice();
-    
-    showToast('Перенаправление на оплату...');
-    
-    fetch('https://api.arturchikbox.store/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: total,
-            items: cart,
-            customer: customerData,
-            user_id: localStorage.getItem('user_id')
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.payment_url) {
-            window.location.href = data.payment_url;
-        } else {
-            showToast('Ошибка: ' + (data.error || 'Не удалось создать платёж'));
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        showToast('Ошибка подключения к серверу: ' + error.message);
-    });
-}
-        
+        }  
         
         
         function completePayment() {
@@ -2655,6 +2649,65 @@ openPaymentModal = function() {
         showToast('Ошибка подключения к серверу: ' + error.message);
     });
 };
+        // =============================================
+// ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ВАРИАНТАМИ
+// =============================================
+function toggleClubOption() {
+    const option = document.querySelector('input[name="clubOption"]:checked');
+    const hint = document.getElementById('clubsHint');
+    const input = document.getElementById('clubsInput');
+    const example = document.getElementById('exampleText');
+    
+    if (option.value === 'exclude') {
+        hint.innerHTML = '🚫 Введите до 5 клубов, которые вы <strong>НЕ хотите</strong> видеть в боксе. Выпадет <strong>ЛЮБОЙ другой</strong> клуб (сюрприз!)';
+        input.placeholder = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
+        example.textContent = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
+        document.querySelector('label:has(input[value="exclude"])').style.border = '2px solid #2d8c4e';
+        document.querySelector('label:has(input[value="choose"])').style.border = '2px solid transparent';
+    } else {
+        hint.innerHTML = '❤️ Введите <strong>1 ваш любимый клуб</strong>. Вы получите джерси этого клуба, но какая именно (ретро, новая, старая) — <strong>сюрприз!</strong>';
+        input.placeholder = 'Например: Реал Мадрид';
+        example.textContent = 'Например: Реал Мадрид';
+        document.querySelector('label:has(input[value="choose"])').style.border = '2px solid #2d8c4e';
+        document.querySelector('label:has(input[value="exclude"])').style.border = '2px solid transparent';
+    }
+}
+
+// =============================================
+// ПОЛУЧЕНИЕ ДАННЫХ О ВЫБОРЕ КЛУБОВ
+// =============================================
+function getClubsData() {
+    const input = document.getElementById('clubsInput').value;
+    if (!input.trim()) {
+        showToast('❌ Введите клубы!');
+        return null;
+    }
+    
+    const option = document.querySelector('input[name="clubOption"]:checked');
+    const clubs = input.split(',').map(c => c.trim()).filter(c => c.length > 0);
+    
+    if (option.value === 'exclude') {
+        if (clubs.length > 5) {
+            showToast('❌ Можно ввести максимум 5 клубов для исключения!');
+            return null;
+        }
+        return {
+            type: 'exclude',
+            clubs: clubs,
+            description: `Исключены: ${clubs.join(', ')} → выпадет ЛЮБОЙ другой клуб`
+        };
+    } else {
+        if (clubs.length > 1) {
+            showToast('❌ Для этого варианта выберите только 1 клуб!');
+            return null;
+        }
+        return {
+            type: 'choose',
+            club: clubs[0],
+            description: `Клуб: ${clubs[0]} → джерси-сюрприз (ретро/новая/старая)`
+        };
+    }
+}
     
 
     </script>
