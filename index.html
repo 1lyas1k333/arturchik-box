@@ -1443,39 +1443,46 @@
     </div>
     
     <div class="customer-form" id="customerForm" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-        <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
-            <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
-            <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
-            <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
-            <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес пункта выдачи СДЭК *</label>
-            <input type="text" id="address" placeholder="Улица, дом, корпус/строение" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
-            <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Например: ул. Летниковская, д. 2, стр. 4</div>
-        </div>
-        
-        <div class="form-group">
-            <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
-            <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
-        </div>
+    <h3 style="color: #2d8c4e; margin-bottom: 15px; font-size: 18px;">📋 Оформление заказа</h3>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">ФИО *</label>
+        <input type="text" id="fullName" placeholder="Иванов Иван Иванович" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
     </div>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Email *</label>
+        <input type="email" id="email" placeholder="ivan@example.com" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+    </div>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Номер телефона *</label>
+        <input type="tel" id="phone" placeholder="+7 123 456-78-90" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+    </div>
+    
+    <!-- ===== НОВОЕ ПОЛЕ: TELEGRAM @NICKNAME ===== -->
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Telegram @nickname *</label>
+        <input type="text" id="telegramNick" placeholder="@ARTURCHIK_box" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Укажите ваш Telegram для связи</div>
+    </div>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Город *</label>
+        <input type="text" id="city" placeholder="Москва" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+    </div>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Адрес пункта выдачи СДЭК *</label>
+        <input type="text" id="address" placeholder="Улица, дом, корпус/строение" class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;">
+        <div style="font-size: 11px; color: #aaa; margin-top: -10px; margin-bottom: 10px;">Например: ул. Летниковская, д. 2, стр. 4</div>
+    </div>
+    
+    <div class="form-group">
+        <label style="color: #fff; display: block; margin-bottom: 5px;">Примечание к заказу (необязательно)</label>
+        <textarea id="notes" rows="3" placeholder="Дополнительные пожелания..." class="form-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #2d8c4e; background: rgba(0,0,0,0.5); color: white; margin-bottom: 15px;"></textarea>
+    </div>
+</div>
     
     <!-- ===== ЧЕКБОКС СОГЛАСИЯ В КОРЗИНЕ ===== -->
     <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border-left: 3px solid #2d8c4e;">
@@ -2738,10 +2745,12 @@ openPaymentModal = function() {
     const fullName = document.getElementById('fullName')?.value || '';
     const email = document.getElementById('email')?.value || '';
     const phone = document.getElementById('phone')?.value || '';
+    const telegramNick = document.getElementById('telegramNick')?.value || '';  // 👈 ДОБАВИЛИ
     const city = document.getElementById('city')?.value || '';
     const address = document.getElementById('address')?.value || '';
+    const notes = document.getElementById('notes')?.value || '';
     
-    if (!fullName || !email || !phone || !city || !address) {
+    if (!fullName || !email || !phone || !city || !address || !telegramNick) {
         showToast('Пожалуйста, заполните все обязательные поля!');
         return;
     }
@@ -2883,13 +2892,14 @@ function confirmManualPayment() {
     
     // Собираем данные заказа
     const customerData = {
-        fullName: document.getElementById('fullName')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        phone: document.getElementById('phone')?.value || '',
-        city: document.getElementById('city')?.value || '',
-        address: document.getElementById('address')?.value || '',
-        notes: document.getElementById('notes')?.value || ''
-    };
+    fullName: document.getElementById('fullName')?.value || '',
+    email: document.getElementById('email')?.value || '',
+    phone: document.getElementById('phone')?.value || '',
+    telegramNick: document.getElementById('telegramNick')?.value || '',  // 👈 ДОБАВИТЬ
+    city: document.getElementById('city')?.value || '',
+    address: document.getElementById('address')?.value || '',
+    notes: document.getElementById('notes')?.value || ''
+};
     
     const total = getTotalPrice();
     
