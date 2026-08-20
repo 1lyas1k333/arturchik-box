@@ -558,17 +558,18 @@ ADMIN_HTML = '''
         
         <table>
             <thead>
-                <tr>
-                    <th>№ заказа</th>
-                    <th>Покупатель</th>
-                    <th>Email/Телефон</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Трек-номер</th>
-                    <th>Дата</th>
-                    <th></th>
-                </tr>
-            </thead>
+    <tr>
+        <th>№ заказа</th>
+        <th>Покупатель</th>
+        <th>Email/Телефон</th>
+        <th>Telegram</th>
+        <th>Сумма</th>
+        <th>Статус</th>
+        <th>Трек-номер</th>
+        <th>Дата</th>
+        <th></th>
+    </tr>
+</thead>
             <tbody id="ordersBody">
                 <tr><td colspan="8">Загрузка...</td></tr>
             </tbody>
@@ -631,35 +632,36 @@ ADMIN_HTML = '''
                 return; 
             }
             tbody.innerHTML = ordersData.map(order => `
-                <tr>
-                    <td>${order.order_id}</td>
-                    <td>${order.customer_name || '—'}</td>
-                    <td>${order.customer_email || '—'}<br><small>${order.customer_phone || ''}</small></td>
-                    <td>${order.total_amount} ₽</td>
-                    <td>
-                        <select onchange="updateStatus('${order.order_id}', this.value)">
-                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
-                            <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
-                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
-                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🎉 Завершён</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" id="track_${order.order_id}" 
-                               value="${order.tracking_number || ''}" 
-                               placeholder="Введите трек-номер"
-                               onchange="updateTracking('${order.order_id}', this.value)"
-                               style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px; border-radius: 8px; width: 150px;">
-                    </td>
-                    <td>${new Date(order.created_at).toLocaleString()}</td>
-                    <td>
-                        <button onclick="showOrderDetails('${order.order_id}')" 
-                                style="background: #2d8c4e; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">
-                            📋 Подробнее
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+    <tr>
+        <td>${order.order_id}</td>
+        <td>${order.customer_name || '—'}</td>
+        <td>${order.customer_email || '—'}<br><small>${order.customer_phone || ''}</small></td>
+        <td>${order.customer_telegram ? '@' + order.customer_telegram : '—'}</td>
+        <td>${order.total_amount} ₽</td>
+        <td>
+            <select onchange="updateStatus('${order.order_id}', this.value)">
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option>
+                <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
+                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
+                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>🎉 Завершён</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" id="track_${order.order_id}" 
+                   value="${order.tracking_number || ''}" 
+                   placeholder="Введите трек-номер"
+                   onchange="updateTracking('${order.order_id}', this.value)"
+                   style="background: #1a2a1a; color: white; border: 1px solid #2d8c4e; padding: 5px; border-radius: 8px; width: 150px;">
+        </td>
+        <td>${new Date(order.created_at).toLocaleString()}</td>
+        <td>
+            <button onclick="showOrderDetails('${order.order_id}')" 
+                    style="background: #2d8c4e; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">
+                📋 Подробнее
+            </button>
+        </td>
+    </tr>
+`).join('');
         }
         
         function updateStats() {
@@ -740,14 +742,15 @@ ADMIN_HTML = '''
                     <button onclick="closeOrderDetailModal()" style="background: #ff4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: white;">✕</button>
                 </div>
                 <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">👤 Покупатель:</strong> <span style="color: white;">${order.customer_name || '—'}</span></div>
-                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📧 Email:</strong> <span style="color: white;">${order.customer_email || '—'}</span></div>
-                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📞 Телефон:</strong> <span style="color: white;">${order.customer_phone || '—'}</span></div>
-                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📍 Адрес:</strong> <span style="color: white;">${order.customer_city || '—'}, ${order.customer_address || '—'}</span></div>
-                <div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📋 Состав заказа:</strong></div>
-                <div>${itemsHtml}</div>
-                <div style="margin-top: 10px;"><strong style="color: #2d8c4e;">💰 Сумма:</strong> <span style="color: white;">${order.total_amount} ₽</span></div>
-                <div><strong style="color: #2d8c4e;">📌 Статус:</strong> <span style="color: white;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : order.status === 'paid' ? '✅ Оплачен' : order.status === 'shipped' ? '📦 Отправлен' : '🎉 Завершён'}</span></div>
-                <div><strong style="color: #2d8c4e;">📅 Дата:</strong> <span style="color: white;">${new Date(order.created_at).toLocaleString()}</span></div>
+<div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📧 Email:</strong> <span style="color: white;">${order.customer_email || '—'}</span></div>
+<div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📞 Телефон:</strong> <span style="color: white;">${order.customer_phone || '—'}</span></div>
+<div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📱 Telegram:</strong> <span style="color: white;">${order.customer_telegram ? '@' + order.customer_telegram : '—'}</span></div>
+<div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📍 Адрес:</strong> <span style="color: white;">${order.customer_city || '—'}, ${order.customer_address || '—'}</span></div>
+<div style="margin-bottom: 10px;"><strong style="color: #2d8c4e;">📋 Состав заказа:</strong></div>
+<div>${itemsHtml}</div>
+<div style="margin-top: 10px;"><strong style="color: #2d8c4e;">💰 Сумма:</strong> <span style="color: white;">${order.total_amount} ₽</span></div>
+<div><strong style="color: #2d8c4e;">📌 Статус:</strong> <span style="color: white;">${order.status === 'pending' ? '⏳ Ожидает оплаты' : order.status === 'paid' ? '✅ Оплачен' : order.status === 'shipped' ? '📦 Отправлен' : '🎉 Завершён'}</span></div>
+<div><strong style="color: #2d8c4e;">📅 Дата:</strong> <span style="color: white;">${new Date(order.created_at).toLocaleString()}</span></div>
                 ${order.customer_notes ? `<div><strong style="color: #2d8c4e;">📝 Примечание:</strong> <span style="color: white;">${order.customer_notes}</span></div>` : ''}
             </div>
             <div id="orderDetailOverlay" onclick="closeOrderDetailModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002;"></div>
