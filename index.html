@@ -1335,19 +1335,27 @@
     <p><a href="https://t.me/ARTURCHIK_box" target="_blank" style="background: #2d8c4e; color: white; padding: 8px 20px; border-radius: 40px; text-decoration: none; display: inline-block;">📩 @ARTURCHIK_box</a></p>
     <p style="color: #aaa; font-size: 11px; margin-top: 8px;">Отвечаем в рабочее время</p>
 </div>
-        <!-- ===== ВЫБОР КЛУБОВ ===== -->
+       <!-- ===== ВЫБОР ДЖЕРСИ ===== -->
 <div class="exclusions-section">
-    <label style="color: #2d8c4e; font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px;">⚽ Как выбрать клуб для бокса?</label>
+    <label style="color: #2d8c4e; font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px;">⚽ Как выбрать джерси для бокса?</label>
     
-    <!-- Переключатель -->
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-        <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; flex: 1; border: 2px solid #2d8c4e;">
-            <input type="radio" name="clubOption" value="exclude" checked onchange="toggleClubOption()">
-            <span>🚫 Исключить клубы (до 5)</span>
+    <!-- Переключатель (4 кнопки) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+        <label style="display: flex; align-items: center; gap: 6px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 2px solid #2d8c4e; font-size: 13px;">
+            <input type="radio" name="clubOption" value="exclude_club" checked onchange="toggleClubOption()">
+            <span>🚫 Исключить до 5 клубов</span>
         </label>
-        <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; flex: 1; border: 2px solid transparent;">
-            <input type="radio" name="clubOption" value="choose" onchange="toggleClubOption()">
+        <label style="display: flex; align-items: center; gap: 6px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 2px solid transparent; font-size: 13px;">
+            <input type="radio" name="clubOption" value="choose_club" onchange="toggleClubOption()">
             <span>❤️ 1 любимый клуб (джерси-сюрприз)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 2px solid transparent; font-size: 13px;">
+            <input type="radio" name="clubOption" value="exclude_country" onchange="toggleClubOption()">
+            <span>🚫 Исключить до 5 сборных</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; color: white; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 2px solid transparent; font-size: 13px;">
+            <input type="radio" name="clubOption" value="choose_country" onchange="toggleClubOption()">
+            <span>❤️ 1 любимая сборная (джерси-сюрприз)</span>
         </label>
     </div>
     
@@ -1363,7 +1371,6 @@
         💡 <span id="exampleText">Например: Зенит, Спартак, Челси, Бавария, ПСЖ</span>
     </div>
 </div>
-
             <div class="size-selector">
             <label>📏 Выберите размер футболки:</label>
             <div class="size-buttons">
@@ -1918,52 +1925,60 @@
         
 
                 function updateUI() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cartCount').textContent = count;
-            const cartCountModal = document.getElementById('cartCountModal');
-            if (cartCountModal) cartCountModal.textContent = count;
-            
-            const cartItems = document.getElementById('cartItems');
-            const total = getTotalPrice();
-            
-            const customerForm = document.getElementById('customerForm');
-            if (customerForm) {
-                customerForm.style.display = cart.length > 0 ? 'block' : 'none';
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cartCount').textContent = count;
+    const cartCountModal = document.getElementById('cartCountModal');
+    if (cartCountModal) cartCountModal.textContent = count;
+    
+    const cartItems = document.getElementById('cartItems');
+    const total = getTotalPrice();
+    
+    const customerForm = document.getElementById('customerForm');
+    if (customerForm) {
+        customerForm.style.display = cart.length > 0 ? 'block' : 'none';
+    }
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
+    } else {
+        cartItems.innerHTML = cart.map(item => {
+            // Формируем описание (4 варианта)
+            let clubText = '';
+            switch(item.clubOption) {
+                case 'exclude_club':
+                    clubText = `🚫 Исключены клубы: ${item.clubData.clubs.join(', ')}`;
+                    break;
+                case 'choose_club':
+                    clubText = `❤️ Клуб: ${item.clubData.club} (джерси-сюрприз)`;
+                    break;
+                case 'exclude_country':
+                    clubText = `🚫 Исключены сборные: ${item.clubData.clubs.join(', ')}`;
+                    break;
+                case 'choose_country':
+                    clubText = `❤️ Сборная: ${item.clubData.club} (джерси-сюрприз)`;
+                    break;
             }
             
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p style="text-align: center; color: #999;">Корзина пуста</p>';
-            } else {
-                cartItems.innerHTML = cart.map(item => {
-                    // Формируем описание клубов
-                    let clubText = '';
-                    if (item.clubOption === 'exclude') {
-                        clubText = `🚫 Исключены: ${item.clubData.clubs.join(', ')}`;
-                    } else {
-                        clubText = `❤️ Клуб: ${item.clubData.club} (джерси-сюрприз)`;
-                    }
-                    
-                    return `
-                    <div class="cart-item">
-                        <div class="item-info">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-size">📏 Размер: ${item.size}</div>
-                            <div class="item-exclude">${clubText}</div>
-                            <div class="item-price">${item.price} ₽</div>
-                        </div>
-                        <div class="item-actions">
-                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
-                            <span style="color: white; font-weight: bold; min-width: 30px; text-align: center;">${item.quantity}</span>
-                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
-                            <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
-                        </div>
-                    </div>
-                `}).join('');
-            }
-            
-            document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
-        }  
-        
+            return `
+            <div class="cart-item">
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-size">📏 Размер: ${item.size}</div>
+                    <div class="item-exclude">${clubText}</div>
+                    <div class="item-price">${item.price} ₽</div>
+                </div>
+                <div class="item-actions">
+                    <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                    <span style="color: white; font-weight: bold; min-width: 30px; text-align: center;">${item.quantity}</span>
+                    <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                    <button class="remove-item" onclick="removeItem(${item.id})">✕</button>
+                </div>
+            </div>
+        `}).join('');
+    }
+    
+    document.getElementById('cartTotal').textContent = `Итого: ${total} ₽`;
+}
         
         function completePayment() {
             document.getElementById('paymentModal').classList.remove('open');
@@ -2658,54 +2673,105 @@ function toggleClubOption() {
     const input = document.getElementById('clubsInput');
     const example = document.getElementById('exampleText');
     
-    if (option.value === 'exclude') {
-        hint.innerHTML = '🚫 Введите до 5 клубов, которые вы <strong>НЕ хотите</strong> видеть в боксе. Выпадет <strong>ЛЮБОЙ другой</strong> клуб (сюрприз!)';
-        input.placeholder = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
-        example.textContent = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
-        document.querySelector('label:has(input[value="exclude"])').style.border = '2px solid #2d8c4e';
-        document.querySelector('label:has(input[value="choose"])').style.border = '2px solid transparent';
-    } else {
-        hint.innerHTML = '❤️ Введите <strong>1 ваш любимый клуб</strong>. Вы получите джерси этого клуба, но какая именно (ретро, новая, старая) — <strong>сюрприз!</strong>';
-        input.placeholder = 'Например: Реал Мадрид';
-        example.textContent = 'Например: Реал Мадрид';
-        document.querySelector('label:has(input[value="choose"])').style.border = '2px solid #2d8c4e';
-        document.querySelector('label:has(input[value="exclude"])').style.border = '2px solid transparent';
+    // Сбрасываем стили у всех кнопок
+    document.querySelectorAll('.exclusions-section label[style*="border"]').forEach(el => {
+        el.style.border = '2px solid transparent';
+    });
+    
+    // Подсвечиваем выбранную кнопку
+    const selectedLabel = document.querySelector(`label:has(input[value="${option.value}"])`);
+    if (selectedLabel) {
+        selectedLabel.style.border = '2px solid #2d8c4e';
+    }
+    
+    switch(option.value) {
+        case 'exclude_club':
+            hint.innerHTML = '🚫 Введите до 5 <strong>клубов</strong>, которые вы <strong>НЕ хотите</strong> видеть в боксе. Выпадет <strong>ЛЮБОЙ другой</strong> клуб (сюрприз!)';
+            input.placeholder = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
+            example.textContent = 'Например: Зенит, Спартак, Челси, Бавария, ПСЖ';
+            break;
+            
+        case 'choose_club':
+            hint.innerHTML = '❤️ Введите <strong>1 ваш любимый клуб</strong>. Вы получите джерси этого клуба, но какая именно (ретро, новая, старая) — <strong>сюрприз!</strong>';
+            input.placeholder = 'Например: Реал Мадрид';
+            example.textContent = 'Например: Реал Мадрид';
+            break;
+            
+        case 'exclude_country':
+            hint.innerHTML = '🚫 Введите до 5 <strong>сборных</strong>, которые вы <strong>НЕ хотите</strong> видеть в боксе. Выпадет <strong>ЛЮБАЯ другая</strong> сборная (сюрприз!)';
+            input.placeholder = 'Например: Россия, Бразилия, Аргентина, Франция, Испания';
+            example.textContent = 'Например: Россия, Бразилия, Аргентина, Франция, Испания';
+            break;
+            
+        case 'choose_country':
+            hint.innerHTML = '❤️ Введите <strong>1 вашу любимую сборную</strong>. Вы получите джерси этой сборной, но какая именно (ретро, новая, старая) — <strong>сюрприз!</strong>';
+            input.placeholder = 'Например: Бразилия';
+            example.textContent = 'Например: Бразилия';
+            break;
     }
 }
 
 // =============================================
-// ПОЛУЧЕНИЕ ДАННЫХ О ВЫБОРЕ КЛУБОВ
+// ПОЛУЧЕНИЕ ДАННЫХ О ВЫБОРЕ (4 варианта)
 // =============================================
 function getClubsData() {
     const input = document.getElementById('clubsInput').value;
     if (!input.trim()) {
-        showToast('❌ Введите клубы!');
+        showToast('❌ Введите клубы или сборные!');
         return null;
     }
     
     const option = document.querySelector('input[name="clubOption"]:checked');
     const clubs = input.split(',').map(c => c.trim()).filter(c => c.length > 0);
     
-    if (option.value === 'exclude') {
-        if (clubs.length > 5) {
-            showToast('❌ Можно ввести максимум 5 клубов для исключения!');
-            return null;
-        }
-        return {
-            type: 'exclude',
-            clubs: clubs,
-            description: `Исключены: ${clubs.join(', ')} → выпадет ЛЮБОЙ другой клуб`
-        };
-    } else {
-        if (clubs.length > 1) {
-            showToast('❌ Для этого варианта выберите только 1 клуб!');
-            return null;
-        }
-        return {
-            type: 'choose',
-            club: clubs[0],
-            description: `Клуб: ${clubs[0]} → джерси-сюрприз (ретро/новая/старая)`
-        };
+    switch(option.value) {
+        case 'exclude_club':
+            if (clubs.length > 5) {
+                showToast('❌ Можно ввести максимум 5 клубов для исключения!');
+                return null;
+            }
+            return {
+                type: 'exclude_club',
+                clubs: clubs,
+                label: 'клубов',
+                description: `Исключены клубы: ${clubs.join(', ')} → выпадет ЛЮБОЙ другой клуб`
+            };
+            
+        case 'choose_club':
+            if (clubs.length > 1) {
+                showToast('❌ Для этого варианта выберите только 1 клуб!');
+                return null;
+            }
+            return {
+                type: 'choose_club',
+                club: clubs[0],
+                label: 'клуб',
+                description: `Клуб: ${clubs[0]} → джерси-сюрприз (ретро/новая/старая)`
+            };
+            
+        case 'exclude_country':
+            if (clubs.length > 5) {
+                showToast('❌ Можно ввести максимум 5 сборных для исключения!');
+                return null;
+            }
+            return {
+                type: 'exclude_country',
+                clubs: clubs,
+                label: 'сборных',
+                description: `Исключены сборные: ${clubs.join(', ')} → выпадет ЛЮБАЯ другая сборная`
+            };
+            
+        case 'choose_country':
+            if (clubs.length > 1) {
+                showToast('❌ Для этого варианта выберите только 1 сборную!');
+                return null;
+            }
+            return {
+                type: 'choose_country',
+                club: clubs[0],
+                label: 'сборная',
+                description: `Сборная: ${clubs[0]} → джерси-сюрприз (ретро/новая/старая)`
+            };
     }
 }
     
